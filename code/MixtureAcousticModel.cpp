@@ -306,6 +306,6 @@ int main(){
   std::mt19937 e2(rd());
   std::uniform_real_distribution<> dist(0, 10);
 
-  MixtureAcousticModel amodel("../models/monophone_model_I32");
-  amodel.write_model("../models/mixture.example");
+  MixtureAcousticModel amodel("../models/mixture_monophoneme_I32.example.model");
+  amodel.write_model("../models/mixture_monophoneme_I32.example.again.model");
 }

@@ -15,13 +15,13 @@ void DGaussianAcousticModel::read_model(const string &filename){
   const char del = ' ';
 
   if(fileI.is_open()){
-    cout << "Reading..";
+
     getline(fileI, line); //AMODEL
     getline(fileI, line); //DGaussian
     getline(fileI, line, del); //D <dim>
     getline(fileI, line); //D <dim>
     stringstream(line) >> dim;
-    cout << "Dimension: " << dim << endl;
+
     
     getline(fileI, line, del); //SMOOTH
     getline(fileI, line); //Value
@@ -31,8 +31,6 @@ void DGaussianAcousticModel::read_model(const string &filename){
     getline(fileI, line, del); //N
     getline(fileI, line);
     stringstream(line) >> n_states;
-    
-    cout << "Total states: " << n_states << endl;
 
     string name;
     int n_q;
@@ -47,33 +45,18 @@ void DGaussianAcousticModel::read_model(const string &filename){
       line.erase(0,1);
       line.erase(line.size()-1,line.size());
       stringstream(line) >> name;
-      cout << "State: " << name << endl;
       states.push_back(name);
       
       //Q
       getline(fileI, line,del);
       getline(fileI, line);
       stringstream(line) >> n_q;
-      cout << "Q: " << n_q << endl;
 
       state_to_num_q[name] = n_q;
 
-      if(n_q == 1){
-	getline(fileI, line,del); //Trans
-	getline(fileI, line); //actual value
-	stringstream(line) >> temp_trans;
-	trans.push_back(temp_trans);
-      }else{
-	getline(fileI, line); //Trans
-	
-	for(int transIter = 0; transIter < n_q; transIter++){
-	  getline(fileI,line);
-	  stringstream(line) >> temp_trans;
-	  trans.push_back(temp_trans);
-	}
-      }
-
-      print_vector(trans);
+      getline(fileI, line); //Trans
+      getline(fileI,line);
+      trans = parse_line(line);
 
       state_to_trans[name] = trans;
 
@@ -95,8 +78,6 @@ void DGaussianAcousticModel::read_model(const string &filename){
 	
 	mu = parse_line(line);
 
-	print_vector(mu);
-
 	getline(fileI, line,del); //VAR
 	getline(fileI, line); //values
 	
@@ -111,11 +92,6 @@ void DGaussianAcousticModel::read_model(const string &filename){
 
 	logc = -0.5 * logc;
 
-	cout << endl;
-	print_vector(var);
-	cout << endl;
-	print_vector(ivar);
-	
 	states_mu.push_back(mu);
 	states_var.push_back(var);
 	states_ivar.push_back(ivar);
@@ -159,14 +135,12 @@ void DGaussianAcousticModel::write_model(const string &filename){
       fileO << "'" << name << "'" << endl;
       fileO << "Q " << n_q << endl;
 
-      if(n_q == 1){
-	fileO << "Trans ";
-      }else{
-	fileO << "Trans\n";
-      }
+      fileO << "Trans\n";
     
       for(auto &value: state_to_trans[name])
-	fileO << value << "\n";
+	fileO << value << " ";
+
+      fileO << endl;
 
       vector <vector<float>> mus = state_to_mus[name];
       vector <vector<float>> vars = state_to_vars[name];
@@ -217,12 +191,6 @@ float DGaussianAcousticModel::calc_prob(const string &state, const int &q, const
   vector<float> ivar = state_to_ivars[state][q];
   float logc = state_to_logc[state][q];
 
-  cout << endl;
-  print_vector(mu);
-  cout << endl;
-  print_vector(ivar);
-  cout << endl;
-
   float prob = 0.0;
   float aux = 0.0;
   
@@ -240,19 +208,14 @@ int main(){
   std::mt19937 e2(rd());
   std::uniform_real_distribution<> dist(0, 10);
 
-  DGaussianAcousticModel amodel("../models/model_0");
-  amodel.write_model("../models/new_model_librispeech");
+  DGaussianAcousticModel amodel("../models/dgaussian_monopohoneme_I01.example.model");
+  amodel.write_model("../models/dgaussian_monopohoneme_I01.example.again.model");
 
-  cout << endl;
-  cout << dist(e2) << endl;
   vector<float> frame;
 
   for(auto i = 0; i < amodel.getDim(); i++){
     frame.push_back(dist(e2) / 10.0);
   }
-
-  cout << endl;
-  print_vector(frame);
 
   float prob = amodel.calc_prob("aa",0,frame);
 

@@ -279,6 +279,6 @@ TiedStatesAcousticModel::~TiedStatesAcousticModel(){
 }
 
 int main(){
-  TiedStatesAcousticModel amodel("../models/LIBRISPEECH.tiedphoneme_I04.model.txt");
-  amodel.write_model("../models/tied.new.model");
+  TiedStatesAcousticModel amodel("../models/tiedphoneme_I04.example.model");
+  amodel.write_model("../models/tiedphoneme_I04.example.again.model");
 }
