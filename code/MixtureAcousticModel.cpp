@@ -296,8 +296,78 @@ unsigned int MixtureAcousticModel::getNStates(){
 }
 
 
+
 float MixtureAcousticModel::calc_prob(const string &state, const int &q, const vector<float> &frame){
-  cout << "TODO" << endl;
+
+  int n_q = state_to_num_q[state];
+
+  cout << "State: " << state << ", n_q: " << n_q << endl;
+
+  if(q > n_q)
+    return -1.0;
+
+  DGaussianState dgstate = symbol_to_states[state][q];
+
+  int components = dgstate.getComponents();
+
+  cout << "Components: " << components << endl;
+
+  vector<float> pmembers = dgstate.getPMembers();
+  vector<float> mu, ivar,logcs;
+
+  vector<float> pprob;
+
+  logcs = dgstate.getLogcs();
+
+  float prob = 0.0, aux = 0.0;
+
+  float logc;
+
+  float max = -HUGE_VAL;
+
+  for(auto i = 0; i < components; i++){
+    
+    mu = dgstate.getMuByComponent(i);
+    ivar = dgstate.getIVarByComponent(i);
+    logc = logcs[i];
+    cout << "MU ";
+    print_vector(mu);
+    cout << "IVAR ";
+    print_vector(ivar);
+    cout << "LOGC " << logc << endl;
+
+    prob = 0.0;
+    aux = 0.0;
+    for(auto i = 0; i< frame.size(); i++){
+      aux = frame[i] - mu[i];
+      prob += (aux*aux) * ivar[i];
+    }
+    prob = -0.5 * prob + logc;
+
+    cout << "res: " << prob << endl;
+
+    cout << "member: " << pmembers[i] << endl;
+    
+    aux = pmembers[i] + prob;
+    if(aux > max)
+      max = aux;
+    
+    pprob.push_back(aux);
+    
+  }
+
+  cout << "Res" << endl;
+ 
+  print_vector(pprob);
+
+  if(max != -HUGE_VAL){
+    float r_add = robust_add(pprob, max, components);
+    cout << "Robust_add: " << r_add << endl;
+    return r_add;
+  }else{
+    return -HUGE_VAL;
+  }
+
 }
 
 int main(){
@@ -308,4 +378,10 @@ int main(){
 
   MixtureAcousticModel amodel("../models/mixture_monophoneme_I32.example.model");
   amodel.write_model("../models/mixture_monophoneme_I32.example.again.model");
+
+  vector<float> frame = {-0.392699,-2.06331,0.0109949,0.0630278,0.713447,-0.557419,1.46355,0.809983,0.990555,0.682074,-1.62765,0.60225,0.493882,1.55829,-0.59736,-1.34481,-0.0268113,-0.0561324,0.536304,1.16865,0.753556,-0.813899,-0.370601,-0.346987,-1.12761,0.0755082,-1.127,-1.23163,0.717646,-0.20932,0.515273,0.0881923,0.00711961,0.294303,-0.00440401,-0.600391,-0.627719,0.292688,0.360419,-0.443323,-0.189734,0.420539,0.881978,0.19503,-0.93659,-0.414377,0.544633,0.00430982};
+
+  amodel.calc_prob("a",0,frame);
+
+  
 }

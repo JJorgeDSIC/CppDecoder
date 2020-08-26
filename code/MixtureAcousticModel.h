@@ -8,7 +8,7 @@
 #include <random>
 #include <cmath>
 
-const int LOG2PI = 1.83787706641;
+const float LOG2PI = 1.83787706641;
 
 using namespace std;
 
@@ -45,8 +45,11 @@ public:
   void setComponents(const size_t comps){ components = comps;}
   size_t getComponents() { return components; }
   vector<vector<float>>& getMus() { return mus;}
+  vector<float>& getMuByComponent(const size_t &component) { return mus[component];}
+  vector<float>& getIVarByComponent(const size_t &component) { return ivars[component];}
   vector<vector<float>>& getVars() { return vars;}
   vector<float>& getPMembers() { return pmembers;}
+  vector<float>& getLogcs(){ return logc;}
   
 };
 
