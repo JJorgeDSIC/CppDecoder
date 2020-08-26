@@ -1,5 +1,5 @@
-#include "DGaussianAcousticModel.hpp"
-#include "Utils.hpp"
+#include "DGaussianAcousticModel.h"
+#include "Utils.h"
 
 DGaussianAcousticModel::DGaussianAcousticModel(){
   cout << "Constructor" << endl;
@@ -21,7 +21,6 @@ void DGaussianAcousticModel::read_model(const string &filename){
     getline(fileI, line, del); //D <dim>
     getline(fileI, line); //D <dim>
     stringstream(line) >> dim;
-
     
     getline(fileI, line, del); //SMOOTH
     getline(fileI, line); //Value
@@ -89,7 +88,6 @@ void DGaussianAcousticModel::read_model(const string &filename){
 	}
 
 	logc+= dim * LOG2PI;
-
 	logc = -0.5 * logc;
 
 	states_mu.push_back(mu);
@@ -196,9 +194,8 @@ float DGaussianAcousticModel::calc_prob(const string &state, const int &q, const
   
   for(auto i = 0; i< frame.size(); i++){
     aux = frame[i] - mu[i];
-    prob = (aux*aux) * ivar[i];
+    prob += (aux*aux) * ivar[i];
   }
-
   return -0.5 * prob + logc;
 }
 
@@ -211,11 +208,7 @@ int main(){
   DGaussianAcousticModel amodel("../models/dgaussian_monopohoneme_I01.example.model");
   amodel.write_model("../models/dgaussian_monopohoneme_I01.example.again.model");
 
-  vector<float> frame;
-
-  for(auto i = 0; i < amodel.getDim(); i++){
-    frame.push_back(dist(e2) / 10.0);
-  }
+  vector<float> frame = {-0.392699,-2.06331,0.0109949,0.0630278,0.713447,-0.557419,1.46355,0.809983,0.990555,0.682074,-1.62765,0.60225,0.493882,1.55829,-0.59736,-1.34481,-0.0268113,-0.0561324,0.536304,1.16865,0.753556,-0.813899,-0.370601,-0.346987,-1.12761,0.0755082,-1.127,-1.23163,0.717646,-0.20932,0.515273,0.0881923,0.00711961,0.294303,-0.00440401,-0.600391,-0.627719,0.292688,0.360419,-0.443323,-0.189734,0.420539,0.881978,0.19503,-0.93659,-0.414377,0.544633,0.00430982};
 
   float prob = amodel.calc_prob("aa",0,frame);
 

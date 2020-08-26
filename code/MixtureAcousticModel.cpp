@@ -1,5 +1,5 @@
-#include "MixtureAcousticModel.hpp"
-#include "Utils.hpp"
+#include "MixtureAcousticModel.h"
+#include "Utils.h"
 
 
 void DGaussianState::addPMembers(const string &line){

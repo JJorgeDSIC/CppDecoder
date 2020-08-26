@@ -1,5 +1,5 @@
-#include "TiedStatesAcousticModel.hpp"
-#include "Utils.hpp"
+#include "TiedStatesAcousticModel.h"
+#include "Utils.h"
 
 TiedStatesAcousticModel::TiedStatesAcousticModel(){
   cout << "Constructor" << endl;

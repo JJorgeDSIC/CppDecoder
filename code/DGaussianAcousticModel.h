@@ -8,7 +8,7 @@
 #include <random>
 #include <cmath>
 
-const int LOG2PI = 1.83787706641;
+const float LOG2PI = 1.83787706641;
 
 using namespace std;
 
