@@ -1,13 +1,14 @@
 CMAKE = cmake
 BUILD_TYPE = Debug
 TARGET = all
+BUILD_TOOL = Ninja
 
 .PHONY:all
 all: configure build
 
 .PHONY: configure
 configure:
-	${CMAKE} -H. -Bbuild -G Ninja
+	${CMAKE} -H. -Bbuild -G ${BUILD_TOOL}
 
 .PHONY: build
 build:
