@@ -1,24 +1,8 @@
 #include "DGaussianAcousticModel.hpp"
-
-
-void print_vector(const std::vector<float> &vec){
-  
-    for (auto it = vec.begin(); it != vec.end(); ++it)
-	cout << *it << ' ';
-      cout << endl;
-      
-}
-
-std::vector<float> parse_line( const std::string &line )
-{
-  std::istringstream stm(line) ;
-  return { std::istream_iterator<float>(stm), std::istream_iterator<float>() } ;
-}
+#include "Utils.hpp"
 
 DGaussianAcousticModel::DGaussianAcousticModel(){
-
   cout << "Constructor" << endl;
-
 }
 
 void DGaussianAcousticModel::read_model(const string &filename){
@@ -29,7 +13,6 @@ void DGaussianAcousticModel::read_model(const string &filename){
   string line;
   int i, statesIter;
   const char del = ' ';
-
 
   if(fileI.is_open()){
     cout << "Reading..";
@@ -61,9 +44,10 @@ void DGaussianAcousticModel::read_model(const string &filename){
 
       //Name
       getline(fileI, line);
+      line.erase(0,1);
+      line.erase(line.size()-1,line.size());
       stringstream(line) >> name;
       cout << "State: " << name << endl;
-      stringstream(line) >> name;
       states.push_back(name);
       
       //Q
@@ -96,12 +80,14 @@ void DGaussianAcousticModel::read_model(const string &filename){
       vector<vector<float>> states_mu;
       vector<vector<float>> states_var;
       vector<vector<float>> states_ivar;
-
+      vector<float> states_logc;
+      
       for(i = 0; i < n_q; i++){
 
 	vector<float> mu;
 	vector<float> var;
 	vector<float> ivar;
+	float logc = 0;
 
 	//MU
 	getline(fileI, line,del); //MU
@@ -116,15 +102,30 @@ void DGaussianAcousticModel::read_model(const string &filename){
 	
 	var = parse_line(line);
 	
-	print_vector(var);
+	for(auto value: var){
+	  ivar.push_back(1.0/value);
+	  logc+= log(value);
+	}
 
+	logc+= dim * LOG2PI;
+
+	logc = -0.5 * logc;
+
+	cout << endl;
+	print_vector(var);
+	cout << endl;
+	print_vector(ivar);
+	
 	states_mu.push_back(mu);
 	states_var.push_back(var);
-	
+	states_ivar.push_back(ivar);
+        states_logc.push_back(logc);	
       }
 
       state_to_mus[name] = states_mu;
-      state_to_var[name] = states_var;      
+      state_to_vars[name] = states_var;
+      state_to_ivars[name] = states_ivar;
+      state_to_logc[name] = states_logc;
     }
     
     fileI.close();
@@ -155,7 +156,7 @@ void DGaussianAcousticModel::write_model(const string &filename){
 
       n_q = state_to_num_q[name];
    
-      fileO << name << endl;
+      fileO << "'" << name << "'" << endl;
       fileO << "Q " << n_q << endl;
 
       if(n_q == 1){
@@ -168,7 +169,7 @@ void DGaussianAcousticModel::write_model(const string &filename){
 	fileO << value << "\n";
 
       vector <vector<float>> mus = state_to_mus[name];
-      vector <vector<float>> vars = state_to_var[name];
+      vector <vector<float>> vars = state_to_vars[name];
       
       for(auto i = 0; i < n_q; i++){
 	
@@ -189,25 +190,72 @@ void DGaussianAcousticModel::write_model(const string &filename){
     fileO.close();
     
   }else cout << "Unable to open file for writing" << endl;
-  
-
 }
 
 
 DGaussianAcousticModel::DGaussianAcousticModel(const string &filename){
-
+  
   DGaussianAcousticModel::read_model(filename);
-
 }
 
 DGaussianAcousticModel::~DGaussianAcousticModel(){
-
   cout << "Destructor" << endl;
+}
 
+unsigned int DGaussianAcousticModel::getDim(){
+  return dim;
+}
+
+unsigned int DGaussianAcousticModel::getNStates(){
+  return n_states;
+}
+
+
+float DGaussianAcousticModel::calc_prob(const string &state, const int &q, const vector<float> &frame){
+
+  vector<float> mu = state_to_mus[state][q];
+  vector<float> ivar = state_to_ivars[state][q];
+  float logc = state_to_logc[state][q];
+
+  cout << endl;
+  print_vector(mu);
+  cout << endl;
+  print_vector(ivar);
+  cout << endl;
+
+  float prob = 0.0;
+  float aux = 0.0;
+  
+  for(auto i = 0; i< frame.size(); i++){
+    aux = frame[i] - mu[i];
+    prob = (aux*aux) * ivar[i];
+  }
+
+  return -0.5 * prob + logc;
 }
 
 int main(){
 
+  std::random_device rd;
+  std::mt19937 e2(rd());
+  std::uniform_real_distribution<> dist(0, 10);
+
   DGaussianAcousticModel amodel("../models/model_0");
-  amodel.write_model("../models/new_model");
+  amodel.write_model("../models/new_model_librispeech");
+
+  cout << endl;
+  cout << dist(e2) << endl;
+  vector<float> frame;
+
+  for(auto i = 0; i < amodel.getDim(); i++){
+    frame.push_back(dist(e2) / 10.0);
+  }
+
+  cout << endl;
+  print_vector(frame);
+
+  float prob = amodel.calc_prob("aa",0,frame);
+
+  cout << "Prob: " << prob << endl;
+
 }
