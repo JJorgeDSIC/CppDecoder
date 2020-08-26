@@ -28,7 +28,7 @@ SearchGraphLanguageModelEdge::SearchGraphLanguageModelEdge(int edge_id, int edge
 
 
 void SearchGraphLanguageModel::write_model(const string &filename){
-    cout << "TO DO" << endl;
+    cout << "Writing model in " << filename << endl;
     ofstream fileO(filename, ios::app);
     if(fileO.is_open()){
 
@@ -71,19 +71,14 @@ void SearchGraphLanguageModel::read_model(const string &filename){
 
     int value;
 
-
     if(fileI.is_open()){
+
         getline(fileI, line); //SG
 
         nstates = read_header_line(fileI,line,del);
         nedges = read_header_line(fileI,line,del);
         start = read_header_line(fileI,line,del);
         final = read_header_line(fileI,line,del);
-
-        cout << "NStates: " << nstates << endl;
-        cout << "NEdges: " << nedges << endl;
-        cout << "Start: " << start << endl;
-        cout << "Final: " << final << endl;
 
         getline(fileI, line); //States
 
@@ -94,19 +89,12 @@ void SearchGraphLanguageModel::read_model(const string &filename){
         for (size_t i = 0; i < nstates; i++)
         {
             getline(fileI, line);
-            cout << "line: " << line << endl;
             istringstream ss(line);
             ss >> state_id;
             ss >> symbol;
             ss >> word;
             ss >> edge_begin;
             ss >> edge_end;
-
-            cout << "state_id: " << state_id;
-            cout << ", symbol: " << symbol;
-            cout << ", word: " << word;
-            cout << ", edge_begin: " << edge_begin;
-            cout << ", edge_end: " << edge_end << endl;
 
             SearchGraphLanguageModelState state(state_id, symbol, word, edge_begin, edge_end);
 
@@ -120,15 +108,10 @@ void SearchGraphLanguageModel::read_model(const string &filename){
         for (size_t i = 0; i < nedges; i++)
         {
             getline(fileI, line);
-            cout << "line: " << line << endl;
             istringstream ss(line);
             ss >> edge_id;
             ss >> edge_dst;
             ss >> edge_weight;
-
-            cout << "edge_id: " << edge_id;
-            cout << ", edge_dst: " << edge_dst;
-            cout << ", edge_weight: " << edge_weight << endl;
 
             SearchGraphLanguageModelEdge e(edge_id, edge_dst, edge_weight);
 
