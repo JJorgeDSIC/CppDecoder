@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
 
-set(NAME Feature)
+set(NAME Sample)
 set(REPO_VERSION 0.0.1)
 
-project(${NAME} VERSION ${REPO_VERSION} DESCRIPTION "Feature")
+project(${NAME} VERSION ${REPO_VERSION} DESCRIPTION "Sample")
 
 set(CMAKE_C_STANDARD 99)
 
@@ -33,18 +33,19 @@ else ()
 endif()
 
 set(SOURCE_FILES
-  src/Feature.cpp)
+  src/Sample.cpp)
 
 set(HEADER_PATHS include)
 set(HEADER_FILES
-  include/Feature.h)
+  include/Sample.h)
 
 include_directories(
   ${HEADER_PATHS}
-  ${utils_SOURCE_DIR}/include)
+  ${frame_SOURCE_DIR}/include)
+
 
 add_executable(${NAME} ${SOURCE_FILES})
-add_executable(cppdecoder::Feature ALIAS ${NAME})
+add_executable(cppdecoder::Sample ALIAS ${NAME})
 
 # Set the debug or relese mode.
 if (CMAKE_BUILD_TYPE MATCHES Debug)
@@ -60,4 +61,4 @@ target_include_directories(${NAME}
   PUBLIC ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
 
 target_link_libraries(${NAME}
-  cppdecoder::Utils)
+  cppdecoder::Frame)

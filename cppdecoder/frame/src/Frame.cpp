@@ -1,7 +1,6 @@
-#include "Feature.h"
-#include <Utils.h>
+#include "Frame.h"
 
-Feature::Feature(const std::vector<float> &values) {
+Frame::Frame(const std::vector<float> &values) {
   std::cout << "Constructor " << std::endl;
 
   for (auto &value : values) {
@@ -10,7 +9,7 @@ Feature::Feature(const std::vector<float> &values) {
   dim = features.size();
 }
 
-void Feature::show_content() {
+void Frame::show_content() {
   for ( auto &feature : features ) {
     std::cout << feature << " ";
   }
@@ -30,7 +29,7 @@ int main() {
       -0.627719, 0.292688,  0.360419,   -0.443323, -0.189734,   0.420539,
       0.881978,  0.19503,   -0.93659,   -0.414377, 0.544633,    0.00430982};
 
-  Feature feas(frame);
+  Frame feas(frame);
 
   feas.show_content();
 
