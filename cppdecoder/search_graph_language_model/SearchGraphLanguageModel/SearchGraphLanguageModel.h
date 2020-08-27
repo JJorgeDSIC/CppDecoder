@@ -1,3 +1,11 @@
+/*
+ * Copyright 2020 Javier Jorge. All rights reserved.
+ * License: https://github.com/JJorgeDSIC/CppDecoder#license
+ */
+
+#ifndef SEARCHGRAPHLANGUAGEMODEL_H_
+#define SEARCHGRAPHLANGUAGEMODEL_H_
+
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -47,3 +55,5 @@ class SearchGraphLanguageModel {
   void read_model(const std::string &filename);
   void write_model(const std::string &filename);
 };
+
+#endif  // SEARCHGRAPHLANGUAGEMODEL_H_

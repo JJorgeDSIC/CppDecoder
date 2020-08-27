@@ -1,3 +1,11 @@
+/*
+ * Copyright 2020 Javier Jorge. All rights reserved.
+ * License: https://github.com/JJorgeDSIC/CppDecoder#license
+ */
+
+#ifndef DGAUSSIANACOUSTICMODEL_H_
+#define DGAUSSIANACOUSTICMODEL_H_
+
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -35,3 +43,5 @@ class DGaussianAcousticModel {
   float calc_prob(const std::string &state, const int &q,
                   const std::vector<float> &frame);
 };
+
+#endif  // DGAUSSIANACOUSTICMODEL_H_

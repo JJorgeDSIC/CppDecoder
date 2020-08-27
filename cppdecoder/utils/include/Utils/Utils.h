@@ -1,3 +1,11 @@
+/*
+ * Copyright 2020 Javier Jorge. All rights reserved.
+ * License: https://github.com/JJorgeDSIC/CppDecoder#license
+ */
+
+#ifndef UTILS_H_
+#define UTILS_H_
+
 #include <cmath>
 #include <iostream>
 #include <iterator>
@@ -13,3 +21,5 @@ float robust_add(const std::vector<float> &pprobs, const float &max,
                  const size_t &components);
 
 std::vector<float> parse_line(const std::string &line);
+
+#endif  // UTILS_H_

@@ -1,3 +1,11 @@
+/*
+ * Copyright 2020 Javier Jorge. All rights reserved.
+ * License: https://github.com/JJorgeDSIC/CppDecoder#license
+ */
+
+#ifndef MIXTUREACOUSTICMODEL_H_
+#define MIXTUREACOUSTICMODEL_H_
+
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -79,3 +87,5 @@ class MixtureAcousticModel {
   float calc_prob(const std::string &state, const int &q,
                   const std::vector<float> &frame);
 };
+
+#endif  // MIXTUREACOUSTICMODEL_H_

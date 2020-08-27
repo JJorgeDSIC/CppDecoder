@@ -1,3 +1,11 @@
+/*
+ * Copyright 2020 Javier Jorge. All rights reserved.
+ * License: https://github.com/JJorgeDSIC/CppDecoder#license
+ */
+
+#ifndef TIEDSTATESACOUSTICMODEL_H_
+#define TIEDSTATESACOUSTICMODEL_H_
+
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -40,3 +48,5 @@ class TiedStatesAcousticModel {
   void read_model(const std::string &filename);
   void write_model(const std::string &filename);
 };
+
+#endif  // TIEDSTATESACOUSTICMODEL_H_
