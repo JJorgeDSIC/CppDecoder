@@ -1,6 +1,9 @@
 # Prerequisites
 *.d
 
+# Build dir
+build/
+
 # Compiled Object files
 *.slo
 *.lo
@@ -30,3 +33,9 @@
 *.exe
 *.out
 *.app
+
+# IDEs
+.vscode
+
+# Others
+.history_*
