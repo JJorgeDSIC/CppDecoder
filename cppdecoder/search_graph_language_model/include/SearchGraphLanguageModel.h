@@ -43,8 +43,8 @@ class SearchGraphLanguageModel {
   std::unordered_map<std::string, int> word_to_id;
   std::unordered_map<int, std::string> id_to_word;
 
-  int symbol_id = 0;
-  int word_id = 0;
+  int symbol_id;
+  int word_id;
 
   int nstates, nedges, start, final;
 
@@ -52,6 +52,7 @@ class SearchGraphLanguageModel {
   std::vector<SearchGraphLanguageModelEdge> sg_lm_edges;
 
  public:
+  SearchGraphLanguageModel();
   void read_model(const std::string &filename);
   void write_model(const std::string &filename);
 };

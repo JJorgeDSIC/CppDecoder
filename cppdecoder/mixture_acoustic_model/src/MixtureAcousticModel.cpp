@@ -1,6 +1,6 @@
-#include "mixture_acoustic_model/MixtureAcousticModel.h"
+#include "MixtureAcousticModel.h"
 
-#include <Utils/Utils.h>
+#include <Utils.h>
 
 void DGaussianState::addPMembers(const std::string &line) {
   pmembers = parse_line(line);
@@ -39,7 +39,7 @@ void MixtureAcousticModel::read_model(const std::string &filename) {
             << std::endl;
 
   std::ifstream fileI(filename, std::ifstream::in);
-  std::string line, token;
+  std::string line;
   int i, statesIter;
   float value;
   const char del = ' ';
@@ -158,9 +158,10 @@ void MixtureAcousticModel::read_model(const std::string &filename) {
     }
 
     fileI.close();
-  } else
+  } else {
     std::cout << "Unable to open the file " << filename << " for reading."
               << std::endl;
+  }
 }
 
 void MixtureAcousticModel::write_model(const std::string &filename) {
@@ -253,8 +254,9 @@ void MixtureAcousticModel::write_model(const std::string &filename) {
 
     fileO.close();
 
-  } else
+  } else {
     std::cout << "Unable to open file for writing" << std::endl;
+  }
 }
 
 MixtureAcousticModel::MixtureAcousticModel(const std::string &filename) {
@@ -273,15 +275,11 @@ float MixtureAcousticModel::calc_prob(const std::string &state, const int &q,
                                       const std::vector<float> &frame) {
   int n_q = state_to_num_q[state];
 
-  std::cout << "State: " << state << ", n_q: " << n_q << std::endl;
-
   if (q > n_q) return -1.0;
 
   DGaussianState dgstate = symbol_to_states[state][q];
 
   int components = dgstate.getComponents();
-
-  std::cout << "Components: " << components << std::endl;
 
   std::vector<float> pmembers = dgstate.getPMembers();
   std::vector<float> mu, ivar, logcs;
@@ -290,33 +288,21 @@ float MixtureAcousticModel::calc_prob(const std::string &state, const int &q,
 
   logcs = dgstate.getLogcs();
 
-  float prob = 0.0, aux = 0.0;
-
-  float logc;
-
   float max = -HUGE_VAL;
 
   for (auto i = 0; i < components; i++) {
+    float prob = 0.0, aux = 0.0;
+    float logc;
+
     mu = dgstate.getMuByComponent(i);
     ivar = dgstate.getIVarByComponent(i);
     logc = logcs[i];
-    std::cout << "MU ";
-    print_vector(mu);
-    std::cout << "IVAR ";
-    print_vector(ivar);
-    std::cout << "LOGC " << logc << std::endl;
 
-    prob = 0.0;
-    aux = 0.0;
     for (auto i = 0; i < frame.size(); i++) {
       aux = frame[i] - mu[i];
       prob += (aux * aux) * ivar[i];
     }
     prob = -0.5 * prob + logc;
-
-    std::cout << "res: " << prob << std::endl;
-
-    std::cout << "member: " << pmembers[i] << std::endl;
 
     aux = pmembers[i] + prob;
     if (aux > max) max = aux;
@@ -324,13 +310,8 @@ float MixtureAcousticModel::calc_prob(const std::string &state, const int &q,
     pprob.push_back(aux);
   }
 
-  std::cout << "Res" << std::endl;
-
-  print_vector(pprob);
-
   if (max != -HUGE_VAL) {
     float r_add = robust_add(pprob, max, components);
-    std::cout << "Robust_add: " << r_add << std::endl;
     return r_add;
   } else {
     return -HUGE_VAL;
@@ -338,12 +319,7 @@ float MixtureAcousticModel::calc_prob(const std::string &state, const int &q,
 }
 
 int main() {
-  std::random_device rd;
-  std::mt19937 e2(rd());
-  std::uniform_real_distribution<> dist(0, 10);
-
-  MixtureAcousticModel amodel(
-      "models/mixture_monophoneme_I32.example.model");
+  MixtureAcousticModel amodel("models/mixture_monophoneme_I32.example.model");
   amodel.write_model("models/mixture_monophoneme_I32.example.again.model");
 
   std::vector<float> frame = {
@@ -356,5 +332,5 @@ int main() {
       -0.627719, 0.292688,  0.360419,   -0.443323, -0.189734,   0.420539,
       0.881978,  0.19503,   -0.93659,   -0.414377, 0.544633,    0.00430982};
 
-  amodel.calc_prob("a", 0, frame);
+  std::cout << "Log prob : " << amodel.calc_prob("a", 0, frame) << std::endl;
 }

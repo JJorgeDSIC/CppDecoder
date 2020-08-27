@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
 set(NAME TiedStatesAcousticModel)
 set(REPO_VERSION 0.0.1)
 
-project(${NAME} VERSION ${REPO_VERSION} DESCRIPTION "D GaussianAcousti cModel")
+project(${NAME} VERSION ${REPO_VERSION} DESCRIPTION "Tied States Acoustic Model")
 
 set(CMAKE_C_STANDARD 99)
 
@@ -37,7 +37,7 @@ set(SOURCE_FILES
 
 set(HEADER_PATHS include)
 set(HEADER_FILES
-  include/d_gaussian_acustic_model/TiedStatesAcousticModel.h)
+  include/TiedStatesAcousticModel.h)
 
 include_directories(
   ${HEADER_PATHS}
@@ -47,7 +47,7 @@ configure_file(
   ${CMAKE_SOURCE_DIR}/models/tiedphoneme_I04.example.model ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/models/tiedphoneme_I04.example.model COPYONLY)
 
 add_executable(${NAME} ${SOURCE_FILES})
-add_executable(cppdecoder::tiedstatesacousticmodel ALIAS ${NAME})
+add_executable(cppdecoder::TiedStatesAcousticModel ALIAS ${NAME})
 
 # Set the debug or relese mode.
 if (CMAKE_BUILD_TYPE MATCHES Debug)
@@ -63,4 +63,4 @@ target_include_directories(${NAME}
   PUBLIC ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
 
 target_link_libraries(${NAME}
-  cppdecoder::utils)
+  cppdecoder::Utils)

@@ -27,23 +27,23 @@ class TiedStatesAcousticModel {
   std::vector<std::string> symbols;
   std::vector<std::string> senones;
 
-  std::unordered_map<std::string, std::vector<std::string>> symbol_to_senone;
+  std::unordered_map<std::string, std::vector<std::string> > symbol_to_senone;
 
-  std::unordered_map<std::string, std::vector<std::vector<float>>>
+  std::unordered_map<std::string, std::vector<std::vector<float> > >
       senone_to_mus;
-  std::unordered_map<std::string, std::vector<std::vector<float>>>
+  std::unordered_map<std::string, std::vector<std::vector<float> > >
       senone_to_vars;
-  std::unordered_map<std::string, std::vector<std::vector<float>>>
+  std::unordered_map<std::string, std::vector<std::vector<float> > >
       senone_to_ivars;
-  std::unordered_map<std::string, std::vector<float>> senone_to_logc;
-  std::unordered_map<std::string, std::vector<float>> senone_to_pmembers;
+  std::unordered_map<std::string, std::vector<float> > senone_to_logc;
+  std::unordered_map<std::string, std::vector<float> > senone_to_pmembers;
   std::unordered_map<std::string, std::string> symbol_to_symbol_transitions;
-  std::unordered_map<std::string, std::vector<float>> symbol_to_transitions;
-  std::unordered_map<std::string, std::vector<std::string>> symbol_to_senones;
+  std::unordered_map<std::string, std::vector<float> > symbol_to_transitions;
+  std::unordered_map<std::string, std::vector<std::string> > symbol_to_senones;
 
  public:
   TiedStatesAcousticModel();
-  TiedStatesAcousticModel(const std::string &filename);
+  explicit TiedStatesAcousticModel(const std::string &filename);
   ~TiedStatesAcousticModel();
   void read_model(const std::string &filename);
   void write_model(const std::string &filename);

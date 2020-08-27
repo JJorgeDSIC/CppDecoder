@@ -13,6 +13,7 @@
 #include <random>
 #include <sstream>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <vector>
 
@@ -23,39 +24,34 @@ class TransValue {
   float value;
 
  public:
-  TransValue(const std::string &st, const float &val);
+  TransValue(const std::string &st, const float &val) : state(st), value(val) {}
   std::string &getState() { return state; }
   float &getValue() { return value; }
 };
 
-TransValue::TransValue(const std::string &st, const float &val) {
-  state = st;
-  value = val;
-}
-
 class DGaussianState {
-  std::vector<std::vector<float>> mus;
-  std::vector<std::vector<float>> vars;
-  std::vector<std::vector<float>> ivars;
+  std::vector<std::vector<float> > mus;
+  std::vector<std::vector<float> > vars;
+  std::vector<std::vector<float> > ivars;
   std::vector<float> pmembers;
   std::vector<float> logc;
   size_t components;
 
  public:
-  // DGaussianState();
+  DGaussianState() : components(0) {}
   void addPMembers(const std::string &line);
   void addMu(const std::string &line);
   void addVar(const std::string &line);
   void setComponents(const size_t comps) { components = comps; }
   size_t getComponents() { return components; }
-  std::vector<std::vector<float>> &getMus() { return mus; }
+  std::vector<std::vector<float> > &getMus() { return mus; }
   std::vector<float> &getMuByComponent(const size_t &component) {
     return mus[component];
   }
   std::vector<float> &getIVarByComponent(const size_t &component) {
     return ivars[component];
   }
-  std::vector<std::vector<float>> &getVars() { return vars; }
+  std::vector<std::vector<float> > &getVars() { return vars; }
   std::vector<float> &getPMembers() { return pmembers; }
   std::vector<float> &getLogcs() { return logc; }
 };
@@ -63,10 +59,11 @@ class DGaussianState {
 class MixtureAcousticModel {
   typedef std::tuple<std::string, float> value_t;
   std::vector<std::string> states;
-  std::unordered_map<std::string, std::vector<DGaussianState>> symbol_to_states;
-  std::unordered_map<std::string, std::vector<float>> state_to_trans;
+  std::unordered_map<std::string, std::vector<DGaussianState> >
+      symbol_to_states;
+  std::unordered_map<std::string, std::vector<float> > state_to_trans;
   std::unordered_map<std::string,
-                     std::unordered_map<std::string, std::vector<TransValue>>>
+                     std::unordered_map<std::string, std::vector<TransValue> > >
       state_to_transL;
   std::unordered_map<std::string, std::string> state_to_type;
   std::unordered_map<std::string, int> state_to_num_q;

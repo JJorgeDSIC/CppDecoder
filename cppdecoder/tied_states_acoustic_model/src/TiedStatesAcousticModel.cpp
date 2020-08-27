@@ -1,6 +1,5 @@
-#include "tied_states_acoustic_model/TiedStatesAcousticModel.h"
-
-#include "Utils/Utils.h"
+#include "TiedStatesAcousticModel.h"
+#include "Utils.h"
 
 TiedStatesAcousticModel::TiedStatesAcousticModel() {
   std::cout << "Constructor" << std::endl;
@@ -11,13 +10,12 @@ void TiedStatesAcousticModel::read_model(const std::string &filename) {
             << std::endl;
 
   std::ifstream fileI(filename, std::ifstream::in);
-  std::string line, name, trans_id;
-  int i, statesIter;
+  std::string line, name;
   const char del = ' ';
 
-  int components, n_q;
-
   if (fileI.is_open()) {
+    int components, n_q;
+
     getline(fileI, line);       // AMODEL
     getline(fileI, line);       // TiedStates
     getline(fileI, line);       // Mixture
@@ -143,7 +141,6 @@ void TiedStatesAcousticModel::read_model(const std::string &filename) {
 
       } else {
         std::string token;
-        std::vector<std::string> result;
         std::istringstream iss(line);
         iss >> token;  // TransP
         iss >> token;  // Symbol with transitions for this symbol
@@ -161,14 +158,13 @@ void TiedStatesAcousticModel::read_model(const std::string &filename) {
       }
     }
     fileI.close();
-  } else
+  } else {
     std::cout << "Unable to open file for reading" << std::endl;
+  }
 }
 
 void TiedStatesAcousticModel::write_model(const std::string &filename) {
   std::ofstream fileO(filename, std::ios::app);
-
-  int n_q;
 
   if (fileO.is_open()) {
     fileO << "AMODEL\n";
@@ -241,8 +237,9 @@ void TiedStatesAcousticModel::write_model(const std::string &filename) {
       fileO << std::endl;
     }
 
-  } else
+  } else  {
     std::cout << "Unable to open file for writing." << std::endl;
+  }
 }
 
 TiedStatesAcousticModel::TiedStatesAcousticModel(const std::string &filename) {

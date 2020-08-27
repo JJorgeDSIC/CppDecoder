@@ -21,8 +21,10 @@ const float LOG2PI = 1.83787706641f;
 class DGaussianAcousticModel {
   std::vector<std::string> states;
   std::unordered_map<std::string, std::vector<std::vector<float>>> state_to_mus;
-  std::unordered_map<std::string, std::vector<std::vector<float>>> state_to_vars;
-  std::unordered_map<std::string, std::vector<std::vector<float>>> state_to_ivars;
+  std::unordered_map<std::string, std::vector<std::vector<float>>>
+      state_to_vars;
+  std::unordered_map<std::string, std::vector<std::vector<float>>>
+      state_to_ivars;
   std::unordered_map<std::string, std::vector<float>> state_to_logc;
   std::unordered_map<std::string, std::vector<float>> state_to_trans;
   std::unordered_map<std::string, int> state_to_num_q;
@@ -31,7 +33,7 @@ class DGaussianAcousticModel {
   unsigned int n_states;
 
  public:
-  DGaussianAcousticModel();
+  DGaussianAcousticModel() : n_states(0), dim(0) {}
   explicit DGaussianAcousticModel(const std::string &filename);
   ~DGaussianAcousticModel();
 

@@ -39,3 +39,6 @@ build/
 
 # Others
 .history_*
+models/tiedphoneme_I04.example.again.model
+models/mixture_monophoneme_I32.example.again.model
+models/2.gram.graph.again

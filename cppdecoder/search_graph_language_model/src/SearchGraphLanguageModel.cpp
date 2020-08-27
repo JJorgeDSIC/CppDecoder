@@ -1,13 +1,18 @@
-#include "SearchGraphLanguageModel/SearchGraphLanguageModel.h"
+#include "SearchGraphLanguageModel.h"
 
-#include <Utils/Utils.h>
+#include <Utils.h>
 
-int read_header_line(std::ifstream &fileI, std::string &line, const char &del) {
+int read_header_line(std::ifstream &fileI, std::string line, const char del) {
   int value;
   getline(fileI, line, del);  // NStates
   getline(fileI, line);
   std::stringstream(line) >> value;
   return value;
+}
+
+SearchGraphLanguageModel::SearchGraphLanguageModel() {
+  this->symbol_id = 0;
+  this->word_id = 0;
 }
 
 SearchGraphLanguageModelState::SearchGraphLanguageModelState(int state_id,
@@ -56,18 +61,17 @@ void SearchGraphLanguageModel::write_model(const std::string &filename) {
       fileO << edge.edge_weight << std::endl;
     }
 
-  } else
+  } else {
     std::cout << "Unable to open file for writing" << std::endl;
+  }
 }
 
 void SearchGraphLanguageModel::read_model(const std::string &filename) {
-  std::cout << "Reading model..." << std::endl;
+  std::cout << "Reading language model..." << std::endl;
 
   std::ifstream fileI(filename, std::ifstream::in);
   std::string line;
   const char del = ' ';
-
-  int value;
 
   if (fileI.is_open()) {
     getline(fileI, line);  // SG
@@ -114,9 +118,10 @@ void SearchGraphLanguageModel::read_model(const std::string &filename) {
       sg_lm_edges.push_back(e);
     }
 
-  } else
+  } else {
     std::cout << "Unable to open the file " << filename << " for reading."
               << std::endl;
+  }
 }
 
 int main() {

@@ -1,10 +1,5 @@
-#include "d_gaussian_acustic_model/DGaussianAcousticModel.h"
-
-#include <Utils/Utils.h>
-
-DGaussianAcousticModel::DGaussianAcousticModel() {
-  std::cout << "Constructor" << std::endl;
-}
+#include "DGaussianAcousticModel.h"
+#include <Utils.h>
 
 void DGaussianAcousticModel::read_model(const std::string &filename) {
   std::cout << "Reading DGaussianAcoustic model from " << filename << "..."
@@ -100,9 +95,10 @@ void DGaussianAcousticModel::read_model(const std::string &filename) {
     }
 
     fileI.close();
-  } else
+  } else {
     std::cout << "Unable to open the file " << filename << " for reading."
               << std::endl;
+  }
 }
 
 void DGaussianAcousticModel::write_model(const std::string &filename) {
@@ -151,8 +147,9 @@ void DGaussianAcousticModel::write_model(const std::string &filename) {
 
     fileO.close();
 
-  } else
+  } else {
     std::cout << "Unable to open file for writing" << std::endl;
+    }
 }
 
 DGaussianAcousticModel::DGaussianAcousticModel(const std::string &filename) {

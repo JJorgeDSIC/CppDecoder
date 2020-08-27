@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
 set(NAME utils)
 set(REPO_VERSION 0.0.1)
 
-project(${NAME} VERSION ${REPO_VERSION} DESCRIPTION "Cpp decoder utils")
+project(${NAME} VERSION ${REPO_VERSION} DESCRIPTION "Decoder utils")
 
 set(CMAKE_C_STANDARD 99)
 
@@ -37,14 +37,14 @@ set(SOURCE_FILES
 
 set(HEADER_PATHS include)
 set(HEADER_FILES
-  include/Utils/Utils.h)
+  include/Utils.h)
 
 include_directories(
   ${HEADER_PATHS}
   ${hephaestus_SOURCE_DIR}/include)
 
 add_library(${NAME} SHARED ${SOURCE_FILES} ${HEADER_FILES})
-add_library(cppdecoder::utils ALIAS ${NAME})
+add_library(cppdecoder::Utils ALIAS ${NAME})
 
 # Set the debug or relese mode.
 if (CMAKE_BUILD_TYPE MATCHES Debug)

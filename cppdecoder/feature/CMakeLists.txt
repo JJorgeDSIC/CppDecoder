@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
 
-set(NAME SearchGraphLanguageModel)
+set(NAME Feature)
 set(REPO_VERSION 0.0.1)
 
-project(${NAME} VERSION ${REPO_VERSION} DESCRIPTION "Search Graph Language Model")
+project(${NAME} VERSION ${REPO_VERSION} DESCRIPTION "Feature")
 
 set(CMAKE_C_STANDARD 99)
 
@@ -33,21 +33,18 @@ else ()
 endif()
 
 set(SOURCE_FILES
-  src/SearchGraphLanguageModel.cpp)
+  src/Feature.cpp)
 
 set(HEADER_PATHS include)
 set(HEADER_FILES
-  include/SearchGraphLanguageModel.h)
+  include/Feature.h)
 
 include_directories(
   ${HEADER_PATHS}
   ${utils_SOURCE_DIR}/include)
 
-configure_file(
-  ${CMAKE_SOURCE_DIR}/models/2.gram.graph ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/models/2.gram.graph COPYONLY)
-
 add_executable(${NAME} ${SOURCE_FILES})
-add_executable(cppdecoder::SearchGraphLanguageModel ALIAS ${NAME})
+add_executable(cppdecoder::Feature ALIAS ${NAME})
 
 # Set the debug or relese mode.
 if (CMAKE_BUILD_TYPE MATCHES Debug)
