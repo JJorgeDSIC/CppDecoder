@@ -9,6 +9,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <iterator>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -29,6 +30,18 @@ class Sample {
   void addFrame(const std::string &line);
   void addFrame(const std::vector<float> &features);
   void show_content();
+
+  inline std::vector<Frame>::iterator begin() noexcept {
+    return frames.begin();
+  }
+  inline std::vector<Frame>::iterator end() noexcept { return frames.end(); }
+
+  inline std::vector<Frame>::const_iterator cbegin() const noexcept {
+    return frames.cbegin();
+  }
+  inline std::vector<Frame>::const_iterator cend() const noexcept {
+    return frames.cend();
+  }
 };
 
 #endif  // SAMPLE_H_

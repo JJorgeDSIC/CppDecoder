@@ -115,5 +115,11 @@ int main() {
               << std::endl;
   }
 
+  std::cout << "Testing iterator implementation..." << std::endl;
+
+  for (auto &value : sampleFromTLFEA) {
+    value.show_content();
+  }
+
   sampleFromTLFEA.write_sample("bin/samples/example.features");
 }
