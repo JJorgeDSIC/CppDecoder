@@ -32,4 +32,4 @@ build_script:
   verbosity: minimal
 
 test_script:
-  - cmd: cmake --build build --config Release --target ContinuousTest
+  - cmd: cmake --build . --config Release --target ContinuousTest
