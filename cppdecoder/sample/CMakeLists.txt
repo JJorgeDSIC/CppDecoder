@@ -33,19 +33,21 @@ else ()
 endif()
 
 set(SOURCE_FILES
+  src/Frame.cpp
   src/Sample.cpp)
 
 set(HEADER_PATHS include)
 set(HEADER_FILES
+  include/Frame.h
   include/Sample.h)
 
 include_directories(
   ${HEADER_PATHS}
-  ${frame_SOURCE_DIR}/include)
-
+  ${utils_SOURCE_DIR}/include)
 
 add_executable(${NAME} ${SOURCE_FILES})
 add_executable(cppdecoder::Sample ALIAS ${NAME})
+add_executable(cppdecoder::Frame ALIAS ${NAME})
 
 # Set the debug or relese mode.
 if (CMAKE_BUILD_TYPE MATCHES Debug)
@@ -61,4 +63,4 @@ target_include_directories(${NAME}
   PUBLIC ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
 
 target_link_libraries(${NAME}
-  cppdecoder::Frame)
+  cppdecoder::Utils)

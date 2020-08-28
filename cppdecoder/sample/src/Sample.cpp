@@ -20,6 +20,8 @@ void Sample::addFrame(const std::vector<float> &features) {
 }
 
 int main() {
+  std::cout << "Main feature..." << std::endl;
+
   std::vector<float> frame = {
       -0.392699, -2.06331,  0.0109949,  0.0630278, 0.713447,    -0.557419,
       1.46355,   0.809983,  0.990555,   0.682074,  -1.62765,    0.60225,
@@ -30,7 +32,20 @@ int main() {
       -0.627719, 0.292688,  0.360419,   -0.443323, -0.189734,   0.420539,
       0.881978,  0.19503,   -0.93659,   -0.414377, 0.544633,    0.00430982};
 
-  Sample sample(48, 100);
-  sample.addFrame(frame);
+  Frame feas(frame);
+
+  feas.show_content();
+
+  std::cout << std::endl;
+
+  std::cout << feas.getDim() << std::endl;
+
+  int dim = frame.size();
+  int n_frames = 100;
+  Sample sample(dim, n_frames);
+  for (size_t i = 0; i < n_frames; i++) {
+    sample.addFrame(frame);
+  }
+
   sample.show_content();
 }
