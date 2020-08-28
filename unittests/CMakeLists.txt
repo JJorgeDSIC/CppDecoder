@@ -53,7 +53,7 @@ foreach(unittest ${SOURCE})
   include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${utils_SOURCE_DIR}/include)
+    ${Utils_SOURCE_DIR}/include)
 
   target_link_libraries(${unittestname}
     gtest_main

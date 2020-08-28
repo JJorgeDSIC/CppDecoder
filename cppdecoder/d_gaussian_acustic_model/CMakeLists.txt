@@ -30,7 +30,9 @@ configure_file(
 
 include_directories(
   ${HEADER_PATHS}
-  ${utils_SOURCE_DIR}/include)
+  ${Utils_SOURCE_DIR}/include)
+
+link_directories("${CMAKE_BINARY_DIR}/bin/")
 
 add_executable(${NAME} ${SOURCE_FILES})
 add_executable(cppdecoder::DGaussianAcousticModel ALIAS ${NAME})

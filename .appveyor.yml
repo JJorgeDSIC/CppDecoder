@@ -17,7 +17,6 @@ environment:
     - CMAKE_VS_VERSION: "16 2019"
 
 platform:
-  - x86
   - x64
 configuration:
   - Debug
