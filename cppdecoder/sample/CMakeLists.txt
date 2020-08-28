@@ -34,8 +34,6 @@ include_directories(
 configure_file(
   ${CMAKE_SOURCE_DIR}/samples/AAFA0016.features ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/samples/AAFA0016.features COPYONLY)
 
-link_directories("${CMAKE_BINARY_DIR}/bin/")
-
 add_executable(${NAME} ${SOURCE_FILES})
 add_executable(cppdecoder::Sample ALIAS ${NAME})
 

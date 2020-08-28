@@ -32,8 +32,6 @@ include_directories(
 configure_file(
   ${CMAKE_SOURCE_DIR}/models/2.gram.graph ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/models/2.gram.graph COPYONLY)
 
-link_directories("${CMAKE_BINARY_DIR}/bin/")
-
 add_executable(${NAME} ${SOURCE_FILES})
 add_executable(cppdecoder::SearchGraphLanguageModel ALIAS ${NAME})
 

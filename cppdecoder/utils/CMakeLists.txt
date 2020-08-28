@@ -29,7 +29,7 @@ include_directories(
   ${HEADER_PATHS}
   ${hephaestus_SOURCE_DIR}/include)
 
-add_library(${NAME} SHARED ${SOURCE_FILES} ${HEADER_FILES})
+add_library(${NAME} STATIC ${SOURCE_FILES} ${HEADER_FILES})
 add_library(cppdecoder::Utils ALIAS ${NAME})
 
 # Set the debug or relese mode.

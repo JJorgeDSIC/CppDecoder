@@ -32,8 +32,6 @@ include_directories(
 configure_file(
   ${CMAKE_SOURCE_DIR}/models/mixture_monophoneme_I32.example.model ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/models/mixture_monophoneme_I32.example.model COPYONLY)
 
-link_directories("${CMAKE_BINARY_DIR}/bin/")
-
 add_executable(${NAME} ${SOURCE_FILES})
 add_executable(cppdecoder::MixtureAcousticModel ALIAS ${NAME})
 
