@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
 
+project(CppDecoder DESCRIPTION "C++ Decoder")
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/")
 
 add_subdirectory(cppdecoder/utils)
