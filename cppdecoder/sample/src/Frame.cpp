@@ -1,8 +1,6 @@
 #include "Frame.h"
 
 Frame::Frame(const std::vector<float> &values) {
-  std::cout << "Constructor " << std::endl;
-
   for (auto &value : values) {
     features.push_back(value);
   }
