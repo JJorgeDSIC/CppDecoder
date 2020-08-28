@@ -1,4 +1,4 @@
-version: 0.1.0[{build}]
+version: 0.0.1[{build}]
 
 clone_depth: 1
 
@@ -17,7 +17,6 @@ environment:
     - CMAKE_VS_VERSION: "16 2019"
 
 platform:
-  - x86
   - x64
 configuration:
   - Debug
@@ -28,5 +27,8 @@ before_build:
   - cmake -DSTANDALONE=ON -DCMAKE_BUILD_TYPE=%configuration% -G "Visual Studio %CMAKE_VS_VERSION%"
 
 build_script:
-  project: ALL_BUILD.vcxproj
-  verbosity: minimal
+  - dir
+  - msbuild CppDecoder.sln /m /p:Configuration=%configuration% /p:Platform=%platform% /t:ALL_BUILD
+
+test_script:
+  - cmd: ctest -C %configuration%

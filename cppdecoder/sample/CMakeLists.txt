@@ -6,21 +6,7 @@ set(REPO_VERSION 0.0.1)
 project(${NAME} VERSION ${REPO_VERSION} DESCRIPTION "Sample")
 
 set(CMAKE_C_STANDARD 99)
-
-# Check and add the C++ version.
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-if(COMPILER_SUPPORTS_CXX14)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-elseif(COMPILER_SUPPORTS_CXX11)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-elseif(COMPILER_SUPPORTS_CXX0X)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-else()
-  message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++0x and higher support. Please use a different C++ compiler.")
-endif()
+set(CMAKE_CXX_STANDARD 11)
 
 # Set the debug or relese mode.
 if (CMAKE_BUILD_TYPE MATCHES Debug)
@@ -43,15 +29,13 @@ set(HEADER_FILES
 
 include_directories(
   ${HEADER_PATHS}
-  ${utils_SOURCE_DIR}/include)
+  ${Utils_SOURCE_DIR}/include)
 
 configure_file(
   ${CMAKE_SOURCE_DIR}/samples/AAFA0016.features ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/samples/AAFA0016.features COPYONLY)
-  
 
 add_executable(${NAME} ${SOURCE_FILES})
 add_executable(cppdecoder::Sample ALIAS ${NAME})
-add_executable(cppdecoder::Frame ALIAS ${NAME})
 
 # Set the debug or relese mode.
 if (CMAKE_BUILD_TYPE MATCHES Debug)
