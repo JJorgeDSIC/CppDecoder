@@ -8,7 +8,7 @@ Frame::Frame(const std::vector<float> &values) {
 }
 
 void Frame::show_content() {
-  for ( auto &feature : features ) {
+  for (auto &feature : features) {
     std::cout << feature << " ";
   }
   std::cout << std::endl;

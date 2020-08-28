@@ -4,6 +4,8 @@
  */
 #include "Sample.h"
 
+#include <Utils.h>
+
 void Sample::show_content() {
   for (auto &frame : frames) {
     frame.show_content();
@@ -15,8 +17,38 @@ void Sample::addFrame(const std::string &line) {
 }
 
 void Sample::addFrame(const std::vector<float> &features) {
+  if (dim != 0) {
+    if (dim != features.size()) {
+      std::cout << "Incorrect dimension: expected " << frames[0].getDim()
+                << ", provided: " << features.size() << std::endl;
+      return;
+    }
+  } else {
+    dim = features.size();
+  }
+
   Frame frame(features);
   frames.push_back(frame);
+  num_frames++;
+}
+
+void Sample::write_sample(const std::string &filename) {
+  std::ofstream fileO(filename, std::ios::app);
+
+  if (fileO.is_open()) {
+    fileO << "AKREALTF" << std::endl;
+    fileO << dim << " " << num_frames << std::endl;
+    for (auto &frame : frames) {
+      for (auto &feature : frame.getFeatures()) {
+        fileO << feature << " ";
+      }
+      fileO << std::endl;
+    }
+    fileO.close();
+
+  } else {
+    std::cout << "Unable to open file for writing" << std::endl;
+  }
 }
 
 int main() {
@@ -40,12 +72,50 @@ int main() {
 
   std::cout << feas.getDim() << std::endl;
 
-  int dim = frame.size();
   int n_frames = 100;
-  Sample sample(dim, n_frames);
+  Sample sample;
   for (size_t i = 0; i < n_frames; i++) {
     sample.addFrame(frame);
   }
 
   sample.show_content();
+
+  std::cout << "Sample contains " << sample.getNFrames()
+            << " frames with dim: " << sample.getDim() << std::endl;
+
+  Sample sampleFromTLFEA;
+
+  std::string filename = "bin/sample/AAFA0016.features";
+  std::ifstream fileI(filename, std::ifstream::in);
+
+  std::string line;
+  size_t dim;
+  if (fileI.is_open()) {
+    getline(fileI, line);
+    std::cout << line << std::endl;  // AKREALTF
+
+    getline(fileI, line);
+    std::stringstream ss(line);
+
+    ss >> dim;
+    std::cout << "DIM " << dim << std::endl;  // DIM
+    ss >> n_frames;
+    std::cout << "NFRAMES " << n_frames << std::endl;  // NFRAMES
+
+    std::vector<float> values;
+
+    for (size_t i = 0; i < n_frames; i++) {
+      getline(fileI, line);
+      std::cout << line << std::endl;  // VALUES
+      values = parse_line(line);
+      sampleFromTLFEA.addFrame(values);
+    }
+
+    fileI.close();
+  } else {
+    std::cout << "Unable to open the file " << filename << " for reading."
+              << std::endl;
+  }
+
+  sampleFromTLFEA.write_sample("bin/sample/example.features");
 }

@@ -13,7 +13,8 @@ class Frame {
   size_t dim;
 
  public:
-  explicit Frame(const std::vector<float> &values);
+  explicit Frame(const std::vector<float>& values);
+  std::vector<float>& getFeatures() { return features; }
   size_t getDim() { return dim; }
   void show_content();
 };

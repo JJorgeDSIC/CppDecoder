@@ -45,6 +45,10 @@ include_directories(
   ${HEADER_PATHS}
   ${utils_SOURCE_DIR}/include)
 
+configure_file(
+  ${CMAKE_SOURCE_DIR}/sample/AAFA0016.features ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/sample/AAFA0016.features COPYONLY)
+  
+
 add_executable(${NAME} ${SOURCE_FILES})
 add_executable(cppdecoder::Sample ALIAS ${NAME})
 add_executable(cppdecoder::Frame ALIAS ${NAME})
