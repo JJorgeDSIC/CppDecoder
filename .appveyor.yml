@@ -28,8 +28,8 @@ before_build:
   - cmake -DSTANDALONE=ON -DCMAKE_BUILD_TYPE=%configuration% -G "Visual Studio %CMAKE_VS_VERSION%"
 
 build_script:
-  project: ALL_BUILD.vcxproj
-  verbosity: minimal
+  - msbuild cppdecoder.sln /m /p:Configuration=Debug /t:ALL_BUILD
+  - msbuild cppdecoder.sln /m /p:Configuration=Release /t:ALL_BUILD
 
 test_script:
   - cmd: ctest -C Release
