@@ -52,8 +52,6 @@ void Sample::write_sample(const std::string &filename) {
 }
 
 int main() {
-  std::cout << "Main feature..." << std::endl;
-
   std::vector<float> frame = {
       -0.392699, -2.06331,  0.0109949,  0.0630278, 0.713447,    -0.557419,
       1.46355,   0.809983,  0.990555,   0.682074,  -1.62765,    0.60225,
@@ -85,7 +83,7 @@ int main() {
 
   Sample sampleFromTLFEA;
 
-  std::string filename = "bin/sample/AAFA0016.features";
+  std::string filename = "bin/samples/AAFA0016.features";
   std::ifstream fileI(filename, std::ifstream::in);
 
   std::string line;
@@ -117,5 +115,5 @@ int main() {
               << std::endl;
   }
 
-  sampleFromTLFEA.write_sample("bin/sample/example.features");
+  sampleFromTLFEA.write_sample("bin/samples/example.features");
 }

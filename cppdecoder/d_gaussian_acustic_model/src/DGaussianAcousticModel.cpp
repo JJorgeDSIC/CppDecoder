@@ -28,7 +28,6 @@ void DGaussianAcousticModel::read_model(const std::string &filename) {
 
     std::string name;
     int n_q;
-    float temp_trans, temp_mu, temp_var, temp_ivar;
 
     for (int statesIter = 0; statesIter < n_states; statesIter++) {
       std::vector<float> trans;
@@ -105,9 +104,9 @@ void DGaussianAcousticModel::read_model(const std::string &filename) {
 void DGaussianAcousticModel::write_model(const std::string &filename) {
   std::ofstream fileO(filename, std::ios::app);
 
-  int n_q;
-
   if (fileO.is_open()) {
+    int n_q;
+
     fileO << "AMODEL\n";
     fileO << "DGaussian\n";
     fileO << "D " << dim << std::endl;

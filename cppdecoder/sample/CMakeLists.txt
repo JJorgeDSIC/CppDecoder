@@ -46,7 +46,7 @@ include_directories(
   ${utils_SOURCE_DIR}/include)
 
 configure_file(
-  ${CMAKE_SOURCE_DIR}/sample/AAFA0016.features ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/sample/AAFA0016.features COPYONLY)
+  ${CMAKE_SOURCE_DIR}/samples/AAFA0016.features ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/samples/AAFA0016.features COPYONLY)
   
 
 add_executable(${NAME} ${SOURCE_FILES})

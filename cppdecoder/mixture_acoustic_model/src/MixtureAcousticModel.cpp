@@ -126,7 +126,6 @@ void MixtureAcousticModel::read_model(const std::string &filename) {
         DGaussianState dg_state;
 
         int components;
-        std::vector<float> state_pmembers;
 
         getline(fileI, line, del);  // I
         getline(fileI, line);
