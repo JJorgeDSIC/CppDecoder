@@ -1,0 +1,32 @@
+version: 0.1.0[{build}]
+
+clone_depth: 1
+
+branches:
+  only:
+    - master
+    - dev
+
+cache:
+  - c:\usr
+
+image: Visual Studio 2019
+
+environment:
+  matrix:
+    - CMAKE_VS_VERSION: "16 2019"
+
+platform:
+  - x86
+  - x64
+configuration:
+  - Debug
+  - Release
+
+before_build:
+  - git submodule -q update --init --recursive
+  - cmake -DSTANDALONE=ON -DCMAKE_BUILD_TYPE=%configuration% -G "Visual Studio %CMAKE_VS_VERSION%"
+
+build_script:
+  project: ALL_BUILD.vcxproj
+  verbosity: minimal
