@@ -11,7 +11,7 @@
 
 TEST(Utils, RobustAddTest) {
   ASSERT_EQ(robust_add(std::vector<float>(10, 0), 0.0f, 10),
-            robust_add(std::vector<float>(10, 1), 0.0f, 10));
+            robust_add(std::vector<float>(10, 0), 0.0f, 10));
 }
 
 int main(int argc, char** argv) {
