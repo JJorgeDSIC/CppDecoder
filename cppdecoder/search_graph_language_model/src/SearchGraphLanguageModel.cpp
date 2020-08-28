@@ -128,6 +128,6 @@ int main() {
   std::cout << "Testing SearchGraphLanguageModel..." << std::endl;
 
   SearchGraphLanguageModel sgraph;
-  sgraph.read_model("../models/2.gram.graph");
-  sgraph.write_model("../models/2.gram.graph.again");
+  sgraph.read_model("bin/models/2.gram.graph");
+  sgraph.write_model("bin/models/2.gram.graph.again");
 }

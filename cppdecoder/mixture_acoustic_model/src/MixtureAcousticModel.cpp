@@ -319,8 +319,9 @@ float MixtureAcousticModel::calc_prob(const std::string &state, const int &q,
 }
 
 int main() {
-  MixtureAcousticModel amodel("models/mixture_monophoneme_I32.example.model");
-  amodel.write_model("models/mixture_monophoneme_I32.example.again.model");
+  MixtureAcousticModel amodel(
+      "bin/models/mixture_monophoneme_I32.example.model");
+  amodel.write_model("bin/models/mixture_monophoneme_I32.example.again.model");
 
   std::vector<float> frame = {
       -0.392699, -2.06331,  0.0109949,  0.0630278, 0.713447,    -0.557419,

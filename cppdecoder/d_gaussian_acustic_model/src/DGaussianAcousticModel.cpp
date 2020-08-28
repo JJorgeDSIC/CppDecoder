@@ -1,4 +1,5 @@
 #include "DGaussianAcousticModel.h"
+
 #include <Utils.h>
 
 void DGaussianAcousticModel::read_model(const std::string &filename) {
@@ -149,7 +150,7 @@ void DGaussianAcousticModel::write_model(const std::string &filename) {
 
   } else {
     std::cout << "Unable to open file for writing" << std::endl;
-    }
+  }
 }
 
 DGaussianAcousticModel::DGaussianAcousticModel(const std::string &filename) {
@@ -181,14 +182,10 @@ float DGaussianAcousticModel::calc_prob(const std::string &state, const int &q,
 }
 
 int main() {
-  std::random_device rd;
-  std::mt19937 e2(rd());
-  std::uniform_real_distribution<> dist(0, 10);
-
   DGaussianAcousticModel amodel(
-      "models/dgaussian_monopohoneme_I01.example.model");
+      "bin/models/dgaussian_monopohoneme_I01.example.model");
   amodel.write_model(
-      "models/dgaussian_monopohoneme_I01.example.again.model");
+      "bin/models/dgaussian_monopohoneme_I01.example.again.model");
 
   std::vector<float> frame = {
       -0.392699, -2.06331,  0.0109949,  0.0630278, 0.713447,    -0.557419,

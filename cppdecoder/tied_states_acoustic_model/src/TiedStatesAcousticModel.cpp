@@ -1,4 +1,5 @@
 #include "TiedStatesAcousticModel.h"
+
 #include "Utils.h"
 
 TiedStatesAcousticModel::TiedStatesAcousticModel() {
@@ -237,7 +238,7 @@ void TiedStatesAcousticModel::write_model(const std::string &filename) {
       fileO << std::endl;
     }
 
-  } else  {
+  } else {
     std::cout << "Unable to open file for writing." << std::endl;
   }
 }
@@ -251,6 +252,6 @@ TiedStatesAcousticModel::~TiedStatesAcousticModel() {
 }
 
 int main() {
-  TiedStatesAcousticModel amodel("models/tiedphoneme_I04.example.model");
-  amodel.write_model("models/tiedphoneme_I04.example.again.model");
+  TiedStatesAcousticModel amodel("bin/models/tiedphoneme_I04.example.model");
+  amodel.write_model("bin/models/tiedphoneme_I04.example.again.model");
 }
