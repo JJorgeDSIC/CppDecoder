@@ -8,3 +8,7 @@ add_subdirectory(cppdecoder/d_gaussian_acustic_model)
 add_subdirectory(cppdecoder/mixture_acoustic_model)
 add_subdirectory(cppdecoder/tied_states_acoustic_model)
 add_subdirectory(cppdecoder/search_graph_language_model)
+
+enable_testing()
+include(CTest)
+add_subdirectory(unittests)
