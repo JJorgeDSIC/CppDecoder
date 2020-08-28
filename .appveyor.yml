@@ -29,8 +29,7 @@ before_build:
 
 build_script:
   - dir
-  - msbuild CppDecoder.sln /m /p:Configuration=Debug /t:ALL_BUILD
-  - msbuild CppDecoder.sln /m /p:Configuration=Release /t:ALL_BUILD
+  - msbuild CppDecoder.sln /m /p:Configuration=%configuration% /p:Platform=%platform% /t:ALL_BUILD
 
 test_script:
-  - cmd: ctest -C Release
+  - cmd: ctest -C %configuration%
