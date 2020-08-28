@@ -1,0 +1,65 @@
+sudo: true
+language: cpp
+
+addons:
+  apt:
+    packages:
+      - valgrind
+      - cmake
+      - ninja-build
+      - doxygen
+  homebrew:
+    packages:
+      - git-lfs
+      - doxygen
+      - ninja
+
+env:
+  global:
+    - CTEST_EXT_COLOR_OUTPUT=TRUE
+    - CTEST_BUILD_FLAGS=-j4
+
+matrix:
+  include:
+    - os: linux
+      name: Ubuntu Bionic gcc
+      dist: bionic
+      env:
+        - MATRIX_EVAL="CC=gcc && CXX=g++"
+
+    - os: linux
+      name: Ubuntu Bionic clang
+      dist: bionic
+      env:
+        - MATRIX_EVAL="CC=clang && CXX=clang++"
+
+    - os: osx
+      name: OSX xcode11.2 gcc
+      osx_image: xcode11.2
+      env:
+        - MATRIX_EVAL="CC=gcc && CXX=g++"
+
+    - os: osx
+      name: OSX xcode11.2 clang
+      osx_image: xcode11.2
+      env:
+        - MATRIX_EVAL="CC=clang && CXX=clang++"
+
+before_install:
+  - eval "${MATRIX_EVAL}"
+
+before_script:
+  - chmod +x build_osx.sh
+  - chmod +x build_linux.sh
+
+script:
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./build_osx.sh; else ./build_linux.sh; fi
+
+branches:
+  only:
+    - master
+    - dev
+
+notifications:
+  email:
+    on_success: never

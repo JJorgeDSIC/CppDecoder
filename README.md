@@ -2,8 +2,10 @@ CppDecoder
 ==========
 [![GitHub issue last update](https://img.shields.io/badge/updated-August%202020-red.svg?longCache=true&style=for-the-badge)](https://github.com/JJorgeDSIC/CppDecoder)
 
-# Index
+[![Build Status](https://travis-ci.com/JJorgeDSIC/CppDecoder.svg?token=5fk9KntSDznycEHAZzsx&branch=master)](https://travis-ci.com/JJorgeDSIC/CppDecoder)
+[![Build Status](https://ci.appveyor.com/api/projects/status/k6y2gjl1qh2ftn4h/branch/master?svg=true)](https://ci.appveyor.com/project/JJorgeDSIC/cppdecoder/branch/master)
 
+# Index
 - [About](#about)
 - [What's New?](#whats-new)
 - [How to Build](#how-to-build)
