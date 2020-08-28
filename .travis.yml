@@ -53,7 +53,10 @@ before_script:
   - chmod +x ci/build_linux.sh
 
 script:
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./ci/build_osx.sh; else ./ci/build_linux.sh; fi
+  - mkdir -p build
+  - cmake -DCMAKE_BUILD_TYPE=Release -H. -Bbuild -G "Ninja"
+  - cmake --build build --config Release --target all -- -j 10
+  - cmake --build build --config Release --target ContinuousTest
 
 branches:
   only:
