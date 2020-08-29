@@ -24,11 +24,12 @@ class Sample {
   size_t getDim() { return dim; }
   size_t getNFrames() { return num_frames; }
   Frame &getFrame(size_t t) { return frames[t]; }
-  void write_sample(const std::string &filename);
+  int read_sample(const std::string &filename);
+  int write_sample(const std::string &filename);
+  int addFrame(const std::string &line);
+  int addFrame(const std::vector<float> &features);
   void setDim(size_t dim) { this->dim = dim; }
   void setNFrames(size_t num_frames) { this->num_frames = num_frames; }
-  void addFrame(const std::string &line);
-  void addFrame(const std::vector<float> &features);
   void show_content();
 
   inline std::vector<Frame>::iterator begin() noexcept {

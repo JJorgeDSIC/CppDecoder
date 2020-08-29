@@ -24,7 +24,7 @@ class TransValue {
   float value;
 
  public:
-  TransValue(const std::string &st, const float &val) : state(st), value(val) {}
+  TransValue(const std::string &st, float val) : state(st), value(val) {}
   std::string &getState() { return state; }
   float &getValue() { return value; }
 };
@@ -42,13 +42,13 @@ class DGaussianState {
   void addPMembers(const std::string &line);
   void addMu(const std::string &line);
   void addVar(const std::string &line);
-  void setComponents(const size_t comps) { components = comps; }
+  void setComponents(size_t comps) { components = comps; }
   size_t getComponents() { return components; }
   std::vector<std::vector<float> > &getMus() { return mus; }
-  std::vector<float> &getMuByComponent(const size_t &component) {
+  std::vector<float> &getMuByComponent(size_t component) {
     return mus[component];
   }
-  std::vector<float> &getIVarByComponent(const size_t &component) {
+  std::vector<float> &getIVarByComponent(size_t component) {
     return ivars[component];
   }
   std::vector<std::vector<float> > &getVars() { return vars; }
@@ -79,9 +79,9 @@ class MixtureAcousticModel {
   unsigned int getDim();
   unsigned int getNStates();
 
-  void read_model(const std::string &filename);
-  void write_model(const std::string &filename);
-  float calc_prob(const std::string &state, const int &q,
+  int read_model(const std::string &filename);
+  int write_model(const std::string &filename);
+  float calc_prob(const std::string &state, int q,
                   const std::vector<float> &frame);
 };
 

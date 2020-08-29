@@ -40,9 +40,9 @@ class DGaussianAcousticModel {
   unsigned int getDim();
   unsigned int getNStates();
 
-  void read_model(const std::string &filename);
-  void write_model(const std::string &filename);
-  float calc_prob(const std::string &state, const int &q,
+  int read_model(const std::string &filename);
+  int write_model(const std::string &filename);
+  float calc_prob(const std::string &state, int q,
                   const std::vector<float> &frame);
 };
 

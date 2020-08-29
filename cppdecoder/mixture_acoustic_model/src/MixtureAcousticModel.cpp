@@ -30,11 +30,7 @@ void DGaussianState::addVar(const std::string &line) {
   logc.push_back(lgc);
 }
 
-MixtureAcousticModel::MixtureAcousticModel() {
-  std::cout << "Constructor" << std::endl;
-}
-
-void MixtureAcousticModel::read_model(const std::string &filename) {
+int MixtureAcousticModel::read_model(const std::string &filename) {
   std::cout << "Reading MixtureAcousticModel model from " << filename << "..."
             << std::endl;
 
@@ -160,10 +156,12 @@ void MixtureAcousticModel::read_model(const std::string &filename) {
   } else {
     std::cout << "Unable to open the file " << filename << " for reading."
               << std::endl;
+    return 1;
   }
+  return 0;
 }
 
-void MixtureAcousticModel::write_model(const std::string &filename) {
+int MixtureAcousticModel::write_model(const std::string &filename) {
   std::ofstream fileO(filename, std::ios::app);
 
   int n_q;
@@ -255,7 +253,10 @@ void MixtureAcousticModel::write_model(const std::string &filename) {
 
   } else {
     std::cout << "Unable to open file for writing" << std::endl;
+    return 1;
   }
+
+  return 0;
 }
 
 MixtureAcousticModel::MixtureAcousticModel(const std::string &filename) {
@@ -270,7 +271,7 @@ unsigned int MixtureAcousticModel::getDim() { return dim; }
 
 unsigned int MixtureAcousticModel::getNStates() { return n_states; }
 
-float MixtureAcousticModel::calc_prob(const std::string &state, const int &q,
+float MixtureAcousticModel::calc_prob(const std::string &state, int q,
                                       const std::vector<float> &frame) {
   int n_q = state_to_num_q[state];
 

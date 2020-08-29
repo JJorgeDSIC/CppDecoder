@@ -2,11 +2,7 @@
 
 #include "Utils.h"
 
-TiedStatesAcousticModel::TiedStatesAcousticModel() {
-  std::cout << "Constructor" << std::endl;
-}
-
-void TiedStatesAcousticModel::read_model(const std::string &filename) {
+int TiedStatesAcousticModel::read_model(const std::string &filename) {
   std::cout << "Reading TiedStatesAcousticModel from " << filename << "..."
             << std::endl;
 
@@ -161,10 +157,12 @@ void TiedStatesAcousticModel::read_model(const std::string &filename) {
     fileI.close();
   } else {
     std::cout << "Unable to open file for reading" << std::endl;
+    return 1;
   }
+  return 0;
 }
 
-void TiedStatesAcousticModel::write_model(const std::string &filename) {
+int TiedStatesAcousticModel::write_model(const std::string &filename) {
   std::ofstream fileO(filename, std::ios::app);
 
   if (fileO.is_open()) {
@@ -240,15 +238,13 @@ void TiedStatesAcousticModel::write_model(const std::string &filename) {
 
   } else {
     std::cout << "Unable to open file for writing." << std::endl;
+    return 1;
   }
+  return 0;
 }
 
 TiedStatesAcousticModel::TiedStatesAcousticModel(const std::string &filename) {
   TiedStatesAcousticModel::read_model(filename);
-}
-
-TiedStatesAcousticModel::~TiedStatesAcousticModel() {
-  std::cout << "Destructor" << std::endl;
 }
 
 int main() {

@@ -42,11 +42,9 @@ class TiedStatesAcousticModel {
   std::unordered_map<std::string, std::vector<std::string> > symbol_to_senones;
 
  public:
-  TiedStatesAcousticModel();
   explicit TiedStatesAcousticModel(const std::string &filename);
-  ~TiedStatesAcousticModel();
-  void read_model(const std::string &filename);
-  void write_model(const std::string &filename);
+  int read_model(const std::string &filename);
+  int write_model(const std::string &filename);
 };
 
 #endif  // TIEDSTATESACOUSTICMODEL_H_

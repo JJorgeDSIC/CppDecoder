@@ -2,7 +2,7 @@
 
 #include <Utils.h>
 
-void DGaussianAcousticModel::read_model(const std::string &filename) {
+int DGaussianAcousticModel::read_model(const std::string &filename) {
   std::cout << "Reading DGaussianAcoustic model from " << filename << "..."
             << std::endl;
 
@@ -98,10 +98,12 @@ void DGaussianAcousticModel::read_model(const std::string &filename) {
   } else {
     std::cout << "Unable to open the file " << filename << " for reading."
               << std::endl;
+    return 1;
   }
+  return 0;
 }
 
-void DGaussianAcousticModel::write_model(const std::string &filename) {
+int DGaussianAcousticModel::write_model(const std::string &filename) {
   std::ofstream fileO(filename, std::ios::app);
 
   if (fileO.is_open()) {
@@ -149,7 +151,9 @@ void DGaussianAcousticModel::write_model(const std::string &filename) {
 
   } else {
     std::cout << "Unable to open file for writing" << std::endl;
+    return 1;
   }
+  return 0;
 }
 
 DGaussianAcousticModel::DGaussianAcousticModel(const std::string &filename) {
@@ -164,7 +168,7 @@ unsigned int DGaussianAcousticModel::getDim() { return dim; }
 
 unsigned int DGaussianAcousticModel::getNStates() { return n_states; }
 
-float DGaussianAcousticModel::calc_prob(const std::string &state, const int &q,
+float DGaussianAcousticModel::calc_prob(const std::string &state, int q,
                                         const std::vector<float> &frame) {
   std::vector<float> mu = state_to_mus[state][q];
   std::vector<float> ivar = state_to_ivars[state][q];

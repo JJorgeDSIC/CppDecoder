@@ -4,38 +4,13 @@
 
 int read_header_line(std::ifstream &fileI, std::string line, const char del) {
   int value;
-  getline(fileI, line, del);  // NStates
-  getline(fileI, line);
+  getline(fileI, line, del);  // PARAM
+  getline(fileI, line);       // values
   std::stringstream(line) >> value;
   return value;
 }
 
-SearchGraphLanguageModel::SearchGraphLanguageModel() {
-  this->symbol_id = 0;
-  this->word_id = 0;
-}
-
-SearchGraphLanguageModelState::SearchGraphLanguageModelState(int state_id,
-                                                             std::string symbol,
-                                                             std::string word,
-                                                             int edge_begin,
-                                                             int edge_end) {
-  this->state_id = state_id;
-  this->symbol = symbol;
-  this->word = word;
-  this->edge_begin = edge_begin;
-  this->edge_end = edge_end;
-}
-
-SearchGraphLanguageModelEdge::SearchGraphLanguageModelEdge(int edge_id,
-                                                           int edge_dst,
-                                                           float edge_weight) {
-  this->edge_id = edge_id;
-  this->edge_dst = edge_dst;
-  this->edge_weight = edge_weight;
-}
-
-void SearchGraphLanguageModel::write_model(const std::string &filename) {
+int SearchGraphLanguageModel::write_model(const std::string &filename) {
   std::cout << "Writing model in " << filename << std::endl;
   std::ofstream fileO(filename, std::ios::app);
   if (fileO.is_open()) {
@@ -63,10 +38,12 @@ void SearchGraphLanguageModel::write_model(const std::string &filename) {
 
   } else {
     std::cout << "Unable to open file for writing" << std::endl;
+    return 1;
   }
+  return 0;
 }
 
-void SearchGraphLanguageModel::read_model(const std::string &filename) {
+int SearchGraphLanguageModel::read_model(const std::string &filename) {
   std::cout << "Reading language model..." << std::endl;
 
   std::ifstream fileI(filename, std::ifstream::in);
@@ -121,7 +98,9 @@ void SearchGraphLanguageModel::read_model(const std::string &filename) {
   } else {
     std::cout << "Unable to open the file " << filename << " for reading."
               << std::endl;
+    return 1;
   }
+  return 0;
 }
 
 int main() {
