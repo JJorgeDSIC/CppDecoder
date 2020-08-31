@@ -1,5 +1,10 @@
+#include <DGaussianAcousticModel.h>
+#include <MixtureAcousticModel.h>
 #include <Sample.h>
+#include <SearchGraphLanguageModel.h>
+#include <TiedStatesAcousticModel.h>
 #include <Utils.h>
+
 int main() {
   std::cout << "Testing SearchGraphLanguageModel..." << std::endl;
 
@@ -22,4 +27,44 @@ int main() {
   Frame feas(frame);
 
   feas.show_content();
+
+  std::cout << "Testing SearchGraphLanguageModel..." << std::endl;
+
+  SearchGraphLanguageModel sgraph;
+  sgraph.read_model("bin/models/2.gram.graph");
+  sgraph.write_model("bin/models/2.gram.graph.again");
+
+  // All this will be moved to testing soon...
+  std::vector<float> mu = {2.0, 3.0, 5.0, 6.0};
+  std::vector<float> var = {0.5, 0.4, 0.6, 0.8};
+
+  std::string lineMu = {"2.0, 3.0, 5.0, 6.0"};
+  std::string lineVar = {"0.5, 0.4, 0.6, 0.8"};
+
+  GaussianState gstate;
+
+  gstate.addMu(lineMu);
+
+  DGaussianAcousticModel dgaussianmodel(
+      "bin/models/dgaussian_monopohoneme_I01.example.model");
+  dgaussianmodel.write_model(
+      "bin/models/dgaussian_monopohoneme_I01.example.again.model");
+
+  float prob = dgaussianmodel.calc_prob("aa", 0, frame);
+
+  std::cout << "Prob: " << prob << std::endl;
+
+  MixtureAcousticModel mixturemodel(
+      "bin/models/mixture_monophoneme_I32.example.model");
+  mixturemodel.write_model(
+      "bin/models/mixture_monophoneme_I32.example.again.model");
+
+  std::cout << "Log prob : " << mixturemodel.calc_prob("a", 0, frame)
+            << std::endl;
+
+  TiedStatesAcousticModel tiedmodel("bin/models/tiedphoneme_I04.example.model");
+  tiedmodel.write_model("bin/models/tiedphoneme_I04.example.again.model");
+
+  std::cout << "Log prob : " << tiedmodel.calc_prob("aa_B+l_E", 0, frame)
+            << std::endl;
 }

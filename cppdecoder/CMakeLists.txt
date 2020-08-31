@@ -23,9 +23,15 @@ endif()
 
 set(HEADER_PATHS include)
 
+message(DEBUG, ${Utils_SOURCE_DIR})
+
 include_directories(
   ${HEADER_PATHS}
-  ${Utils_SOURCE_DIR}/include)
+  ${Utils_SOURCE_DIR}/include
+  ${Sample_SOURCE_DIR}/include
+  ${SearchGraphLanguageModel_SOURCE_DIR}/include
+  ${AcousticModel_SOURCE_DIR}/include
+  )
 
 add_executable(${NAME} ${SOURCE_FILES})
 add_executable(
@@ -45,4 +51,7 @@ target_include_directories(${NAME}
   PUBLIC ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
 
 target_link_libraries(${NAME}
-  cppdecoder::Utils)
+  cppdecoder::Utils
+  cppdecoder::Sample
+  cppdecoder::SearchGraphLanguageModel
+  cppdecoder::AcousticModel)
