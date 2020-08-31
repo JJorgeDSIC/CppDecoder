@@ -2,14 +2,6 @@
 
 #include <Utils.h>
 
-int read_header_line(std::ifstream &fileI, std::string line, const char del) {
-  int value;
-  getline(fileI, line, del);  // PARAM
-  getline(fileI, line);       // values
-  std::stringstream(line) >> value;
-  return value;
-}
-
 int SearchGraphLanguageModel::write_model(const std::string &filename) {
   std::cout << "Writing model in " << filename << std::endl;
   std::ofstream fileO(filename, std::ios::app);

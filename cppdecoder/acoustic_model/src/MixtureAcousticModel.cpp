@@ -1,33 +1,11 @@
 #include "MixtureAcousticModel.h"
 
-#include <Utils.h>
-
-void DGaussianState::addPMembers(const std::string &line) {
+void GaussianMixtureState::addPMembers(const std::string &line) {
   pmembers = parse_line(line);
 }
 
-void DGaussianState::addMu(const std::string &line) {
-  mus.push_back(parse_line(line));
-}
-
-void DGaussianState::addVar(const std::string &line) {
-  vars.push_back(parse_line(line));
-
-  std::vector<float> ivar;
-
-  float lgc = 0.0f;
-
-  for (auto value : vars[vars.size() - 1]) {
-    ivar.push_back(1.0 / value);
-    lgc += log(value);
-  }
-  ivars.push_back(ivar);
-
-  lgc += vars[vars.size() - 1].size() * LOG2PI;
-
-  lgc = -0.5 * lgc;
-
-  logc.push_back(lgc);
+void GaussianMixtureState::addGaussianState(const GaussianState &state) {
+  gstates.push_back(state);
 }
 
 int MixtureAcousticModel::read_model(const std::string &filename) {
@@ -116,10 +94,10 @@ int MixtureAcousticModel::read_model(const std::string &filename) {
         state_to_transL[name] = transL;
       }
 
-      std::vector<DGaussianState> state_dgaussians;
+      std::vector<GaussianMixtureState> state_dgaussians;
 
       for (i = 0; i < n_q; i++) {
-        DGaussianState dg_state;
+        GaussianMixtureState dg_state;
 
         int components;
 
@@ -134,16 +112,17 @@ int MixtureAcousticModel::read_model(const std::string &filename) {
         dg_state.addPMembers(line);
 
         for (auto j = 0; j < components; j++) {
-          // MU
+          GaussianState gstate;
+
           getline(fileI, line, del);  // MU
           getline(fileI, line);       // values
-
-          dg_state.addMu(line);
+          gstate.addMu(line);
 
           getline(fileI, line, del);  // VAR
           getline(fileI, line);       // values
+          gstate.addVar(line);
 
-          dg_state.addVar(line);
+          dg_state.addGaussianState(gstate);
         }
 
         state_dgaussians.push_back(dg_state);
@@ -224,7 +203,7 @@ int MixtureAcousticModel::write_model(const std::string &filename) {
       int num_q = state_to_num_q[name];
 
       for (auto i = 0; i < num_q; i++) {
-        DGaussianState dg_states = symbol_to_states[name][i];
+        GaussianMixtureState dg_states = symbol_to_states[name][i];
         fileO << "I " << dg_states.getComponents() << std::endl;
         fileO << "PMembers ";
         for (auto &value : dg_states.getPMembers()) {
@@ -234,14 +213,16 @@ int MixtureAcousticModel::write_model(const std::string &filename) {
 
         fileO << "Members " << std::endl;
         for (auto j = 0; j < dg_states.getComponents(); j++) {
+          GaussianState gs = dg_states.getGaussianStateByComponent(j);
+
           fileO << "MU ";
-          for (auto &value : dg_states.getMus()[j]) {
+          for (auto &value : gs.getMu()) {
             fileO << value << " ";
           }
           fileO << std::endl;
 
           fileO << "VAR ";
-          for (auto &value : dg_states.getVars()[j]) {
+          for (auto &value : gs.getVar()) {
             fileO << value << " ";
           }
           fileO << std::endl;
@@ -263,13 +244,9 @@ MixtureAcousticModel::MixtureAcousticModel(const std::string &filename) {
   MixtureAcousticModel::read_model(filename);
 }
 
-MixtureAcousticModel::~MixtureAcousticModel() {
-  std::cout << "Destructor" << std::endl;
-}
+size_t MixtureAcousticModel::getDim() { return dim; }
 
-unsigned int MixtureAcousticModel::getDim() { return dim; }
-
-unsigned int MixtureAcousticModel::getNStates() { return n_states; }
+size_t MixtureAcousticModel::getNStates() { return n_states; }
 
 float MixtureAcousticModel::calc_prob(const std::string &state, int q,
                                       const std::vector<float> &frame) {
@@ -277,32 +254,19 @@ float MixtureAcousticModel::calc_prob(const std::string &state, int q,
 
   if (q > n_q) return -1.0;
 
-  DGaussianState dgstate = symbol_to_states[state][q];
+  GaussianMixtureState dgstate = symbol_to_states[state][q];
 
   int components = dgstate.getComponents();
 
   std::vector<float> pmembers = dgstate.getPMembers();
-  std::vector<float> mu, ivar, logcs;
-
   std::vector<float> pprob;
-
-  logcs = dgstate.getLogcs();
 
   float max = -HUGE_VAL;
 
   for (auto i = 0; i < components; i++) {
     float prob = 0.0, aux = 0.0;
-    float logc;
 
-    mu = dgstate.getMuByComponent(i);
-    ivar = dgstate.getIVarByComponent(i);
-    logc = logcs[i];
-
-    for (auto i = 0; i < frame.size(); i++) {
-      aux = frame[i] - mu[i];
-      prob += (aux * aux) * ivar[i];
-    }
-    prob = -0.5 * prob + logc;
+    prob = dgstate.getGaussianStateByComponent(i).calc_prob(frame);
 
     aux = pmembers[i] + prob;
     if (aux > max) max = aux;
@@ -316,22 +280,4 @@ float MixtureAcousticModel::calc_prob(const std::string &state, int q,
   } else {
     return -HUGE_VAL;
   }
-}
-
-int main() {
-  MixtureAcousticModel amodel(
-      "bin/models/mixture_monophoneme_I32.example.model");
-  amodel.write_model("bin/models/mixture_monophoneme_I32.example.again.model");
-
-  std::vector<float> frame = {
-      -0.392699, -2.06331,  0.0109949,  0.0630278, 0.713447,    -0.557419,
-      1.46355,   0.809983,  0.990555,   0.682074,  -1.62765,    0.60225,
-      0.493882,  1.55829,   -0.59736,   -1.34481,  -0.0268113,  -0.0561324,
-      0.536304,  1.16865,   0.753556,   -0.813899, -0.370601,   -0.346987,
-      -1.12761,  0.0755082, -1.127,     -1.23163,  0.717646,    -0.20932,
-      0.515273,  0.0881923, 0.00711961, 0.294303,  -0.00440401, -0.600391,
-      -0.627719, 0.292688,  0.360419,   -0.443323, -0.189734,   0.420539,
-      0.881978,  0.19503,   -0.93659,   -0.414377, 0.544633,    0.00430982};
-
-  std::cout << "Log prob : " << amodel.calc_prob("a", 0, frame) << std::endl;
 }

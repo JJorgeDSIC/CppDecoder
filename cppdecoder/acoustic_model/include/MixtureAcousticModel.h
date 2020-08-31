@@ -17,7 +17,8 @@
 #include <unordered_map>
 #include <vector>
 
-const float LOG2PI = 1.83787706641f;
+#include "DGaussianAcousticModel.h"
+#include "Utils.h"
 
 class TransValue {
   std::string state;
@@ -29,56 +30,43 @@ class TransValue {
   float &getValue() { return value; }
 };
 
-class DGaussianState {
-  std::vector<std::vector<float> > mus;
-  std::vector<std::vector<float> > vars;
-  std::vector<std::vector<float> > ivars;
+class GaussianMixtureState {
+  std::vector<GaussianState> gstates;
   std::vector<float> pmembers;
-  std::vector<float> logc;
   size_t components;
 
  public:
-  DGaussianState() : components(0) {}
-  void addPMembers(const std::string &line);
-  void addMu(const std::string &line);
-  void addVar(const std::string &line);
-  void setComponents(size_t comps) { components = comps; }
+  GaussianMixtureState() : components(0) {}
   size_t getComponents() { return components; }
-  std::vector<std::vector<float> > &getMus() { return mus; }
-  std::vector<float> &getMuByComponent(size_t component) {
-    return mus[component];
+  void setComponents(size_t comps) { components = comps; }
+
+  void addPMembers(const std::string &line);
+  void addGaussianState(const GaussianState &state);
+  GaussianState &getGaussianStateByComponent(size_t component) {
+    return gstates[component];
   }
-  std::vector<float> &getIVarByComponent(size_t component) {
-    return ivars[component];
-  }
-  std::vector<std::vector<float> > &getVars() { return vars; }
   std::vector<float> &getPMembers() { return pmembers; }
-  std::vector<float> &getLogcs() { return logc; }
 };
 
 class MixtureAcousticModel {
   typedef std::tuple<std::string, float> value_t;
   std::vector<std::string> states;
-  std::unordered_map<std::string, std::vector<DGaussianState> >
+  std::unordered_map<std::string, std::vector<GaussianMixtureState>>
       symbol_to_states;
-  std::unordered_map<std::string, std::vector<float> > state_to_trans;
+  std::unordered_map<std::string, std::vector<float>> state_to_trans;
   std::unordered_map<std::string,
-                     std::unordered_map<std::string, std::vector<TransValue> > >
+                     std::unordered_map<std::string, std::vector<TransValue>>>
       state_to_transL;
   std::unordered_map<std::string, std::string> state_to_type;
   std::unordered_map<std::string, int> state_to_num_q;
   std::vector<float> smooth;
-  unsigned int dim;
-  unsigned int n_states;
+  size_t dim;
+  size_t n_states;
 
  public:
-  MixtureAcousticModel();
   explicit MixtureAcousticModel(const std::string &filename);
-  ~MixtureAcousticModel();
-
-  unsigned int getDim();
-  unsigned int getNStates();
-
+  size_t getDim();
+  size_t getNStates();
   int read_model(const std::string &filename);
   int write_model(const std::string &filename);
   float calc_prob(const std::string &state, int q,

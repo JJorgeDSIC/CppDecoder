@@ -1,6 +1,39 @@
 #include "DGaussianAcousticModel.h"
 
-#include <Utils.h>
+void GaussianState::addMu(const std::string &line) {
+  mu = read_vector<float>(line);
+}
+
+void GaussianState::addVar(const std::string &line) {
+  var = read_vector<float>(line);
+
+  float lgc = 0.0f;
+
+  for (auto value : var) {
+    ivar.push_back(1.0 / value);
+    lgc += log(value);
+  }
+  lgc += var.size() * LOG2PI;
+
+  logc = -0.5 * lgc;
+}
+
+void GaussianState::print_state() {
+  print_vector<float>(mu);
+  print_vector<float>(var);
+  std::cout << logc << std::endl;
+}
+
+float GaussianState::calc_prob(const std::vector<float> &frame) {
+  float prob = 0.0;
+  float aux = 0.0;
+
+  for (auto i = 0; i < frame.size(); i++) {
+    aux = frame[i] - mu[i];
+    prob += (aux * aux) * ivar[i];
+  }
+  return -0.5 * prob + logc;
+}
 
 int DGaussianAcousticModel::read_model(const std::string &filename) {
   std::cout << "Reading DGaussianAcoustic model from " << filename << "..."
@@ -52,46 +85,25 @@ int DGaussianAcousticModel::read_model(const std::string &filename) {
 
       state_to_trans[name] = trans;
 
-      std::vector<std::vector<float>> states_mu;
-      std::vector<std::vector<float>> states_var;
-      std::vector<std::vector<float>> states_ivar;
-      std::vector<float> states_logc;
+      std::vector<GaussianState> gstates;
 
       for (int i = 0; i < n_q; i++) {
-        std::vector<float> mu;
-        std::vector<float> var;
-        std::vector<float> ivar;
-        float logc = 0;
+        GaussianState gstate;
 
         // MU
         getline(fileI, line, del);  // MU
         getline(fileI, line);       // values
 
-        mu = parse_line(line);
+        gstate.addMu(line);
 
         getline(fileI, line, del);  // VAR
         getline(fileI, line);       // values
 
-        var = parse_line(line);
-
-        for (auto value : var) {
-          ivar.push_back(1.0 / value);
-          logc += log(value);
-        }
-
-        logc += dim * LOG2PI;
-        logc = -0.5 * logc;
-
-        states_mu.push_back(mu);
-        states_var.push_back(var);
-        states_ivar.push_back(ivar);
-        states_logc.push_back(logc);
+        gstate.addVar(line);
+        gstates.push_back(gstate);
       }
 
-      state_to_mus[name] = states_mu;
-      state_to_vars[name] = states_var;
-      state_to_ivars[name] = states_ivar;
-      state_to_logc[name] = states_logc;
+      state_to_gstate[name] = gstates;
     }
 
     fileI.close();
@@ -131,17 +143,16 @@ int DGaussianAcousticModel::write_model(const std::string &filename) {
 
       fileO << std::endl;
 
-      std::vector<std::vector<float>> mus = state_to_mus[name];
-      std::vector<std::vector<float>> vars = state_to_vars[name];
+      std::vector<GaussianState> gstates = state_to_gstate[name];
 
       for (auto i = 0; i < n_q; i++) {
         fileO << "MU ";
-        for (auto &value : mus[i]) fileO << value << " ";
+        for (auto &value : gstates[i].getMu()) fileO << value << " ";
 
         fileO << std::endl;
 
         fileO << "VAR ";
-        for (auto &value : vars[i]) fileO << value << " ";
+        for (auto &value : gstates[i].getVar()) fileO << value << " ";
 
         fileO << std::endl;
       }
@@ -160,47 +171,13 @@ DGaussianAcousticModel::DGaussianAcousticModel(const std::string &filename) {
   DGaussianAcousticModel::read_model(filename);
 }
 
-DGaussianAcousticModel::~DGaussianAcousticModel() {
-  std::cout << "Destructor" << std::endl;
-}
-
 unsigned int DGaussianAcousticModel::getDim() { return dim; }
 
 unsigned int DGaussianAcousticModel::getNStates() { return n_states; }
 
 float DGaussianAcousticModel::calc_prob(const std::string &state, int q,
                                         const std::vector<float> &frame) {
-  std::vector<float> mu = state_to_mus[state][q];
-  std::vector<float> ivar = state_to_ivars[state][q];
-  float logc = state_to_logc[state][q];
-
-  float prob = 0.0;
-  float aux = 0.0;
-
-  for (auto i = 0; i < frame.size(); i++) {
-    aux = frame[i] - mu[i];
-    prob += (aux * aux) * ivar[i];
-  }
-  return -0.5 * prob + logc;
+  std::vector<GaussianState> gstates = state_to_gstate[state];
+  return gstates[q].calc_prob(frame);
 }
 
-int main() {
-  DGaussianAcousticModel amodel(
-      "bin/models/dgaussian_monopohoneme_I01.example.model");
-  amodel.write_model(
-      "bin/models/dgaussian_monopohoneme_I01.example.again.model");
-
-  std::vector<float> frame = {
-      -0.392699, -2.06331,  0.0109949,  0.0630278, 0.713447,    -0.557419,
-      1.46355,   0.809983,  0.990555,   0.682074,  -1.62765,    0.60225,
-      0.493882,  1.55829,   -0.59736,   -1.34481,  -0.0268113,  -0.0561324,
-      0.536304,  1.16865,   0.753556,   -0.813899, -0.370601,   -0.346987,
-      -1.12761,  0.0755082, -1.127,     -1.23163,  0.717646,    -0.20932,
-      0.515273,  0.0881923, 0.00711961, 0.294303,  -0.00440401, -0.600391,
-      -0.627719, 0.292688,  0.360419,   -0.443323, -0.189734,   0.420539,
-      0.881978,  0.19503,   -0.93659,   -0.414377, 0.544633,    0.00430982};
-
-  float prob = amodel.calc_prob("aa", 0, frame);
-
-  std::cout << "Prob: " << prob << std::endl;
-}

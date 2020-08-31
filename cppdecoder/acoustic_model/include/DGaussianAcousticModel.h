@@ -16,16 +16,29 @@
 #include <unordered_map>
 #include <vector>
 
-const float LOG2PI = 1.83787706641f;
+#include "Utils.h"
+
+class GaussianState {
+  std::vector<float> mu;
+  std::vector<float> var;
+  std::vector<float> ivar;
+  float logc;
+
+ public:
+  void addMu(const std::string &line);
+  void addVar(const std::string &line);
+  void setLogc(float logc) { this->logc = logc; }
+  std::vector<float> &getMu() { return mu; }
+  std::vector<float> &getVar() { return var; }
+  std::vector<float> &getIVar() { return ivar; }
+  float &getLogc() { return logc; }
+  void print_state();
+  float calc_prob(const std::vector<float> &frame);
+};
 
 class DGaussianAcousticModel {
   std::vector<std::string> states;
-  std::unordered_map<std::string, std::vector<std::vector<float>>> state_to_mus;
-  std::unordered_map<std::string, std::vector<std::vector<float>>>
-      state_to_vars;
-  std::unordered_map<std::string, std::vector<std::vector<float>>>
-      state_to_ivars;
-  std::unordered_map<std::string, std::vector<float>> state_to_logc;
+  std::unordered_map<std::string, std::vector<GaussianState>> state_to_gstate;
   std::unordered_map<std::string, std::vector<float>> state_to_trans;
   std::unordered_map<std::string, int> state_to_num_q;
   std::vector<float> smooth;
@@ -33,13 +46,9 @@ class DGaussianAcousticModel {
   unsigned int n_states;
 
  public:
-  DGaussianAcousticModel() : n_states(0), dim(0) {}
   explicit DGaussianAcousticModel(const std::string &filename);
-  ~DGaussianAcousticModel();
-
   unsigned int getDim();
   unsigned int getNStates();
-
   int read_model(const std::string &filename);
   int write_model(const std::string &filename);
   float calc_prob(const std::string &state, int q,

@@ -1,7 +1,5 @@
 #include "TiedStatesAcousticModel.h"
 
-#include "Utils.h"
-
 int TiedStatesAcousticModel::read_model(const std::string &filename) {
   std::cout << "Reading TiedStatesAcousticModel from " << filename << "..."
             << std::endl;
@@ -9,6 +7,7 @@ int TiedStatesAcousticModel::read_model(const std::string &filename) {
   std::ifstream fileI(filename, std::ifstream::in);
   std::string line, name;
   const char del = ' ';
+  size_t i, statesIter;
 
   if (fileI.is_open()) {
     int components, n_q;
@@ -32,8 +31,8 @@ int TiedStatesAcousticModel::read_model(const std::string &filename) {
 
     getline(fileI, line);  // States
 
-    for (auto i = 0; i < n_states; i++) {
-      std::vector<float> pmembers;
+    for (statesIter = 0; statesIter < n_states; statesIter++) {
+      GaussianMixtureState dg_state;
 
       getline(fileI, line);  // state_id
       std::stringstream(line) >> name;
@@ -42,55 +41,30 @@ int TiedStatesAcousticModel::read_model(const std::string &filename) {
       getline(fileI, line, del);  // I
       getline(fileI, line);       // value
       std::stringstream(line) >> components;
+      dg_state.setComponents(components);
 
       getline(fileI, line, del);  // PMembers
       getline(fileI, line);       // value
-      pmembers = parse_line(line);
+      dg_state.addPMembers(line);
 
       getline(fileI, line);  // Members
 
-      std::vector<std::vector<float>> states_mu;
-      std::vector<std::vector<float>> states_var;
-      std::vector<std::vector<float>> states_ivar;
-      std::vector<float> states_logc;
+      for (auto j = 0; j < components; j++) {
+        GaussianState gstate;
 
-      for (auto i = 0; i < components; i++) {
-        std::vector<float> mu;
-        std::vector<float> var;
-        std::vector<float> ivar;
-        float logc = 0;
-
-        // MU
         getline(fileI, line, del);  // MU
         getline(fileI, line);       // values
-
-        mu = parse_line(line);
+        gstate.addMu(line);
 
         getline(fileI, line, del);  // VAR
         getline(fileI, line);       // values
 
-        var = parse_line(line);
+        gstate.addVar(line);
 
-        for (const auto &value : var) {
-          ivar.push_back(1.0 / value);
-          logc += log(value);
-        }
-
-        logc += dim * LOG2PI;
-
-        logc = -0.5 * logc;
-
-        states_mu.push_back(mu);
-        states_var.push_back(var);
-        states_ivar.push_back(ivar);
-        states_logc.push_back(logc);
+        dg_state.addGaussianState(gstate);
       }
 
-      senone_to_mus[name] = states_mu;
-      senone_to_vars[name] = states_var;
-      senone_to_ivars[name] = states_ivar;
-      senone_to_logc[name] = states_logc;
-      senone_to_pmembers[name] = pmembers;
+      senone_to_mixturestate[name] = dg_state;
     }
 
     getline(fileI, line, del);  // N
@@ -184,7 +158,8 @@ int TiedStatesAcousticModel::write_model(const std::string &filename) {
 
     for (auto i = 0; i < n_states; i++) {
       fileO << senones[i] << std::endl;
-      std::vector<float> pmembers = senone_to_pmembers[senones[i]];
+      std::vector<float> pmembers =
+          senone_to_mixturestate[senones[i]].getPMembers();
       int components = pmembers.size();
 
       fileO << "I " << components << std::endl;
@@ -195,14 +170,15 @@ int TiedStatesAcousticModel::write_model(const std::string &filename) {
       fileO << std::endl;
 
       fileO << "Members" << std::endl;
-
+      GaussianMixtureState gsmixstate = senone_to_mixturestate[senones[i]];
       for (auto j = 0; j < components; j++) {
-        std::vector<float> mu = senone_to_mus[senones[i]][j];
+        GaussianState gstate = gsmixstate.getGaussianStateByComponent(j);
+        std::vector<float> mu = gstate.getMu();
         fileO << "MU ";
         for (const auto &value : mu) fileO << value << " ";
         fileO << std::endl;
 
-        std::vector<float> var = senone_to_vars[senones[i]][j];
+        std::vector<float> var = gstate.getVar();
         fileO << "VAR ";
         for (const auto &value : var) fileO << value << " ";
         fileO << std::endl;
@@ -247,7 +223,37 @@ TiedStatesAcousticModel::TiedStatesAcousticModel(const std::string &filename) {
   TiedStatesAcousticModel::read_model(filename);
 }
 
-int main() {
-  TiedStatesAcousticModel amodel("bin/models/tiedphoneme_I04.example.model");
-  amodel.write_model("bin/models/tiedphoneme_I04.example.again.model");
+float TiedStatesAcousticModel::calc_prob(const std::string &state, int q,
+                                         const std::vector<float> &frame) {
+  std::vector<std::string> senones = symbol_to_senones[state];
+  std::string senon = senones[q];
+
+  if (q > senones.size()) return -1.0;
+
+  GaussianMixtureState dgstate = senone_to_mixturestate[senon];
+
+  int components = dgstate.getComponents();
+
+  std::vector<float> pmembers = dgstate.getPMembers();
+  std::vector<float> pprob;
+
+  float max = -HUGE_VAL;
+
+  for (auto i = 0; i < components; i++) {
+    float prob = 0.0, aux = 0.0;
+
+    prob = dgstate.getGaussianStateByComponent(i).calc_prob(frame);
+
+    aux = pmembers[i] + prob;
+    if (aux > max) max = aux;
+
+    pprob.push_back(aux);
+  }
+
+  if (max != -HUGE_VAL) {
+    float r_add = robust_add(pprob, max, components);
+    return r_add;
+  } else {
+    return -HUGE_VAL;
+  }
 }

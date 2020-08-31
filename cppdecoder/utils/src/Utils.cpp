@@ -2,16 +2,6 @@
 
 const float LOGEPS = -36.0437;
 
-void print_vector(const std::vector<float> &vec) {
-  for (auto it = vec.begin(); it != vec.end(); ++it) std::cout << *it << ' ';
-  std::cout << std::endl;
-}
-
-void print_vector(const std::vector<std::string> &vec) {
-  for (auto it = vec.begin(); it != vec.end(); ++it) std::cout << *it << ' ';
-  std::cout << std::endl;
-}
-
 float robust_add(const std::vector<float> &pprobs, const float &max,
                  const size_t &components) {
   size_t n;
@@ -27,4 +17,13 @@ float robust_add(const std::vector<float> &pprobs, const float &max,
 std::vector<float> parse_line(const std::string &line) {
   std::istringstream stm(line);
   return {std::istream_iterator<float>(stm), std::istream_iterator<float>()};
+}
+
+size_t read_header_line(std::ifstream &fileI, std::string line,
+                        const char del) {
+  size_t value;
+  getline(fileI, line, del);  // PARAM
+  getline(fileI, line);       // values
+  std::stringstream(line) >> value;
+  return value;
 }
