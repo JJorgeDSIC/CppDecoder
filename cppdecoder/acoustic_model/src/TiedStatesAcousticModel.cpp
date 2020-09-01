@@ -232,28 +232,5 @@ float TiedStatesAcousticModel::calc_prob(const std::string &state, int q,
 
   GaussianMixtureState dgstate = senone_to_mixturestate[senon];
 
-  int components = dgstate.getComponents();
-
-  std::vector<float> pmembers = dgstate.getPMembers();
-  std::vector<float> pprob;
-
-  float max = -HUGE_VAL;
-
-  for (auto i = 0; i < components; i++) {
-    float prob = 0.0, aux = 0.0;
-
-    prob = dgstate.getGaussianStateByComponent(i).calc_prob(frame);
-
-    aux = pmembers[i] + prob;
-    if (aux > max) max = aux;
-
-    pprob.push_back(aux);
-  }
-
-  if (max != -HUGE_VAL) {
-    float r_add = robust_add(pprob, max, components);
-    return r_add;
-  } else {
-    return -HUGE_VAL;
-  }
+  return dgstate.calc_prob(frame);
 }

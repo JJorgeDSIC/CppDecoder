@@ -8,6 +8,34 @@ void GaussianMixtureState::addGaussianState(const GaussianState &state) {
   gstates.push_back(state);
 }
 
+float GaussianMixtureState::calc_prob(const std::vector<float> &frame) {
+
+  int components = this->getComponents();
+
+  std::vector<float> pmembers = this->getPMembers();
+  std::vector<float> pprob;
+
+  float max = -HUGE_VAL;
+
+  for (auto i = 0; i < components; i++) {
+    float prob = 0.0, aux = 0.0;
+
+    prob = this->getGaussianStateByComponent(i).calc_prob(frame);
+
+    aux = pmembers[i] + prob;
+    if (aux > max) max = aux;
+
+    pprob.push_back(aux);
+  }
+
+  if (max != -HUGE_VAL) {
+    float r_add = robust_add(pprob, max, components);
+    return r_add;
+  } else {
+    return -HUGE_VAL;
+  }
+}
+
 int MixtureAcousticModel::read_model(const std::string &filename) {
   std::cout << "Reading MixtureAcousticModel model from " << filename << "..."
             << std::endl;
@@ -256,28 +284,5 @@ float MixtureAcousticModel::calc_prob(const std::string &state, int q,
 
   GaussianMixtureState dgstate = symbol_to_states[state][q];
 
-  int components = dgstate.getComponents();
-
-  std::vector<float> pmembers = dgstate.getPMembers();
-  std::vector<float> pprob;
-
-  float max = -HUGE_VAL;
-
-  for (auto i = 0; i < components; i++) {
-    float prob = 0.0, aux = 0.0;
-
-    prob = dgstate.getGaussianStateByComponent(i).calc_prob(frame);
-
-    aux = pmembers[i] + prob;
-    if (aux > max) max = aux;
-
-    pprob.push_back(aux);
-  }
-
-  if (max != -HUGE_VAL) {
-    float r_add = robust_add(pprob, max, components);
-    return r_add;
-  } else {
-    return -HUGE_VAL;
-  }
+  return dgstate.calc_prob(frame);
 }
