@@ -46,7 +46,7 @@ class GaussianMixtureState {
     return gstates[component];
   }
   std::vector<float> &getPMembers() { return pmembers; }
-  float calc_prob(const std::vector<float> &frame);
+  float calc_logprob(const std::vector<float> &frame);
 
 };
 
@@ -71,7 +71,7 @@ class MixtureAcousticModel {
   size_t getNStates();
   int read_model(const std::string &filename);
   int write_model(const std::string &filename);
-  float calc_prob(const std::string &state, int q,
+  float calc_logprob(const std::string &state, int q,
                   const std::vector<float> &frame);
 };
 

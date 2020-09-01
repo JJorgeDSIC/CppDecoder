@@ -24,7 +24,7 @@ void GaussianState::print_state() {
   std::cout << logc << std::endl;
 }
 
-float GaussianState::calc_prob(const std::vector<float> &frame) {
+float GaussianState::calc_logprob(const std::vector<float> &frame) {
   float prob = 0.0;
   float aux = 0.0;
 
@@ -175,9 +175,9 @@ unsigned int DGaussianAcousticModel::getDim() { return dim; }
 
 unsigned int DGaussianAcousticModel::getNStates() { return n_states; }
 
-float DGaussianAcousticModel::calc_prob(const std::string &state, int q,
+float DGaussianAcousticModel::calc_logprob(const std::string &state, int q,
                                         const std::vector<float> &frame) {
   std::vector<GaussianState> gstates = state_to_gstate[state];
-  return gstates[q].calc_prob(frame);
+  return gstates[q].calc_logprob(frame);
 }
 

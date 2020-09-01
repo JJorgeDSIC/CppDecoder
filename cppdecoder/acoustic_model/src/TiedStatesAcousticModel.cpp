@@ -223,7 +223,7 @@ TiedStatesAcousticModel::TiedStatesAcousticModel(const std::string &filename) {
   TiedStatesAcousticModel::read_model(filename);
 }
 
-float TiedStatesAcousticModel::calc_prob(const std::string &state, int q,
+float TiedStatesAcousticModel::calc_logprob(const std::string &state, int q,
                                          const std::vector<float> &frame) {
   std::vector<std::string> senones = symbol_to_senones[state];
   std::string senon = senones[q];
@@ -232,5 +232,5 @@ float TiedStatesAcousticModel::calc_prob(const std::string &state, int q,
 
   GaussianMixtureState dgstate = senone_to_mixturestate[senon];
 
-  return dgstate.calc_prob(frame);
+  return dgstate.calc_logprob(frame);
 }

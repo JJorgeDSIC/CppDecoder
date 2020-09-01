@@ -83,7 +83,7 @@ TEST(DGaussianAcousticModelTests, GaussianStateTestCalcProb) {
   gstate.addMu(lineMu);
   gstate.addVar(lineVar);
 
-  float prob = gstate.calc_prob(frame);
+  float prob = gstate.calc_logprob(frame);
 
   float probTrue = -69.51816177368164;
 

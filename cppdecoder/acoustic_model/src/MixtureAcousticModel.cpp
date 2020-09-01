@@ -8,19 +8,16 @@ void GaussianMixtureState::addGaussianState(const GaussianState &state) {
   gstates.push_back(state);
 }
 
-float GaussianMixtureState::calc_prob(const std::vector<float> &frame) {
-
+float GaussianMixtureState::calc_logprob(const std::vector<float> &frame) {
   int components = this->getComponents();
 
   std::vector<float> pmembers = this->getPMembers();
   std::vector<float> pprob;
 
   float max = -HUGE_VAL;
-
+  float prob = 0.0, aux = 0.0;
   for (auto i = 0; i < components; i++) {
-    float prob = 0.0, aux = 0.0;
-
-    prob = this->getGaussianStateByComponent(i).calc_prob(frame);
+    prob = this->getGaussianStateByComponent(i).calc_logprob(frame);
 
     aux = pmembers[i] + prob;
     if (aux > max) max = aux;
@@ -276,13 +273,13 @@ size_t MixtureAcousticModel::getDim() { return dim; }
 
 size_t MixtureAcousticModel::getNStates() { return n_states; }
 
-float MixtureAcousticModel::calc_prob(const std::string &state, int q,
-                                      const std::vector<float> &frame) {
+float MixtureAcousticModel::calc_logprob(const std::string &state, int q,
+                                         const std::vector<float> &frame) {
   int n_q = state_to_num_q[state];
 
   if (q > n_q) return -1.0;
 
   GaussianMixtureState dgstate = symbol_to_states[state][q];
 
-  return dgstate.calc_prob(frame);
+  return dgstate.calc_logprob(frame);
 }

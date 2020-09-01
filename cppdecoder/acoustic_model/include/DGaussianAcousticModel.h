@@ -33,7 +33,7 @@ class GaussianState {
   std::vector<float> &getIVar() { return ivar; }
   float &getLogc() { return logc; }
   void print_state();
-  float calc_prob(const std::vector<float> &frame);
+  float calc_logprob(const std::vector<float> &frame);
 };
 
 class DGaussianAcousticModel {
@@ -51,7 +51,7 @@ class DGaussianAcousticModel {
   unsigned int getNStates();
   int read_model(const std::string &filename);
   int write_model(const std::string &filename);
-  float calc_prob(const std::string &state, int q,
+  float calc_logprob(const std::string &state, int q,
                   const std::vector<float> &frame);
 };
 

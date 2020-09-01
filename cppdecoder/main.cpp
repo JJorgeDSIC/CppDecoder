@@ -50,7 +50,7 @@ int main() {
   dgaussianmodel.write_model(
       "bin/models/dgaussian_monopohoneme_I01.example.again.model");
 
-  float prob = dgaussianmodel.calc_prob("aa", 0, frame);
+  float prob = dgaussianmodel.calc_logprob("aa", 0, frame);
 
   std::cout << "Prob: " << prob << std::endl;
 
@@ -59,12 +59,12 @@ int main() {
   mixturemodel.write_model(
       "bin/models/mixture_monophoneme_I32.example.again.model");
 
-  std::cout << "Log prob : " << mixturemodel.calc_prob("a", 0, frame)
+  std::cout << "Log prob : " << mixturemodel.calc_logprob("a", 0, frame)
             << std::endl;
 
   TiedStatesAcousticModel tiedmodel("bin/models/tiedphoneme_I04.example.model");
   tiedmodel.write_model("bin/models/tiedphoneme_I04.example.again.model");
 
-  std::cout << "Log prob : " << tiedmodel.calc_prob("aa_B+l_E", 0, frame)
+  std::cout << "Log prob : " << tiedmodel.calc_logprob("aa_B+l_E", 0, frame)
             << std::endl;
 }
