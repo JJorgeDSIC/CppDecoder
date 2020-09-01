@@ -39,30 +39,28 @@ if(MSVC)
   add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
-set(SOURCE
-  utils_test.cpp
-  dgaussian_acoustic_model_test.cpp)
+function(BUILD_UNIT_TEST)
+  set(options OPTIONAL FAST)
+  set(oneValueArgs TEST_SRC)
+  set(multiValueArgs LIBS LIBS_INCLUDE EXT_SOURCE EXT_INCLUDE)
+  cmake_parse_arguments(BUILD_UNIT_TEST "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
-foreach(unittest ${SOURCE})
   # I used a simple string replace, to cut off .cpp.
-  string( REPLACE ".cpp" "" unittestname ${unittest} )
-  string( REPLACE "_test" "" unittestname_test ${unittest} )
+  string(REPLACE "src/" "" UNIT_TEST_NAME ${BUILD_UNIT_TEST_TEST_SRC})
+  string(REPLACE ".cpp" "" UNIT_TEST_NAME ${UNIT_TEST_NAME})
+  string(REPLACE "_test" "" UNIT_TEST_NAME_TEST ${UNIT_TEST_NAME})
 
-  add_executable(${unittestname} ${unittest})
+  add_executable(${UNIT_TEST_NAME} ${BUILD_UNIT_TEST_TEST_SRC} ${BUILD_UNIT_TEST_EXT_SOURCE})
 
   # Bring the headers into the project
   include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/../src/
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${Utils_SOURCE_DIR}/include
-    ${AcousticModel_SOURCE_DIR}/include
-    )
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${BUILD_UNIT_TEST_LIBS_INCLUDE}
+    ${BUILD_UNIT_TEST_EXT_INCLUDE})
 
-  target_link_libraries(${unittestname}
+  target_link_libraries(${UNIT_TEST_NAME}
     gtest_main
-    cppdecoder::Utils
-    cppdecoder::AcousticModel
-    )
+    ${BUILD_UNIT_TEST_LIBS})
 
-  add_test(NAME ${unittestname_test} COMMAND ${unittestname})
-endforeach(unittest $(SOURCES))
+  add_test(NAME ${UNIT_TEST_NAME_TEST} COMMAND ${UNIT_TEST_NAME})
+endfunction()

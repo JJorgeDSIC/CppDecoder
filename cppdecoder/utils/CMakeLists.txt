@@ -46,3 +46,5 @@ generate_export_header(${NAME})
 
 target_include_directories(${NAME}
   PUBLIC ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
+
+add_subdirectory(test)
