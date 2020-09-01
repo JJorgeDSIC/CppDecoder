@@ -4,4 +4,4 @@ set(UNITTEST src/utils_test.cpp)
 set(LIB cppdecoder::Utils)
 set(LIB_INCLUDE ${Utils_SOURCE_DIR}/include)
 
-build_unit_test(${UNITTEST} ${LIB} ${LIB_INCLUDE} "" "")
+BUILD_UNIT_TEST(TEST_SRC ${UNITTEST} LIBS ${LIB} LIBS_INCLUDE ${LIB_INCLUDE})

@@ -31,16 +31,16 @@ set(HEADER_FILES
 
 configure_file(
   ${CMAKE_SOURCE_DIR}/models/dgaussian_monopohoneme_I01.example.model ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/models/dgaussian_monopohoneme_I01.example.model COPYONLY)
-configure_file(  
+configure_file(
   ${CMAKE_SOURCE_DIR}/models/mixture_monophoneme_I32.example.model ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/models/mixture_monophoneme_I32.example.model COPYONLY)
-configure_file(  
+configure_file(
   ${CMAKE_SOURCE_DIR}/models/tiedphoneme_I04.example.model ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/models/tiedphoneme_I04.example.model COPYONLY)
 
 include_directories(
   ${HEADER_PATHS}
   ${Utils_SOURCE_DIR}/include)
 
-add_library(${NAME} ${SOURCE_FILES})
+add_library(${NAME} STATIC ${SOURCE_FILES})
 add_library(
   cppdecoder::AcousticModel ALIAS ${NAME})
 
@@ -62,3 +62,5 @@ target_link_libraries(${NAME}
 
 include(GenerateExportHeader)
 generate_export_header(${NAME})
+
+add_subdirectory(test)
