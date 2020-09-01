@@ -9,6 +9,7 @@ add_subdirectory(cppdecoder/utils)
 add_subdirectory(cppdecoder/sample)
 add_subdirectory(cppdecoder/acoustic_model)
 add_subdirectory(cppdecoder/search_graph_language_model)
+add_subdirectory(cppdecoder/)
 
 enable_testing()
 include(CTest)

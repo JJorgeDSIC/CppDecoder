@@ -26,8 +26,7 @@ set(HEADER_FILES
   include/Utils.h)
 
 include_directories(
-  ${HEADER_PATHS}
-  ${hephaestus_SOURCE_DIR}/include)
+  ${HEADER_PATHS})
 
 add_library(${NAME} STATIC ${SOURCE_FILES} ${HEADER_FILES})
 add_library(cppdecoder::Utils ALIAS ${NAME})

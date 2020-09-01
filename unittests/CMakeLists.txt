@@ -40,7 +40,8 @@ if(MSVC)
 endif()
 
 set(SOURCE
-  utils_test.cpp)
+  utils_test.cpp
+  dgaussian_acoustic_model_test.cpp)
 
 foreach(unittest ${SOURCE})
   # I used a simple string replace, to cut off .cpp.
@@ -53,11 +54,15 @@ foreach(unittest ${SOURCE})
   include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${Utils_SOURCE_DIR}/include)
+    ${Utils_SOURCE_DIR}/include
+    ${AcousticModel_SOURCE_DIR}/include
+    )
 
   target_link_libraries(${unittestname}
     gtest_main
-    cppdecoder::Utils)
+    cppdecoder::Utils
+    cppdecoder::AcousticModel
+    )
 
   add_test(NAME ${unittestname_test} COMMAND ${unittestname})
 endforeach(unittest $(SOURCES))
