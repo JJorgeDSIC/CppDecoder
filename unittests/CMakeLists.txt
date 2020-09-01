@@ -39,25 +39,23 @@ if(MSVC)
   add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
-set(SOURCE
-  utils_test.cpp)
-
-foreach(unittest ${SOURCE})
+function(build_unit_test UNIT_TEST LIBS LIBS_INCLUDE EXT_SOURCE EXT_INCLUDE)
   # I used a simple string replace, to cut off .cpp.
-  string( REPLACE ".cpp" "" unittestname ${unittest} )
-  string( REPLACE "_test" "" unittestname_test ${unittest} )
+  string(REPLACE "src/" "" UNIT_TEST_NAME ${UNIT_TEST})
+  string(REPLACE ".cpp" "" UNIT_TEST_NAME ${UNIT_TEST_NAME})
+  string(REPLACE "_test" "" UNIT_TEST_NAME_TEST ${UNIT_TEST_NAME})
 
-  add_executable(${unittestname} ${unittest})
+  add_executable(${UNIT_TEST_NAME} ${UNIT_TEST} ${EXT_SOURCE})
 
   # Bring the headers into the project
   include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/../src/
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${Utils_SOURCE_DIR}/include)
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${LIBS_INCLUDE}
+    ${EXT_INCLUDE})
 
-  target_link_libraries(${unittestname}
+  target_link_libraries(${UNIT_TEST_NAME}
     gtest_main
-    cppdecoder::Utils)
+    ${LIBS})
 
-  add_test(NAME ${unittestname_test} COMMAND ${unittestname})
-endforeach(unittest $(SOURCES))
+  add_test(NAME ${UNIT_TEST_NAME_TEST} COMMAND ${UNIT_TEST_NAME})
+endfunction()
