@@ -32,8 +32,9 @@ include_directories(
 configure_file(
   ${CMAKE_SOURCE_DIR}/models/2.gram.graph ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/models/2.gram.graph COPYONLY)
 
-add_executable(${NAME} ${SOURCE_FILES})
-add_executable(cppdecoder::SearchGraphLanguageModel ALIAS ${NAME})
+add_library(${NAME} ${SOURCE_FILES})
+add_library(
+  cppdecoder::SearchGraphLanguageModel ALIAS ${NAME})
 
 # Set the debug or relese mode.
 if (CMAKE_BUILD_TYPE MATCHES Debug)
@@ -50,3 +51,6 @@ target_include_directories(${NAME}
 
 target_link_libraries(${NAME}
   cppdecoder::Utils)
+
+include(GenerateExportHeader)
+generate_export_header(${NAME})

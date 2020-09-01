@@ -34,8 +34,9 @@ include_directories(
 configure_file(
   ${CMAKE_SOURCE_DIR}/samples/AAFA0016.features ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/samples/AAFA0016.features COPYONLY)
 
-add_executable(${NAME} ${SOURCE_FILES})
-add_executable(cppdecoder::Sample ALIAS ${NAME})
+add_library(${NAME} ${SOURCE_FILES})
+add_library(
+  cppdecoder::Sample ALIAS ${NAME})
 
 # Set the debug or relese mode.
 if (CMAKE_BUILD_TYPE MATCHES Debug)
@@ -52,3 +53,6 @@ target_include_directories(${NAME}
 
 target_link_libraries(${NAME}
   cppdecoder::Utils)
+
+include(GenerateExportHeader)
+generate_export_header(${NAME})
