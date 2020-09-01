@@ -15,6 +15,7 @@
 #include <vector>
 
 const float LOG2PI = 1.83787706641f;
+const float LOGEPS = -36.0437;
 
 template <typename T>
 std::vector<T> read_vector(const std::string &line);

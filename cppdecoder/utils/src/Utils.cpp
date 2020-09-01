@@ -1,7 +1,5 @@
 #include "Utils.h"
 
-const float LOGEPS = -36.0437;
-
 float robust_add(const std::vector<float> &pprobs, const float &max,
                  const size_t &components) {
   size_t n;
