@@ -1,3 +1,8 @@
+/*
+ * Copyright 2020 Javier Jorge. All rights reserved.
+ * License: https://github.com/JJorgeDSIC/CppDecoder#license
+ */
+
 #include "SearchGraphLanguageModel.h"
 
 #include <Utils.h>

@@ -1,3 +1,8 @@
+/*
+ * Copyright 2020 Javier Jorge. All rights reserved.
+ * License: https://github.com/JJorgeDSIC/CppDecoder#license
+ */
+
 #include "MixtureAcousticModel.h"
 
 void GaussianMixtureState::addPMembers(const std::string &line) {

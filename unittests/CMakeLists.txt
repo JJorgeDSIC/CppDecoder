@@ -45,6 +45,8 @@ function(BUILD_UNIT_TEST)
   set(multiValueArgs LIBS LIBS_INCLUDE EXT_SOURCE EXT_INCLUDE)
   cmake_parse_arguments(BUILD_UNIT_TEST "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test/")
+
   # I used a simple string replace, to cut off .cpp.
   string(REPLACE "src/" "" UNIT_TEST_NAME ${BUILD_UNIT_TEST_TEST_SRC})
   string(REPLACE ".cpp" "" UNIT_TEST_NAME ${UNIT_TEST_NAME})
@@ -63,4 +65,7 @@ function(BUILD_UNIT_TEST)
     ${BUILD_UNIT_TEST_LIBS})
 
   add_test(NAME ${UNIT_TEST_NAME_TEST} COMMAND ${UNIT_TEST_NAME})
+
+  set_tests_properties(${UNIT_TEST_NAME_TEST} PROPERTIES
+    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 endfunction()
