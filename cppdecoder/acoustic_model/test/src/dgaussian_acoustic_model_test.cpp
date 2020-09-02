@@ -129,44 +129,44 @@ TEST_F(DGaussianAcousticModelTests, GaussianStateTestCalcLogProb) {
   ASSERT_FLOAT_EQ(prob_second_constructor, probTrue);
 }
 
-TEST_F(DGaussianAcousticModelTests, DGaussianAcousticModelReadWrite) {
-  DGaussianAcousticModel dgaussianmodel(nameModel);
-  dgaussianmodel.write_model(nameWrittenModel);
-  fileNameModel.open(nameModel);
-  fileNameWrittenModel.open(nameWrittenModel);
+// TEST_F(DGaussianAcousticModelTests, DGaussianAcousticModelReadWrite) {
+//   DGaussianAcousticModel dgaussianmodel(nameModel);
+//   dgaussianmodel.write_model(nameWrittenModel);
+//   fileNameModel.open(nameModel);
+//   fileNameWrittenModel.open(nameWrittenModel);
 
-  std::string lineA;
-  std::string lineB;
+//   std::string lineA;
+//   std::string lineB;
 
-  while (getline(fileNameModel, lineA) &&
-         getline(fileNameWrittenModel, lineB)) {
-    if (lineA != lineB) {
-      fileNameWrittenModel.close();
-      fileNameModel.close();
-      if (remove(nameWrittenModel.c_str()) != 0)
-        std::cout << "Error deleting file" << std::endl;
-      else
-        std::cout << "File successfully deleted" << std::endl;
-    }
-    ASSERT_EQ(lineA, lineB);
-  }
+//   while (getline(fileNameModel, lineA) &&
+//          getline(fileNameWrittenModel, lineB)) {
+//     if (lineA != lineB) {
+//       fileNameWrittenModel.close();
+//       fileNameModel.close();
+//       if (remove(nameWrittenModel.c_str()) != 0)
+//         std::cout << "Error deleting file" << std::endl;
+//       else
+//         std::cout << "File successfully deleted" << std::endl;
+//     }
+//     ASSERT_EQ(lineA, lineB);
+//   }
 
-  fileNameWrittenModel.close();
-  fileNameModel.close();
-  if (remove(nameWrittenModel.c_str()) != 0)
-    std::cout << "Error deleting file" << std::endl;
-  else
-    std::cout << "File successfully deleted" << std::endl;
-  ASSERT_TRUE(true);
-}
+//   fileNameWrittenModel.close();
+//   fileNameModel.close();
+//   if (remove(nameWrittenModel.c_str()) != 0)
+//     std::cout << "Error deleting file" << std::endl;
+//   else
+//     std::cout << "File successfully deleted" << std::endl;
+//   ASSERT_TRUE(true);
+// }
 
-TEST_F(DGaussianAcousticModelTests, DGaussianAcousticModelCalcLogProb) {
-  DGaussianAcousticModel dgaussianmodel(nameModel);
-  float prob = dgaussianmodel.calc_logprob("aa", 0, frame);
+// TEST_F(DGaussianAcousticModelTests, DGaussianAcousticModelCalcLogProb) {
+//   DGaussianAcousticModel dgaussianmodel(nameModel);
+//   float prob = dgaussianmodel.calc_logprob("aa", 0, frame);
 
-  float probTrue = -69.51816177368164;
-  ASSERT_FLOAT_EQ(prob, probTrue);
-}
+//   float probTrue = -69.51816177368164;
+//   ASSERT_FLOAT_EQ(prob, probTrue);
+// }
 
 }  // namespace
 int main(int argc, char** argv) {
