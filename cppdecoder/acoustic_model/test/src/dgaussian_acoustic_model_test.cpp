@@ -1,6 +1,6 @@
 /*
  * Copyright 2020 Javier Jorge. All rights reserved.
- * License: BSD 2-Clause License
+ * License: https://github.com/JJorgeDSIC/CppDecoder#license
  */
 
 #include <DGaussianAcousticModel.h>
@@ -16,10 +16,10 @@ namespace {
 class DGaussianAcousticModelTests : public ::testing::Test {
  protected:
   const std::string nameModel =
-      "bin/models/dgaussian_monopohoneme_I01.example.model";
+      "./models/dgaussian_monopohoneme_I01.example.model";
 
   const std::string nameWrittenModel =
-      "bin/models/dgaussian_monopohoneme_I01.example.model.test";
+      "./models/dgaussian_monopohoneme_I01.example.model.test";
 
   std::ifstream fileNameModel;
   std::ifstream fileNameWrittenModel;

@@ -1,6 +1,6 @@
 /*
  * Copyright 2020 Javier Jorge. All rights reserved.
- * License: BSD 2-Clause License
+ * License: https://github.com/JJorgeDSIC/CppDecoder#license
  */
 
 #include <Utils.h>
