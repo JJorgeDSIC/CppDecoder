@@ -23,8 +23,27 @@ class GaussianState {
   std::vector<float> var;
   std::vector<float> ivar;
   float logc;
+  size_t dim;
 
  public:
+  explicit GaussianState(size_t dim) {
+    this->dim = dim;
+    mu.reserve(dim);
+    var.reserve(dim);
+    ivar.reserve(dim);
+    logc = 0;
+  }
+  explicit GaussianState(size_t dim, const std::string mu_line,
+                         const std::string var_line) {
+    this->dim = dim;
+    mu.reserve(dim);
+    var.reserve(dim);
+    ivar.reserve(dim);
+    logc = 0;
+    addMu(mu_line);
+    addVar(var_line);
+  }
+
   void addMu(const std::string &line);
   void addVar(const std::string &line);
   void setLogc(float logc) { this->logc = logc; }
@@ -52,7 +71,7 @@ class DGaussianAcousticModel {
   int read_model(const std::string &filename);
   int write_model(const std::string &filename);
   float calc_logprob(const std::string &state, int q,
-                  const std::vector<float> &frame);
+                     const std::vector<float> &frame);
 };
 
 #endif  // DGAUSSIANACOUSTICMODEL_H_

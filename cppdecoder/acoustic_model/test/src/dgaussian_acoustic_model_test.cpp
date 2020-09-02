@@ -16,7 +16,7 @@ TEST(DGaussianAcousticModelTests, GaussianStateTestAddMu) {
 
   std::string lineMu = "2.0 3.0 5.0 6.0\n";
 
-  GaussianState gstate;
+  GaussianState gstate(4);
 
   gstate.addMu(lineMu);
 
@@ -32,7 +32,7 @@ TEST(DGaussianAcousticModelTests, GaussianStateTestAddVar) {
 
   std::string lineVar = "0.5 0.4 0.6 0.8\n";
 
-  GaussianState gstate;
+  GaussianState gstate(4);
 
   gstate.addVar(lineVar);
 
@@ -44,7 +44,7 @@ TEST(DGaussianAcousticModelTests, GaussianStateTestAddVar) {
 TEST(DGaussianAcousticModelTests, GaussianStateTestSetLogc) {
   float logc = 0.1;
 
-  GaussianState gstate;
+  GaussianState gstate(1);
 
   gstate.setLogc(logc);
 
@@ -78,7 +78,7 @@ TEST(DGaussianAcousticModelTests, GaussianStateTestCalcProb) {
       "0.853519 0.998284 1.20589 0.952269 1.19117 0.905265 1.01046 0.928685 "
       "1.08421 1.13455 1.03278 1.09966 1.08389 1.02634 0.599768";
 
-  GaussianState gstate;
+  GaussianState gstate(frame.size());
 
   gstate.addMu(lineMu);
   gstate.addVar(lineVar);
@@ -88,6 +88,13 @@ TEST(DGaussianAcousticModelTests, GaussianStateTestCalcProb) {
   float probTrue = -69.51816177368164;
 
   ASSERT_FLOAT_EQ(prob, probTrue);
+
+
+  GaussianState gstate_second_constructor(frame.size(), lineMu, lineVar);
+
+  float prob_second_constructor = gstate_second_constructor.calc_logprob(frame);
+
+  ASSERT_FLOAT_EQ(prob_second_constructor, probTrue);
 }
 
 int main(int argc, char** argv) {

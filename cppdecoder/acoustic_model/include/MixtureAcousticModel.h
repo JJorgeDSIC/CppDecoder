@@ -37,17 +37,22 @@ class GaussianMixtureState {
 
  public:
   GaussianMixtureState() : components(0) {}
+  explicit GaussianMixtureState(size_t components) {
+    this->components = components;
+    gstates.reserve(components);
+  }
   size_t getComponents() { return components; }
   void setComponents(size_t comps) { components = comps; }
 
   void addPMembers(const std::string &line);
   void addGaussianState(const GaussianState &state);
+  void addGaussianState(size_t dim, const std::string mu_line,
+                        const std::string var_line);
   GaussianState &getGaussianStateByComponent(size_t component) {
     return gstates[component];
   }
   std::vector<float> &getPMembers() { return pmembers; }
   float calc_logprob(const std::vector<float> &frame);
-
 };
 
 class MixtureAcousticModel {
@@ -72,7 +77,7 @@ class MixtureAcousticModel {
   int read_model(const std::string &filename);
   int write_model(const std::string &filename);
   float calc_logprob(const std::string &state, int q,
-                  const std::vector<float> &frame);
+                     const std::vector<float> &frame);
 };
 
 #endif  // MIXTUREACOUSTICMODEL_H_

@@ -4,6 +4,12 @@ void GaussianMixtureState::addPMembers(const std::string &line) {
   pmembers = parse_line(line);
 }
 
+void GaussianMixtureState::addGaussianState(size_t dim,
+                                            const std::string mu_line,
+                                            const std::string var_line) {
+  gstates.emplace_back(dim, mu_line, var_line);
+}
+
 void GaussianMixtureState::addGaussianState(const GaussianState &state) {
   gstates.push_back(state);
 }
@@ -122,32 +128,31 @@ int MixtureAcousticModel::read_model(const std::string &filename) {
       std::vector<GaussianMixtureState> state_dgaussians;
 
       for (i = 0; i < n_q; i++) {
-        GaussianMixtureState dg_state;
-
         int components;
 
         getline(fileI, line, del);  // I
         getline(fileI, line);
         std::stringstream(line) >> components;
 
-        dg_state.setComponents(components);
+        GaussianMixtureState dg_state(components);
+
         getline(fileI, line, del);  // PMembers
         getline(fileI, line);       //
 
         dg_state.addPMembers(line);
 
-        for (auto j = 0; j < components; j++) {
-          GaussianState gstate;
+        getline(fileI, line);  // Members
 
+        std::string mu_line, var_line;
+
+        for (auto j = 0; j < components; j++) {
           getline(fileI, line, del);  // MU
-          getline(fileI, line);       // values
-          gstate.addMu(line);
+          getline(fileI, mu_line);    // values
 
           getline(fileI, line, del);  // VAR
-          getline(fileI, line);       // values
-          gstate.addVar(line);
+          getline(fileI, var_line);   // values
 
-          dg_state.addGaussianState(gstate);
+          dg_state.addGaussianState(dim, mu_line, var_line);
         }
 
         state_dgaussians.push_back(dg_state);
@@ -177,9 +182,12 @@ int MixtureAcousticModel::write_model(const std::string &filename) {
     fileO << "D " << dim << std::endl;
     fileO << "SMOOTH ";
 
-    for (auto &value : smooth) fileO << value << " ";
+    for (size_t i = 0; i < smooth.size() - 1; i++) {
+      fileO << smooth[i] << " ";
+    }
 
-    fileO << "\n";
+    fileO << smooth[smooth.size() - 1] << std::endl;
+
     fileO << "N " << n_states << std::endl;
 
     for (auto &name : states) {
@@ -197,8 +205,13 @@ int MixtureAcousticModel::write_model(const std::string &filename) {
           fileO << "Trans\n";
         }
 
-        for (auto &value : state_to_trans[name]) fileO << value << " ";
-        fileO << std::endl;
+        std::vector<float> trans = state_to_trans[name];
+
+        for (size_t i = 0; i < trans.size() - 1; i++) {
+          fileO << trans[i] << " ";
+        }
+
+        fileO << trans[trans.size() - 1] << std::endl;
 
       } else if (trans_type == "TransL") {
         fileO << "TransL" << std::endl;
@@ -231,26 +244,35 @@ int MixtureAcousticModel::write_model(const std::string &filename) {
         GaussianMixtureState dg_states = symbol_to_states[name][i];
         fileO << "I " << dg_states.getComponents() << std::endl;
         fileO << "PMembers ";
-        for (auto &value : dg_states.getPMembers()) {
-          fileO << value << " ";
-        }
-        fileO << std::endl;
+        std::vector<float> pmembers = dg_states.getPMembers();
 
-        fileO << "Members " << std::endl;
+        for (size_t i = 0; i < pmembers.size() - 1; i++) {
+          fileO << pmembers[i] << " ";
+        }
+
+        fileO << pmembers[pmembers.size() - 1] << std::endl;
+
+        fileO << "Members" << std::endl;
         for (auto j = 0; j < dg_states.getComponents(); j++) {
           GaussianState gs = dg_states.getGaussianStateByComponent(j);
+          std::vector<float> mu = gs.getMu();
+          std::vector<float> var = gs.getVar();
 
           fileO << "MU ";
-          for (auto &value : gs.getMu()) {
-            fileO << value << " ";
+
+          for (size_t i = 0; i < mu.size() - 1; i++) {
+            fileO << mu[i] << " ";
           }
-          fileO << std::endl;
+
+          fileO << mu[mu.size() - 1] << std::endl;
 
           fileO << "VAR ";
-          for (auto &value : gs.getVar()) {
-            fileO << value << " ";
+
+          for (size_t i = 0; i < var.size() - 1; i++) {
+            fileO << var[i] << " ";
           }
-          fileO << std::endl;
+
+          fileO << var[var.size() - 1] << std::endl;
         }
       }
     }

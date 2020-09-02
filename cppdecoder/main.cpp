@@ -1,3 +1,4 @@
+
 #include <DGaussianAcousticModel.h>
 #include <MixtureAcousticModel.h>
 #include <Sample.h>
@@ -41,9 +42,7 @@ int main() {
   std::string lineMu = {"2.0, 3.0, 5.0, 6.0"};
   std::string lineVar = {"0.5, 0.4, 0.6, 0.8"};
 
-  GaussianState gstate;
-
-  gstate.addMu(lineMu);
+  GaussianState gstate(4, lineMu, lineVar);
 
   DGaussianAcousticModel dgaussianmodel(
       "bin/models/dgaussian_monopohoneme_I01.example.model");
@@ -54,17 +53,19 @@ int main() {
 
   std::cout << "Prob: " << prob << std::endl;
 
-  MixtureAcousticModel mixturemodel(
-      "bin/models/mixture_monophoneme_I32.example.model");
-  mixturemodel.write_model(
-      "bin/models/mixture_monophoneme_I32.example.again.model");
+    MixtureAcousticModel mixturemodel(
+        "bin/models/mixture_monophoneme_I32.example.model");
+    mixturemodel.write_model(
+        "bin/models/mixture_monophoneme_I32.example.again.model");
 
-  std::cout << "Log prob : " << mixturemodel.calc_logprob("a", 0, frame)
-            << std::endl;
+    std::cout << "Log prob : " << mixturemodel.calc_logprob("a", 0, frame)
+              << std::endl;
 
-  TiedStatesAcousticModel tiedmodel("bin/models/tiedphoneme_I04.example.model");
-  tiedmodel.write_model("bin/models/tiedphoneme_I04.example.again.model");
+    TiedStatesAcousticModel
+    tiedmodel("bin/models/tiedphoneme_I04.example.model");
+    tiedmodel.write_model("bin/models/tiedphoneme_I04.example.again.model");
 
-  std::cout << "Log prob : " << tiedmodel.calc_logprob("aa_B+l_E", 0, frame)
-            << std::endl;
+    std::cout << "Log prob : " << tiedmodel.calc_logprob("aa_B+l_E", 0,
+    frame)
+              << std::endl;
 }

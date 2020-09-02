@@ -32,8 +32,6 @@ int TiedStatesAcousticModel::read_model(const std::string &filename) {
     getline(fileI, line);  // States
 
     for (statesIter = 0; statesIter < n_states; statesIter++) {
-      GaussianMixtureState dg_state;
-
       getline(fileI, line);  // state_id
       std::stringstream(line) >> name;
       senones.push_back(name);
@@ -41,7 +39,8 @@ int TiedStatesAcousticModel::read_model(const std::string &filename) {
       getline(fileI, line, del);  // I
       getline(fileI, line);       // value
       std::stringstream(line) >> components;
-      dg_state.setComponents(components);
+
+      GaussianMixtureState dg_state(components);
 
       getline(fileI, line, del);  // PMembers
       getline(fileI, line);       // value
@@ -49,19 +48,16 @@ int TiedStatesAcousticModel::read_model(const std::string &filename) {
 
       getline(fileI, line);  // Members
 
-      for (auto j = 0; j < components; j++) {
-        GaussianState gstate;
+      std::string mu_line, var_line;
 
+      for (auto j = 0; j < components; j++) {
         getline(fileI, line, del);  // MU
-        getline(fileI, line);       // values
-        gstate.addMu(line);
+        getline(fileI, mu_line);    // values
 
         getline(fileI, line, del);  // VAR
-        getline(fileI, line);       // values
+        getline(fileI, var_line);   // values
 
-        gstate.addVar(line);
-
-        dg_state.addGaussianState(gstate);
+        dg_state.addGaussianState(dim, mu_line, var_line);
       }
 
       senone_to_mixturestate[name] = dg_state;
@@ -146,10 +142,11 @@ int TiedStatesAcousticModel::write_model(const std::string &filename) {
     fileO << "DGaussian\n";
     fileO << "D " << dim << std::endl;
     fileO << "SMOOTH ";
-    for (const auto &value : smooth) {
-      fileO << value << " ";
+    for (size_t i = 0; i < smooth.size() - 1; i++) {
+      fileO << smooth[i] << " ";
     }
-    fileO << std::endl;
+
+    fileO << smooth[smooth.size() - 1] << std::endl;
 
     fileO << "N ";
     fileO << n_states << std::endl;
@@ -164,10 +161,11 @@ int TiedStatesAcousticModel::write_model(const std::string &filename) {
 
       fileO << "I " << components << std::endl;
       fileO << "PMembers ";
-      for (const auto &value : pmembers) {
-        fileO << value << " ";
+      for (size_t i = 0; i < pmembers.size() - 1; i++) {
+        fileO << pmembers[i] << " ";
       }
-      fileO << std::endl;
+
+      fileO << pmembers[pmembers.size() - 1] << std::endl;
 
       fileO << "Members" << std::endl;
       GaussianMixtureState gsmixstate = senone_to_mixturestate[senones[i]];
@@ -175,13 +173,19 @@ int TiedStatesAcousticModel::write_model(const std::string &filename) {
         GaussianState gstate = gsmixstate.getGaussianStateByComponent(j);
         std::vector<float> mu = gstate.getMu();
         fileO << "MU ";
-        for (const auto &value : mu) fileO << value << " ";
-        fileO << std::endl;
+        for (size_t i = 0; i < mu.size() - 1; i++) {
+          fileO << mu[i] << " ";
+        }
+
+        fileO << mu[mu.size() - 1] << std::endl;
 
         std::vector<float> var = gstate.getVar();
         fileO << "VAR ";
-        for (const auto &value : var) fileO << value << " ";
-        fileO << std::endl;
+        for (size_t i = 0; i < var.size() - 1; i++) {
+          fileO << var[i] << " ";
+        }
+
+        fileO << var[var.size() - 1] << std::endl;
       }
     }
 
@@ -199,8 +203,11 @@ int TiedStatesAcousticModel::write_model(const std::string &filename) {
       if (symbol.compare(symbol_equivalent) == 0) {
         fileO << "Trans" << std::endl;
         std::vector<float> trans = symbol_to_transitions[symbol];
-        for (const auto &value : trans) fileO << value << " ";
-        fileO << std::endl;
+        for (size_t i = 0; i < trans.size() - 1; i++) {
+          fileO << trans[i] << " ";
+        }
+
+        fileO << trans[trans.size() - 1] << std::endl;
 
       } else {
         fileO << "TransP " << symbol_equivalent << std::endl;
@@ -208,8 +215,11 @@ int TiedStatesAcousticModel::write_model(const std::string &filename) {
 
       std::vector<std::string> senones = symbol_to_senones[symbol];
 
-      for (const auto &value : senones) fileO << value << " ";
-      fileO << std::endl;
+      for (size_t i = 0; i < senones.size() - 1; i++) {
+        fileO << senones[i] << " ";
+      }
+
+      fileO << senones[senones.size() - 1] << std::endl;
     }
 
   } else {
@@ -224,7 +234,7 @@ TiedStatesAcousticModel::TiedStatesAcousticModel(const std::string &filename) {
 }
 
 float TiedStatesAcousticModel::calc_logprob(const std::string &state, int q,
-                                         const std::vector<float> &frame) {
+                                            const std::vector<float> &frame) {
   std::vector<std::string> senones = symbol_to_senones[state];
   std::string senon = senones[q];
 
