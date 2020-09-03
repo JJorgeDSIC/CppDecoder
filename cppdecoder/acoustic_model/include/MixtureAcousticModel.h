@@ -27,13 +27,14 @@ class TransValue {
  public:
   TransValue(const std::string &st, float val) : state(st), value(val) {}
   std::string &getState() { return state; }
-  float &getValue() { return value; }
+  float getValue() const { return value; }
 };
 
 class GaussianMixtureState {
   std::vector<GaussianState> gstates;
   std::vector<float> pmembers;
   size_t components;
+  size_t dim;
 
  public:
   GaussianMixtureState() : components(0) {}
@@ -41,16 +42,25 @@ class GaussianMixtureState {
     this->components = components;
     gstates.reserve(components);
   }
-  size_t getComponents() { return components; }
+  size_t getComponents() const { return components; }
   void setComponents(size_t comps) { components = comps; }
+  void reserveComponents(size_t comps) {
+  
+    this->components = comps;
+    gstates.reserve(components);
+    pmembers.reserve(components);
+
+  }
 
   void addPMembers(const std::string &line);
-  void addGaussianState(const GaussianState &state);
-  void addGaussianState(size_t dim, const std::string mu_line,
-                        const std::string var_line);
+  int addGaussianState(const GaussianState &state);
+  int addGaussianState(size_t dim, const std::string &mu_line,
+                       const std::string &var_line);
   GaussianState &getGaussianStateByComponent(size_t component) {
     return gstates[component];
   }
+  size_t getDim() const { return dim; }
+  void setDim(size_t dim) { this->dim = dim; }
   std::vector<float> &getPMembers() { return pmembers; }
   float calc_logprob(const std::vector<float> &frame);
 };
@@ -72,8 +82,8 @@ class MixtureAcousticModel {
 
  public:
   explicit MixtureAcousticModel(const std::string &filename);
-  size_t getDim();
-  size_t getNStates();
+  size_t getDim() const { return dim; }
+  size_t getNStates() const { return n_states; }
   int read_model(const std::string &filename);
   int write_model(const std::string &filename);
   float calc_logprob(const std::string &state, int q,

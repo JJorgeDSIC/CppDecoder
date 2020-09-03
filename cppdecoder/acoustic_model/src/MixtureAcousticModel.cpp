@@ -6,17 +6,16 @@
 #include "MixtureAcousticModel.h"
 
 void GaussianMixtureState::addPMembers(const std::string &line) {
-  pmembers = parse_line(line);
+  pmembers = read_vector<float>(line);
 }
 
-void GaussianMixtureState::addGaussianState(size_t dim,
-                                            const std::string mu_line,
-                                            const std::string var_line) {
+int GaussianMixtureState::addGaussianState(size_t dim,
+                                           const std::string &mu_line,
+                                           const std::string &var_line) {
+  if (this->dim != dim) return 1;
+
   gstates.emplace_back(dim, mu_line, var_line);
-}
-
-void GaussianMixtureState::addGaussianState(const GaussianState &state) {
-  gstates.push_back(state);
+  return 0;
 }
 
 float GaussianMixtureState::calc_logprob(const std::vector<float> &frame) {
@@ -66,7 +65,7 @@ int MixtureAcousticModel::read_model(const std::string &filename) {
 
     getline(fileI, line, del);  // SMOOTH
     getline(fileI, line);
-    smooth = parse_line(line);
+    smooth = read_vector<float>(line);
 
     getline(fileI, line, del);  // N
     getline(fileI, line);
@@ -131,6 +130,7 @@ int MixtureAcousticModel::read_model(const std::string &filename) {
       }
 
       std::vector<GaussianMixtureState> state_dgaussians;
+      state_dgaussians.reserve(n_q);
 
       for (i = 0; i < n_q; i++) {
         int components;
@@ -139,12 +139,15 @@ int MixtureAcousticModel::read_model(const std::string &filename) {
         getline(fileI, line);
         std::stringstream(line) >> components;
 
-        GaussianMixtureState dg_state(components);
+        state_dgaussians.emplace_back(components);
+
+        state_dgaussians[i].reserveComponents(components);
+
+        state_dgaussians[i].setDim(dim);
 
         getline(fileI, line, del);  // PMembers
         getline(fileI, line);       //
-
-        dg_state.addPMembers(line);
+        state_dgaussians[i].addPMembers(line);
 
         getline(fileI, line);  // Members
 
@@ -157,10 +160,8 @@ int MixtureAcousticModel::read_model(const std::string &filename) {
           getline(fileI, line, del);  // VAR
           getline(fileI, var_line);   // values
 
-          dg_state.addGaussianState(dim, mu_line, var_line);
+          state_dgaussians[i].addGaussianState(dim, mu_line, var_line);
         }
-
-        state_dgaussians.push_back(dg_state);
       }
 
       symbol_to_states[name] = state_dgaussians;
@@ -296,17 +297,19 @@ MixtureAcousticModel::MixtureAcousticModel(const std::string &filename) {
   MixtureAcousticModel::read_model(filename);
 }
 
-size_t MixtureAcousticModel::getDim() { return dim; }
-
-size_t MixtureAcousticModel::getNStates() { return n_states; }
-
 float MixtureAcousticModel::calc_logprob(const std::string &state, int q,
                                          const std::vector<float> &frame) {
   int n_q = state_to_num_q[state];
 
-  if (q > n_q) return -1.0;
+  if (n_q == 0) {
+    return INFINITY;
+  }
+
+  if (q > n_q) return INFINITY;
 
   GaussianMixtureState dgstate = symbol_to_states[state][q];
+
+  if (frame.size() != dgstate.getDim()) return INFINITY;
 
   return dgstate.calc_logprob(frame);
 }

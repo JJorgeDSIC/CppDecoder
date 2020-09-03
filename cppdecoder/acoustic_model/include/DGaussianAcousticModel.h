@@ -33,8 +33,8 @@ class GaussianState {
     ivar.reserve(dim);
     logc = 0;
   }
-  explicit GaussianState(size_t dim, const std::string mu_line,
-                         const std::string var_line) {
+  explicit GaussianState(size_t dim, const std::string &mu_line,
+                         const std::string &var_line) {
     this->dim = dim;
     mu.reserve(dim);
     var.reserve(dim);
@@ -50,7 +50,8 @@ class GaussianState {
   std::vector<float> &getMu() { return mu; }
   std::vector<float> &getVar() { return var; }
   std::vector<float> &getIVar() { return ivar; }
-  float &getLogc() { return logc; }
+  size_t getDim() const { return dim; }
+  float getLogc() const { return logc; }
   void print_state();
   float calc_logprob(const std::vector<float> &frame);
 };
@@ -61,13 +62,13 @@ class DGaussianAcousticModel {
   std::unordered_map<std::string, std::vector<float>> state_to_trans;
   std::unordered_map<std::string, int> state_to_num_q;
   std::vector<float> smooth;
-  unsigned int dim;
-  unsigned int n_states;
+  size_t dim;
+  size_t n_states;
 
  public:
   explicit DGaussianAcousticModel(const std::string &filename);
-  unsigned int getDim();
-  unsigned int getNStates();
+  size_t getDim() const { return dim; }
+  size_t getNStates() const { return n_states; }
   int read_model(const std::string &filename);
   int write_model(const std::string &filename);
   float calc_logprob(const std::string &state, int q,

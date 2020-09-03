@@ -28,7 +28,7 @@ int TiedStatesAcousticModel::read_model(const std::string &filename) {
     getline(fileI, line, del);  // SMOOTH
     getline(fileI, line);       // Value
 
-    smooth = parse_line(line);
+    smooth = read_vector<float>(line);
 
     getline(fileI, line, del);  // N
     getline(fileI, line);       // Value

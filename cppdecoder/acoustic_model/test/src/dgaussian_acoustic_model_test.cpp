@@ -34,6 +34,15 @@ class DGaussianAcousticModelTests : public ::testing::Test {
       -0.627719, 0.292688,  0.360419,   -0.443323, -0.189734,   0.420539,
       0.881978,  0.19503,   -0.93659,   -0.414377, 0.544633,    0.00430982};
 
+  const std::vector<float> wrongFrame = {
+      -0.392699, -2.06331,  0.0109949,  0.0630278, 0.713447,    -0.557419,
+      1.46355,   0.809983,  0.990555,   0.682074,  -1.62765,    0.60225,
+      0.493882,  1.55829,   -0.59736,   -1.34481,  -0.0268113,  -0.0561324,
+      0.536304,  1.16865,   0.753556,   -0.813899, -0.370601,   -0.346987,
+      -1.12761,  0.0755082, -1.127,     -1.23163,  0.717646,    -0.20932,
+      0.515273,  0.0881923, 0.00711961, 0.294303,  -0.00440401, -0.600391,
+      -0.627719, 0.292688,  0.360419,   -0.443323, -0.189734,   0.420539};
+
   const std::string lineMu =
       "0.611003 -0.341059 -0.767879 -1.00645 0.271412 1.00703 0.143509 "
       "-0.565818 -0.0726448 -0.0827588 -0.0635558 -0.176374 -0.551339 "
@@ -109,8 +118,6 @@ TEST_F(DGaussianAcousticModelTests, GaussianStateTestSetLogc) {
 }
 
 TEST_F(DGaussianAcousticModelTests, GaussianStateTestCalcLogProb) {
-
-
   GaussianState gstate(frame.size());
 
   gstate.addMu(lineMu);
@@ -129,44 +136,70 @@ TEST_F(DGaussianAcousticModelTests, GaussianStateTestCalcLogProb) {
   ASSERT_FLOAT_EQ(prob_second_constructor, probTrue);
 }
 
-// TEST_F(DGaussianAcousticModelTests, DGaussianAcousticModelReadWrite) {
-//   DGaussianAcousticModel dgaussianmodel(nameModel);
-//   dgaussianmodel.write_model(nameWrittenModel);
-//   fileNameModel.open(nameModel);
-//   fileNameWrittenModel.open(nameWrittenModel);
+TEST_F(DGaussianAcousticModelTests, DGaussianAcousticModelReadWrite) {
+  DGaussianAcousticModel dgaussianmodel(nameModel);
+  dgaussianmodel.write_model(nameWrittenModel);
+  fileNameModel.open(nameModel);
+  fileNameWrittenModel.open(nameWrittenModel);
 
-//   std::string lineA;
-//   std::string lineB;
+  std::string lineA;
+  std::string lineB;
 
-//   while (getline(fileNameModel, lineA) &&
-//          getline(fileNameWrittenModel, lineB)) {
-//     if (lineA != lineB) {
-//       fileNameWrittenModel.close();
-//       fileNameModel.close();
-//       if (remove(nameWrittenModel.c_str()) != 0)
-//         std::cout << "Error deleting file" << std::endl;
-//       else
-//         std::cout << "File successfully deleted" << std::endl;
-//     }
-//     ASSERT_EQ(lineA, lineB);
-//   }
+  while (getline(fileNameModel, lineA) &&
+         getline(fileNameWrittenModel, lineB)) {
+    if (lineA != lineB) {
+      fileNameWrittenModel.close();
+      fileNameModel.close();
+      if (remove(nameWrittenModel.c_str()) != 0)
+        std::cout << "Error deleting file" << std::endl;
+      else
+        std::cout << "File successfully deleted" << std::endl;
+    }
+    ASSERT_EQ(lineA, lineB);
+  }
 
-//   fileNameWrittenModel.close();
-//   fileNameModel.close();
-//   if (remove(nameWrittenModel.c_str()) != 0)
-//     std::cout << "Error deleting file" << std::endl;
-//   else
-//     std::cout << "File successfully deleted" << std::endl;
-//   ASSERT_TRUE(true);
-// }
+  fileNameWrittenModel.close();
+  fileNameModel.close();
+  if (remove(nameWrittenModel.c_str()) != 0)
+    std::cout << "Error deleting file" << std::endl;
+  else
+    std::cout << "File successfully deleted" << std::endl;
+  ASSERT_TRUE(true);
+}
 
-// TEST_F(DGaussianAcousticModelTests, DGaussianAcousticModelCalcLogProb) {
-//   DGaussianAcousticModel dgaussianmodel(nameModel);
-//   float prob = dgaussianmodel.calc_logprob("aa", 0, frame);
+TEST_F(DGaussianAcousticModelTests,
+       DGaussianAcousticModelCalcLogProbWrongState) {
+  DGaussianAcousticModel dgaussianmodel(nameModel);
 
-//   float probTrue = -69.51816177368164;
-//   ASSERT_FLOAT_EQ(prob, probTrue);
-// }
+  float prob = dgaussianmodel.calc_logprob("aaaaaaaaaa", 0, frame);
+  ASSERT_FLOAT_EQ(prob, INFINITY);
+}
+
+
+TEST_F(DGaussianAcousticModelTests,
+       DGaussianAcousticModelCalcLogProbWrongQ) {
+  DGaussianAcousticModel dgaussianmodel(nameModel);
+
+  float prob = dgaussianmodel.calc_logprob("aa", 56, frame);
+  ASSERT_FLOAT_EQ(prob, INFINITY);
+}
+
+TEST_F(DGaussianAcousticModelTests,
+       DGaussianAcousticModelCalcLogProbWrongFrameSize) {
+  DGaussianAcousticModel dgaussianmodel(nameModel);
+
+  float prob = dgaussianmodel.calc_logprob("aa", 0, wrongFrame);
+  ASSERT_FLOAT_EQ(prob, INFINITY);
+}
+
+TEST_F(DGaussianAcousticModelTests, DGaussianAcousticModelCalcLogProb) {
+  DGaussianAcousticModel dgaussianmodel(nameModel);
+
+  float prob = dgaussianmodel.calc_logprob("aa", 0, frame);
+
+  float probTrue = -69.51816177368164;
+  ASSERT_FLOAT_EQ(prob, probTrue);
+}
 
 }  // namespace
 int main(int argc, char** argv) {

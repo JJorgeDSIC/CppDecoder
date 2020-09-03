@@ -58,7 +58,7 @@ int DGaussianAcousticModel::read_model(const std::string &filename) {
     getline(fileI, line, del);  // SMOOTH
     getline(fileI, line);       // Value
 
-    smooth = parse_line(line);
+    smooth = read_vector<float>(line);
 
     getline(fileI, line, del);  // N
     getline(fileI, line);
@@ -86,7 +86,7 @@ int DGaussianAcousticModel::read_model(const std::string &filename) {
 
       getline(fileI, line);  // Trans
       getline(fileI, line);
-      trans = parse_line(line);
+      trans = read_vector<float>(line);
 
       state_to_trans[name] = trans;
 
@@ -187,12 +187,20 @@ DGaussianAcousticModel::DGaussianAcousticModel(const std::string &filename) {
   DGaussianAcousticModel::read_model(filename);
 }
 
-unsigned int DGaussianAcousticModel::getDim() { return dim; }
-
-unsigned int DGaussianAcousticModel::getNStates() { return n_states; }
-
 float DGaussianAcousticModel::calc_logprob(const std::string &state, int q,
                                            const std::vector<float> &frame) {
-  std::vector<GaussianState> gstates = state_to_gstate[state];
-  return gstates[q].calc_logprob(frame);
+  typename std::unordered_map<std::string,
+                              std::vector<GaussianState>>::const_iterator it =
+      state_to_gstate.find(state);
+  if (it != state_to_gstate.end()) {
+    std::vector<GaussianState> gstates = it->second;
+
+    if (gstates.size() < q) return INFINITY;
+
+    if (frame.size() != gstates[q].getDim()) return INFINITY;
+
+    return gstates[q].calc_logprob(frame);
+  } else {
+    return INFINITY;
+  }
 }
