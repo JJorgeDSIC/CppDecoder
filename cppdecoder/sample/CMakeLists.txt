@@ -56,3 +56,5 @@ target_link_libraries(${NAME}
 
 include(GenerateExportHeader)
 generate_export_header(${NAME})
+
+add_subdirectory(test)
