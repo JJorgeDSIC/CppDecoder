@@ -45,11 +45,13 @@ int TiedStatesAcousticModel::read_model(const std::string &filename) {
       getline(fileI, line);       // value
       std::stringstream(line) >> components;
 
-      GaussianMixtureState dg_state(components);
+      GaussianMixtureState dg_state(components, dim);
 
       getline(fileI, line, del);  // PMembers
       getline(fileI, line);       // value
       dg_state.addPMembers(line);
+
+      dg_state.setDim(dim);
 
       getline(fileI, line);  // Members
 
@@ -173,6 +175,7 @@ int TiedStatesAcousticModel::write_model(const std::string &filename) {
       fileO << pmembers[pmembers.size() - 1] << std::endl;
 
       fileO << "Members" << std::endl;
+
       GaussianMixtureState gsmixstate = senone_to_mixturestate[senones[i]];
       for (auto j = 0; j < components; j++) {
         GaussianState gstate = gsmixstate.getGaussianStateByComponent(j);
@@ -241,11 +244,16 @@ TiedStatesAcousticModel::TiedStatesAcousticModel(const std::string &filename) {
 float TiedStatesAcousticModel::calc_logprob(const std::string &state, int q,
                                             const std::vector<float> &frame) {
   std::vector<std::string> senones = symbol_to_senones[state];
+
+  if (senones.size() == 0) return INFINITY;
+
+  if (senones.size() < q) return INFINITY;
+
   std::string senon = senones[q];
 
-  if (q > senones.size()) return -1.0;
-
   GaussianMixtureState dgstate = senone_to_mixturestate[senon];
+
+  if (frame.size() != dgstate.getDim()) return INFINITY;
 
   return dgstate.calc_logprob(frame);
 }

@@ -38,27 +38,26 @@ class GaussianMixtureState {
 
  public:
   GaussianMixtureState() : components(0) {}
-  explicit GaussianMixtureState(size_t components) {
+  explicit GaussianMixtureState(size_t components, size_t dim) {
+    this->dim = dim;
     this->components = components;
     gstates.reserve(components);
   }
   size_t getComponents() const { return components; }
   void setComponents(size_t comps) { components = comps; }
   void reserveComponents(size_t comps) {
-  
     this->components = comps;
     gstates.reserve(components);
     pmembers.reserve(components);
-
   }
 
   void addPMembers(const std::string &line);
-  int addGaussianState(const GaussianState &state);
   int addGaussianState(size_t dim, const std::string &mu_line,
                        const std::string &var_line);
   GaussianState &getGaussianStateByComponent(size_t component) {
     return gstates[component];
   }
+  const std::vector<GaussianState> &getGStates() { return gstates; }
   size_t getDim() const { return dim; }
   void setDim(size_t dim) { this->dim = dim; }
   std::vector<float> &getPMembers() { return pmembers; }

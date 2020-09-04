@@ -28,14 +28,17 @@ float GaussianMixtureState::calc_logprob(const std::vector<float> &frame) {
   float prob = 0.0, aux = 0.0;
   for (auto i = 0; i < components; i++) {
     prob = this->getGaussianStateByComponent(i).calc_logprob(frame);
-
+    
     aux = pmembers[i] + prob;
+
+    if (aux == -INFINITY) return -HUGE_VAL;
+    
     if (aux > max) max = aux;
 
     pprob.push_back(aux);
   }
 
-  if (max != -HUGE_VAL) {
+  if (max != -HUGE_VAL && max != -INFINITY) {
     float r_add = robust_add(pprob, max, components);
     return r_add;
   } else {
@@ -139,11 +142,9 @@ int MixtureAcousticModel::read_model(const std::string &filename) {
         getline(fileI, line);
         std::stringstream(line) >> components;
 
-        state_dgaussians.emplace_back(components);
+        state_dgaussians.emplace_back(components, dim);
 
         state_dgaussians[i].reserveComponents(components);
-
-        state_dgaussians[i].setDim(dim);
 
         getline(fileI, line, del);  // PMembers
         getline(fileI, line);       //

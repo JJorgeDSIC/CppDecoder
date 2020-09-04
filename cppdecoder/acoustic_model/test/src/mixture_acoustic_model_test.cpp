@@ -51,6 +51,19 @@ class MixtureAcousticModelTests : public ::testing::Test {
       "-0.403049 -0.477148 -0.14131 -0.0339165 0.706629 -0.205301 -0.147137 "
       "0.0124271 0.272251 0.0275675 -0.258583 -0.120088 0.286936 0.138446 "
       "0.0438449 -0.0294147 -0.056371 0.137235 0.138078 0.129186 -0.0791308";
+
+  const std::string lineMuWrong =
+      "0.611003 -0.341059 -0.767879 -1.00645 0.271412 1.00703 0.143509 "
+      "-0.565818 -0.0726448 -0.0827588 -0.0635558 -0.176374 -0.551339 "
+      "-0.164538 -0.118646 0.588949 0.616664 -0.51543 -0.518155 -0.62594 "
+      "0.0153023 0.314522 -0.276895 -0.245692 0.0431228 -0.0701371 -0.174652 "
+      "-0.403049 -0.477148 -0.14131 -0.0339165 0.706629 -0.205301 -0.147137 "
+      "0.0124271 0.272251 0.0275675 1000000000000000000000.0 -0.120088 "
+      "0.286936 "
+      "0.138446 "
+      "0.0438449 -0.0294147 -10000000000.0 0.137235 0.138078 0.129186 "
+      "-0.0791308";
+
   const std::string lineVar =
       "0.431411 0.647725 0.612571 1.25852 0.904831 1.30368 1.15083 0.858501 "
       "0.854562 1.14167 1.05908 1.02635 1.15654 1.08413 1.06181 0.290333 "
@@ -58,26 +71,116 @@ class MixtureAcousticModelTests : public ::testing::Test {
       "1.37645 1.24627 1.31598 1.23377 1.21376 1.20752 0.732586 0.735857 "
       "0.853519 0.998284 1.20589 0.952269 1.19117 0.905265 1.01046 0.928685 "
       "1.08421 1.13455 1.03278 1.09966 1.08389 1.02634 0.599768";
+
+  const std::string linePMembers = "-0.5108256237659907 -0.916290731874155";
 };
 
 TEST_F(MixtureAcousticModelTests, GaussianMixtureStateConstructor) {
-  ASSERT_TRUE(false);
+  GaussianMixtureState gstates(5, 10);
+  ASSERT_EQ(gstates.getGStates().size(), 0);  // Empty vector pre-reserved
 }
 
-TEST_F(MixtureAcousticModelTests, GaussianMixtureStateTestAddMu) {
-  ASSERT_TRUE(false);
-}
+TEST_F(MixtureAcousticModelTests, GaussianMixtureStateTestAddGaussianState) {
+  GaussianState gstate1(frame.size());
 
-TEST_F(MixtureAcousticModelTests, GaussianMixtureStateTestAddVar) {
-  ASSERT_TRUE(false);
-}
+  gstate1.addMu(lineMu);
+  gstate1.addVar(lineVar);
 
-TEST_F(MixtureAcousticModelTests, GaussianMixtureStateTestSetLogc) {
-  ASSERT_TRUE(false);
+  GaussianState gstate2(frame.size());
+
+  gstate2.addMu(lineMu);
+  gstate2.addVar(lineVar);
+
+  GaussianMixtureState gstates(2, frame.size());
+
+  gstates.addGaussianState(frame.size(), lineMu, lineVar);
+  gstates.addGaussianState(frame.size(), lineMu, lineVar);
+  gstates.addPMembers(linePMembers);
+
+  ASSERT_EQ(gstates.getGaussianStateByComponent(0).getMu(), gstate1.getMu());
+  ASSERT_EQ(gstates.getGaussianStateByComponent(1).getMu(), gstate2.getMu());
+  ASSERT_EQ(gstates.getGaussianStateByComponent(0).getVar(),
+  gstate1.getVar());
+  ASSERT_EQ(gstates.getGaussianStateByComponent(1).getVar(),
+  gstate2.getVar());
+  ASSERT_EQ(gstates.getGaussianStateByComponent(0).getIVar(),
+            gstate1.getIVar());
+  ASSERT_EQ(gstates.getGaussianStateByComponent(1).getIVar(),
+            gstate2.getIVar());
+
+  ASSERT_EQ(gstates.getGaussianStateByComponent(0).getLogc(),
+            gstate1.getLogc());
+  ASSERT_EQ(gstates.getGaussianStateByComponent(1).getLogc(),
+            gstate2.getLogc());
 }
 
 TEST_F(MixtureAcousticModelTests, GaussianMixtureStateTestCalcLogProb) {
-  ASSERT_TRUE(false);
+  GaussianState gstate1(frame.size());
+
+  gstate1.addMu(lineMu);
+  gstate1.addVar(lineVar);
+
+  GaussianState gstate2(frame.size());
+
+  gstate2.addMu(lineMu);
+  gstate2.addVar(lineVar);
+
+  GaussianMixtureState gstates(2, frame.size());
+
+  gstates.addGaussianState(frame.size(), lineMu, lineVar);
+  gstates.addGaussianState(frame.size(), lineMu, lineVar);
+  gstates.addPMembers(linePMembers);
+
+  float prob1 = gstate1.calc_logprob(frame);
+  float prob2 = gstate2.calc_logprob(frame);
+
+  std::vector<float> pmembers = gstates.getPMembers();
+
+  float aux1 = pmembers[0] + gstate1.calc_logprob(frame);
+  float aux2 = pmembers[1] + gstate2.calc_logprob(frame);
+
+  std::vector<float> pprobs;
+  pprobs.push_back(aux1);
+  pprobs.push_back(aux2);
+
+  float r_add = robust_add(pprobs, aux1, 2);
+
+  ASSERT_EQ(r_add, gstates.calc_logprob(frame));
+}
+
+TEST_F(MixtureAcousticModelTests, GaussianMixtureStateTestCalcLogProbHugeVal) {
+  GaussianState gstate1(frame.size());
+
+  gstate1.addMu(lineMu);
+  gstate1.addVar(lineVar);
+
+  GaussianState gstate2(frame.size());
+
+  gstate2.addMu(lineMuWrong);
+  gstate2.addVar(lineVar);
+
+  GaussianMixtureState gstates(2, frame.size());
+
+  gstates.addGaussianState(frame.size(), lineMu, lineVar);
+  gstates.addGaussianState(frame.size(), lineMuWrong, lineVar);
+
+  gstates.addPMembers(linePMembers);
+
+  float prob1 = gstate1.calc_logprob(frame);
+  float prob2 = gstate2.calc_logprob(frame);
+
+  std::vector<float> pmembers = gstates.getPMembers();
+
+  float aux1 = pmembers[0] + gstate1.calc_logprob(frame);
+  float aux2 = pmembers[1] + gstate2.calc_logprob(frame);
+
+  std::vector<float> pprobs;
+  pprobs.push_back(aux1);
+  pprobs.push_back(aux2);
+
+  float r_add = robust_add(pprobs, aux2, 2);
+
+  ASSERT_EQ(r_add, gstates.calc_logprob(frame));
 }
 
 TEST_F(MixtureAcousticModelTests, MixtureAcousticModelReadWrite) {
@@ -125,7 +228,8 @@ TEST_F(MixtureAcousticModelTests, MixtureAcousticModelCalcProbWrongQ) {
   ASSERT_FLOAT_EQ(prob, INFINITY);
 }
 
-TEST_F(MixtureAcousticModelTests, MixtureAcousticModelCalcProbWrongFrameSize) {
+TEST_F(MixtureAcousticModelTests, MixtureAcousticModelCalcProbWrongFrameSize)
+{
   MixtureAcousticModel mixtureacousticmodel(nameModel);
 
   float prob = mixtureacousticmodel.calc_logprob("a", 0, wrongFrame);
