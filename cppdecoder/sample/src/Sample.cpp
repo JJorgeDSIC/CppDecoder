@@ -5,8 +5,6 @@
 
 #include "Sample.h"
 
-#include <Utils.h>
-
 Sample::Sample(size_t dim, size_t num_frames) {
   this->dim = dim;
   this->num_frames = num_frames;

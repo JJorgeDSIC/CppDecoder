@@ -6,6 +6,8 @@
 #ifndef SEARCHGRAPHLANGUAGEMODEL_H_
 #define SEARCHGRAPHLANGUAGEMODEL_H_
 
+#include <Utils.h>
+
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -23,8 +25,8 @@ class SearchGraphLanguageModelState {
   std::string word;
   int edge_begin, edge_end;
 
-  SearchGraphLanguageModelState(int id, std::string symbol,
-                                std::string word, int edge_begin, int edge_end)
+  SearchGraphLanguageModelState(int id, std::string symbol, std::string word,
+                                int edge_begin, int edge_end)
       : id(id),
         symbol(symbol),
         word(word),

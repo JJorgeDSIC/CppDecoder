@@ -5,8 +5,6 @@
 
 #include "SearchGraphLanguageModel.h"
 
-#include <Utils.h>
-
 int SearchGraphLanguageModel::write_model(const std::string &filename) {
   std::cout << "Writing model in " << filename << std::endl;
   std::ofstream fileO(filename, std::ios::app);

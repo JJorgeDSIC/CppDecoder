@@ -6,6 +6,7 @@
 #define SAMPLE_H_
 
 #include <Frame.h>
+#include <Utils.h>
 
 #include <fstream>
 #include <iostream>
