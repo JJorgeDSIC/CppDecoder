@@ -18,14 +18,14 @@
 
 class SearchGraphLanguageModelState {
  public:
-  int state_id;
+  int id;
   std::string symbol;
   std::string word;
   int edge_begin, edge_end;
 
-  SearchGraphLanguageModelState(int state_id, std::string symbol,
+  SearchGraphLanguageModelState(int id, std::string symbol,
                                 std::string word, int edge_begin, int edge_end)
-      : state_id(state_id),
+      : id(id),
         symbol(symbol),
         word(word),
         edge_begin(edge_begin),
@@ -34,12 +34,12 @@ class SearchGraphLanguageModelState {
 
 class SearchGraphLanguageModelEdge {
  public:
-  int edge_id;
-  int edge_dst;
-  float edge_weight;
+  int id;
+  int dst;
+  float weight;
 
-  SearchGraphLanguageModelEdge(int edge_id, int edge_dst, float edge_weight)
-      : edge_id(edge_id), edge_dst(edge_dst), edge_weight(edge_weight) {}
+  SearchGraphLanguageModelEdge(int id, int dst, float weight)
+      : id(id), dst(dst), weight(weight) {}
 };
 
 class SearchGraphLanguageModel {

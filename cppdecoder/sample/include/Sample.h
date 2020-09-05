@@ -21,6 +21,7 @@ class Sample {
 
  public:
   Sample() : dim(0), num_frames(0) {}
+  Sample(size_t dim, size_t num_frames);
   size_t getDim() { return dim; }
   size_t getNFrames() { return num_frames; }
   Frame &getFrame(size_t t) { return frames[t]; }

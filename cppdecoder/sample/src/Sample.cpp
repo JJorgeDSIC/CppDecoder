@@ -7,6 +7,12 @@
 
 #include <Utils.h>
 
+Sample::Sample(size_t dim, size_t num_frames) {
+  this->dim = dim;
+  this->num_frames = num_frames;
+  frames.reserve(num_frames);
+}
+
 void Sample::show_content() {
   for (auto &frame : frames) {
     frame.show_content();
@@ -14,8 +20,8 @@ void Sample::show_content() {
 }
 
 int Sample::addFrame(const std::string &line) {
-  std::cout << "TO DO" << std::endl;
-  return 0;
+  std::vector<float> frameVector = read_vector<float>(line);
+  return this->addFrame(frameVector);
 }
 
 int Sample::addFrame(const std::vector<float> &features) {
@@ -23,16 +29,14 @@ int Sample::addFrame(const std::vector<float> &features) {
     if (dim != features.size()) {
       std::cout << "Incorrect dimension: expected " << frames[0].getDim()
                 << ", provided: " << features.size() << std::endl;
-      return 0;
+      return 1;
     }
   } else {
     dim = features.size();
   }
-
-  Frame frame(features);
-  frames.push_back(frame);
+  frames.emplace_back(features);
   num_frames++;
-  return 1;
+  return 0;
 }
 
 int Sample::write_sample(const std::string &filename) {
@@ -41,11 +45,14 @@ int Sample::write_sample(const std::string &filename) {
   if (fileO.is_open()) {
     fileO << "AKREALTF" << std::endl;
     fileO << dim << " " << num_frames << std::endl;
+
     for (auto &frame : frames) {
-      for (auto &feature : frame.getFeatures()) {
-        fileO << feature << " ";
+      std::vector<float> fram = frame.getFeatures();
+      for (size_t i = 0; i < fram.size() - 1; i++) {
+        fileO << fram[i] << " ";
       }
-      fileO << std::endl;
+
+      fileO << fram[fram.size() - 1] << std::endl;
     }
     fileO.close();
 
@@ -64,23 +71,27 @@ int Sample::read_sample(const std::string &filename) {
   if (fileI.is_open()) {
     size_t dim, n_frames;
     getline(fileI, line);
-    std::cout << line << std::endl;  // AKREALTF
 
     getline(fileI, line);
     std::stringstream ss(line);
 
-    ss >> dim;
-    std::cout << "DIM " << dim << std::endl;  // DIM
-    ss >> n_frames;
-    std::cout << "NFRAMES " << n_frames << std::endl;  // NFRAMES
+    size_t temp_n_frames;
 
+    ss >> dim;
+    ss >> temp_n_frames;
     std::vector<float> values;
 
-    for (size_t i = 0; i < n_frames; i++) {
+    frames.reserve(temp_n_frames);
+
+    for (size_t i = 0; i < temp_n_frames; i++) {
       getline(fileI, line);
-      std::cout << line << std::endl;  // VALUES
-      values = parse_line(line);
+      values = read_vector<float>(line);
       addFrame(values);
+    }
+
+    if (temp_n_frames != num_frames) {
+      std::cout << "number of frames differ" << std::endl;
+      return 1;
     }
 
     fileI.close();
