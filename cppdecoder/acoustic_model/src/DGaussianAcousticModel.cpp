@@ -183,7 +183,7 @@ int DGaussianAcousticModel::write_model(const std::string &filename) {
   return 0;
 }
 
-DGaussianAcousticModel::DGaussianAcousticModel(const std::string &filename) {
+DGaussianAcousticModel::DGaussianAcousticModel(const std::string &filename): AcousticModel() {
   DGaussianAcousticModel::read_model(filename);
 }
 

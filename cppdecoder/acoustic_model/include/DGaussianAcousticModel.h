@@ -6,17 +6,7 @@
 #ifndef DGAUSSIANACOUSTICMODEL_H_
 #define DGAUSSIANACOUSTICMODEL_H_
 
-#include <cmath>
-#include <fstream>
-#include <iostream>
-#include <iterator>
-#include <random>
-#include <sstream>
-#include <string>
-#include <unordered_map>
-#include <vector>
-
-#include "Utils.h"
+#include "AcousticModel.h"
 
 class GaussianState {
   std::vector<float> mu;
@@ -118,7 +108,7 @@ class GaussianState {
   float calc_logprob(const std::vector<float> &frame);
 };
 
-class DGaussianAcousticModel {
+class DGaussianAcousticModel: public AcousticModel {
   std::vector<std::string> states;
   std::unordered_map<std::string, std::vector<GaussianState>> state_to_gstate;
   std::unordered_map<std::string, std::vector<float>> state_to_trans;
