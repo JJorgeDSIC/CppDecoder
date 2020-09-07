@@ -237,7 +237,7 @@ int TiedStatesAcousticModel::write_model(const std::string &filename) {
   return 0;
 }
 
-TiedStatesAcousticModel::TiedStatesAcousticModel(const std::string &filename) {
+TiedStatesAcousticModel::TiedStatesAcousticModel(const std::string &filename):AcousticModel() {
   TiedStatesAcousticModel::read_model(filename);
 }
 

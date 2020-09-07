@@ -6,19 +6,7 @@
 #ifndef MIXTUREACOUSTICMODEL_H_
 #define MIXTUREACOUSTICMODEL_H_
 
-#include <cmath>
-#include <fstream>
-#include <iostream>
-#include <iterator>
-#include <random>
-#include <sstream>
-#include <string>
-#include <tuple>
-#include <unordered_map>
-#include <vector>
-
 #include "DGaussianAcousticModel.h"
-#include "Utils.h"
 
 class TransValue {
   std::string state;
@@ -64,7 +52,7 @@ class GaussianMixtureState {
   float calc_logprob(const std::vector<float> &frame);
 };
 
-class MixtureAcousticModel {
+class MixtureAcousticModel: public AcousticModel{
   typedef std::tuple<std::string, float> value_t;
   std::vector<std::string> states;
   std::unordered_map<std::string, std::vector<GaussianMixtureState>>
@@ -81,12 +69,12 @@ class MixtureAcousticModel {
 
  public:
   explicit MixtureAcousticModel(const std::string &filename);
-  size_t getDim() const { return dim; }
-  size_t getNStates() const { return n_states; }
-  int read_model(const std::string &filename);
-  int write_model(const std::string &filename);
+  size_t getDim() override { return dim; }
+  size_t getNStates() override { return n_states; }
+  int read_model(const std::string &filename) override;
+  int write_model(const std::string &filename) override;
   float calc_logprob(const std::string &state, int q,
-                     const std::vector<float> &frame);
+                     const std::vector<float> &frame) override;
 };
 
 #endif  // MIXTUREACOUSTICMODEL_H_

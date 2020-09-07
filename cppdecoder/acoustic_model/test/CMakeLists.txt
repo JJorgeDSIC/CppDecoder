@@ -28,3 +28,9 @@ BUILD_UNIT_TEST(TEST_SRC src/tiedstates_acoustic_model_test.cpp
                   cppdecoder::AcousticModel
                 LIBS_INCLUDE ${Utils_SOURCE_DIR}/include
                           ${AcousticModel_SOURCE_DIR}/include)
+
+BUILD_UNIT_TEST(TEST_SRC src/acoustic_model_test.cpp
+                LIBS cppdecoder::Utils
+                  cppdecoder::AcousticModel
+                LIBS_INCLUDE ${Utils_SOURCE_DIR}/include
+                          ${AcousticModel_SOURCE_DIR}/include)

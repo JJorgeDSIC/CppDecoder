@@ -6,6 +6,8 @@
 #ifndef ACOUSTICMODEL_H_
 #define ACOUSTICMODEL_H_
 
+#include <Utils.h>
+
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -13,10 +15,9 @@
 #include <random>
 #include <sstream>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <vector>
-
-#include <Utils.h>
 
 class AcousticModel {
  public:

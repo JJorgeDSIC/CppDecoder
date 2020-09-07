@@ -6,21 +6,9 @@
 #ifndef TIEDSTATESACOUSTICMODEL_H_
 #define TIEDSTATESACOUSTICMODEL_H_
 
-#include <cmath>
-#include <fstream>
-#include <iostream>
-#include <iterator>
-#include <random>
-#include <sstream>
-#include <string>
-#include <unordered_map>
-#include <vector>
-
-#include "DGaussianAcousticModel.h"
 #include "MixtureAcousticModel.h"
-#include "Utils.h"
 
-class TiedStatesAcousticModel {
+class TiedStatesAcousticModel: public AcousticModel{
   size_t dim;
   size_t n_states;
   size_t n_trans;
@@ -37,12 +25,12 @@ class TiedStatesAcousticModel {
 
  public:
   explicit TiedStatesAcousticModel(const std::string &filename);
-  size_t getDim() const { return dim; }
-  size_t getNStates() const { return n_states; }
-  int read_model(const std::string &filename);
-  int write_model(const std::string &filename);
+  size_t getDim() override { return dim; }
+  size_t getNStates() override { return n_states; }
+  int read_model(const std::string &filename) override;
+  int write_model(const std::string &filename) override;
   float calc_logprob(const std::string &state, int q,
-                     const std::vector<float> &frame);
+                     const std::vector<float> &frame) override;
 };
 
 #endif  // TIEDSTATESACOUSTICMODEL_H_

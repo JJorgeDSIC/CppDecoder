@@ -6,10 +6,6 @@
 #ifndef DGAUSSIANACOUSTICMODEL_H_
 #define DGAUSSIANACOUSTICMODEL_H_
 
-#include <string>
-#include <vector>
-#include <unordered_map>
-
 #include "AcousticModel.h"
 
 class GaussianState {
