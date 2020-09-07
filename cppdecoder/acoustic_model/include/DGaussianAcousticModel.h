@@ -6,17 +6,7 @@
 #ifndef DGAUSSIANACOUSTICMODEL_H_
 #define DGAUSSIANACOUSTICMODEL_H_
 
-#include <cmath>
-#include <fstream>
-#include <iostream>
-#include <iterator>
-#include <random>
-#include <sstream>
-#include <string>
-#include <unordered_map>
-#include <vector>
-
-#include "Utils.h"
+#include "AcousticModel.h"
 
 class GaussianState {
   std::vector<float> mu;
@@ -118,7 +108,7 @@ class GaussianState {
   float calc_logprob(const std::vector<float> &frame);
 };
 
-class DGaussianAcousticModel {
+class DGaussianAcousticModel : public AcousticModel {
   std::vector<std::string> states;
   std::unordered_map<std::string, std::vector<GaussianState>> state_to_gstate;
   std::unordered_map<std::string, std::vector<float>> state_to_trans;
@@ -139,27 +129,27 @@ class DGaussianAcousticModel {
    *
    * @return size_t
    */
-  size_t getDim() const { return dim; }
+  size_t getDim() override { return dim; }
   /**
    * @brief Get the number of states contained in this model
    *
    * @return size_t
    */
-  size_t getNStates() const { return n_states; }
+  size_t getNStates() override { return n_states; }
   /**
    * @brief Read a Diagonal Gaussian Acoustic model from text file
    *
    * @param filename File location
    * @return int 0 if everything is OK, 1 if there was a problem
    */
-  int read_model(const std::string &filename);
+  int read_model(const std::string &filename) override;
   /**
    * @brief Write a Diagonal Gaussian Acoustic model to text file
    *
    * @param filename File location
    * @return int 0 if everything is OK, 1 if there was a problem
    */
-  int write_model(const std::string &filename);
+  int write_model(const std::string &filename) override;
   /**
    * @brief Provides the log probability for a frame F, being in a state S and
    * the state Q of the HMM
@@ -171,7 +161,7 @@ class DGaussianAcousticModel {
    * state Q
    */
   float calc_logprob(const std::string &state, int q,
-                     const std::vector<float> &frame);
+                     const std::vector<float> &frame) override;
 };
 
 #endif  // DGAUSSIANACOUSTICMODEL_H_

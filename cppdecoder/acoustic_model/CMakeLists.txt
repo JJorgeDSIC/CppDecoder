@@ -25,6 +25,7 @@ set(SOURCE_FILES
 
 set(HEADER_PATHS include)
 set(HEADER_FILES
+  include/AcousticModel.h
   include/DGaussianAcousticModel.h
   include/MixtureAcousticModel.h
   include/TiedStatesAcousticModel.h)

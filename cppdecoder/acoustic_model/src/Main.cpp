@@ -6,6 +6,7 @@
 #include <DGaussianAcousticModel.h>
 #include <MixtureAcousticModel.h>
 #include <TiedStatesAcousticModel.h>
+#include <AcousticModel.h>
 
 int main() {
   // All this will be moved to testing soon...
