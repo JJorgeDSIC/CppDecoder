@@ -57,8 +57,24 @@ class SearchGraphLanguageModel {
   std::vector<SearchGraphLanguageModelEdge> sg_lm_edges;
 
  public:
+  /**
+  * @brief Construct a new Search Graph Language Model object
+  * 
+  */
   SearchGraphLanguageModel() : nstates(0), nedges(0), start(-1), final(-1) {}
+  /**
+   * @brief Read a Search Graph Language Model from text file
+   * 
+   * @param filename File location
+   * @return int 0 if everything was OK, 1 if there was a problem
+   */
   int read_model(const std::string &filename);
+  /**
+   * @brief Write a Search Graph Language Model to a text file
+   * 
+   * @param filename File location
+   * @return int 0 if everything was OK, 1 if there was a problem
+   */
   int write_model(const std::string &filename);
 };
 

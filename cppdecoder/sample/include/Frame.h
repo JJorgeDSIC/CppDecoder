@@ -14,9 +14,29 @@ class Frame {
   size_t dim;
 
  public:
+  /**
+   * @brief Construct a new Frame object
+   *
+   * @param values
+   */
   explicit Frame(const std::vector<float>& values);
+  /**
+   * @brief Get the Features object, a vector with the actual values for this
+   * frame
+   *
+   * @return std::vector<float>& Vector of floats with the values of this frame
+   */
   std::vector<float>& getFeatures() { return features; }
+  /**
+   * @brief Get vectors's dimension
+   *
+   * @return size_t
+   */
   size_t getDim() { return dim; }
+  /**
+   * @brief Show the content of this feature
+   * 
+   */
   void show_content();
 };
 

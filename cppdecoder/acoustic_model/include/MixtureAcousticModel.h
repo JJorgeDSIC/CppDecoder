@@ -52,7 +52,7 @@ class GaussianMixtureState {
   float calc_logprob(const std::vector<float> &frame);
 };
 
-class MixtureAcousticModel: public AcousticModel{
+class MixtureAcousticModel : public AcousticModel {
   typedef std::tuple<std::string, float> value_t;
   std::vector<std::string> states;
   std::unordered_map<std::string, std::vector<GaussianMixtureState>>
@@ -68,11 +68,48 @@ class MixtureAcousticModel: public AcousticModel{
   size_t n_states;
 
  public:
+  /**
+   * @brief Construct a new MixtureAcousticModel
+   *
+   * @param filename File location
+   */
   explicit MixtureAcousticModel(const std::string &filename);
+  /**
+   * @brief Get vectors's dimension
+   *
+   * @return size_t
+   */
   size_t getDim() override { return dim; }
+  /**
+   * @brief Get the number of states contained in this model
+   *
+   * @return size_t
+   */
   size_t getNStates() override { return n_states; }
+  /**
+   * @brief Read a Mixture Gaussian Acoustic model from text file
+   *
+   * @param filename File location
+   * @return int 0 if everything was OK, 1 if there was a problem
+   */
   int read_model(const std::string &filename) override;
+  /**
+   * @brief Write a Mixture Gaussian Acoustic model to text file
+   *
+   * @param filename File location
+   * @return int 0 if everything was OK, 1 if there was a problem
+   */
   int write_model(const std::string &filename) override;
+    /**
+   * @brief Provides the log probability for a frame F, being in a state S and
+   * the state Q of the HMM
+   *
+   * @param state Acoustic Model state
+   * @param q Hidden Markov Model state
+   * @param frame Frame to use to compute the log probability
+   * @return float Log probability for a frame being in the state S and the HMM
+   * state Q
+   */
   float calc_logprob(const std::string &state, int q,
                      const std::vector<float> &frame) override;
 };
