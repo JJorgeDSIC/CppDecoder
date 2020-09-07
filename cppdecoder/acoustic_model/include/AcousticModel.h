@@ -16,36 +16,42 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Utils.h"
+#include <Utils.h>
 
 class AcousticModel {
  public:
+  virtual ~AcousticModel() {}
+
   /**
    * @brief Get vectors's dimension
    *
    * @return size_t
    */
-  virtual size_t getDim();
+  virtual size_t getDim() = 0;
+
   /**
    * @brief Get the number of states contained in this model
    *
    * @return size_t
    */
-  virtual size_t getNStates();
+  virtual size_t getNStates() = 0;
+
   /**
    * @brief Read a Diagonal Gaussian Acoustic model from text file
    *
    * @param filename File location
    * @return int 0 if everything is OK, 1 if there was a problem
    */
-  virtual int read_model(const std::string &filename);
+  virtual int read_model(const std::string &filename) = 0;
+
   /**
    * @brief Write a Diagonal Gaussian Acoustic model to text file
    *
    * @param filename File location
    * @return int 0 if everything is OK, 1 if there was a problem
    */
-  virtual int write_model(const std::string &filename);
+  virtual int write_model(const std::string &filename) = 0;
+
   /**
    * @brief Provides the log probability for a frame F, being in a state S and
    * the state Q of the HMM
@@ -57,7 +63,7 @@ class AcousticModel {
    * state Q
    */
   virtual float calc_logprob(const std::string &state, int q,
-                             const std::vector<float> &frame);
+                             const std::vector<float> &frame) = 0;
 };
 
 #endif  // ACOUSTICMODEL_H_
