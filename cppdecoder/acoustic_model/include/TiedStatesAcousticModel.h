@@ -37,10 +37,12 @@ class TiedStatesAcousticModel {
 
  public:
   explicit TiedStatesAcousticModel(const std::string &filename);
+  size_t getDim() const { return dim; }
+  size_t getNStates() const { return n_states; }
   int read_model(const std::string &filename);
   int write_model(const std::string &filename);
   float calc_logprob(const std::string &state, int q,
-                  const std::vector<float> &frame);
+                     const std::vector<float> &frame);
 };
 
 #endif  // TIEDSTATESACOUSTICMODEL_H_
