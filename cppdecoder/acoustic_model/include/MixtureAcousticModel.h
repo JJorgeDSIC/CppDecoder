@@ -52,7 +52,10 @@ class GaussianMixtureState {
   float calc_logprob(const std::vector<float> &frame);
 };
 
+
 class MixtureAcousticModel : public AcousticModel {
+
+
   typedef std::tuple<std::string, float> value_t;
   std::vector<std::string> states;
   std::unordered_map<std::string, std::vector<GaussianMixtureState>>
@@ -110,6 +113,7 @@ class MixtureAcousticModel : public AcousticModel {
    * @return float Log probability for a frame being in the state S and the HMM
    * state Q
    */
+
   float calc_logprob(const std::string &state, int q,
                      const std::vector<float> &frame) override;
 };
