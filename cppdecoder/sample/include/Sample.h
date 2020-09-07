@@ -77,7 +77,7 @@ class Sample {
    * @brief Add a frame from a vector of floats.
    * 
    * @param features Vector of floats containing the values for the frame, it should have the proper dimension.
-   * @return int 0 if everything is OK, 1 if there was a problem
+   * @return int 0 if everything was OK, 1 if there was a problem
    */
   int addFrame(const std::vector<float> &features);
   /**
