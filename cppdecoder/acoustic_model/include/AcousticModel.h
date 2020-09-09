@@ -31,6 +31,13 @@ class AcousticModel {
   virtual size_t getDim() = 0;
 
   /**
+   * @brief Set vectors's dimension
+   *
+   * @return size_t
+   */
+  virtual void setDim(size_t dim) = 0;
+
+  /**
    * @brief Get the number of states contained in this model
    *
    * @return size_t

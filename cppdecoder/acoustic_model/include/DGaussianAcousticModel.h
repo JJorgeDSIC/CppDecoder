@@ -130,6 +130,13 @@ class DGaussianAcousticModel : public AcousticModel {
    * @return size_t
    */
   size_t getDim() override { return dim; }
+
+  /**
+   * @brief Set vectors's dimension
+   *
+   * @return size_t
+   */
+  void setDim(size_t dim) override { this->dim = dim; };
   /**
    * @brief Get the number of states contained in this model
    *

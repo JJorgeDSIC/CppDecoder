@@ -52,7 +52,7 @@ class GaussianMixtureState {
   float calc_logprob(const std::vector<float> &frame);
 };
 
-class MixtureAcousticModel: public AcousticModel{
+class MixtureAcousticModel : public AcousticModel {
   typedef std::tuple<std::string, float> value_t;
   std::vector<std::string> states;
   std::unordered_map<std::string, std::vector<GaussianMixtureState>>
@@ -70,6 +70,8 @@ class MixtureAcousticModel: public AcousticModel{
  public:
   explicit MixtureAcousticModel(const std::string &filename);
   size_t getDim() override { return dim; }
+  void setDim(size_t dim) override { this->dim = dim; }
+
   size_t getNStates() override { return n_states; }
   int read_model(const std::string &filename) override;
   int write_model(const std::string &filename) override;

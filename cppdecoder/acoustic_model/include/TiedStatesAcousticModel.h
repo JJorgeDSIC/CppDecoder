@@ -8,7 +8,7 @@
 
 #include "MixtureAcousticModel.h"
 
-class TiedStatesAcousticModel: public AcousticModel{
+class TiedStatesAcousticModel : public AcousticModel {
   size_t dim;
   size_t n_states;
   size_t n_trans;
@@ -27,6 +27,12 @@ class TiedStatesAcousticModel: public AcousticModel{
   explicit TiedStatesAcousticModel(const std::string &filename);
   size_t getDim() override { return dim; }
   size_t getNStates() override { return n_states; }
+  /**
+   * @brief Set vectors's dimension
+   *
+   * @return size_t
+   */
+  void setDim(size_t dim) override { this->dim = dim; };
   int read_model(const std::string &filename) override;
   int write_model(const std::string &filename) override;
   float calc_logprob(const std::string &state, int q,
