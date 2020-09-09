@@ -10,10 +10,16 @@
 #include <Sample.h>
 #include <SearchGraphLanguageModel.h>
 
+#include <memory>
+
 class Decoder {
+  std::unique_ptr<SearchGraphLanguageModel> sgraph;
+  std::unique_ptr<AcousticModel> amodel;
+
  public:
-  Decoder(SearchGraphLanguageModel sgraph, AcousticModel* amodel,
-          Sample sample);
+  Decoder(std::unique_ptr<SearchGraphLanguageModel>& sgraph,
+          std::unique_ptr<AcousticModel>& amodel);
+  float decode(Sample sample);
 };
 
 #endif  // MIXTUREACOUSTICMODEL_H_

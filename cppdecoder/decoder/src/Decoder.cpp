@@ -1,9 +1,11 @@
 #include <Decoder.h>
 
-Decoder::Decoder(SearchGraphLanguageModel sgraph, AcousticModel* amodel, Sample sample) {
-  std::cout << "Constructor..." << std::endl;
+Decoder::Decoder(std::unique_ptr<SearchGraphLanguageModel>& sgraph,
+                 std::unique_ptr<AcousticModel>& amodel) {
+  this->sgraph = std::move(sgraph);
+  this->amodel = std::move(amodel);
+}
 
-  float prob = amodel->calc_logprob("a", 0, sample.getFrame(0).getFeatures());
-
-  std::cout << "Prob: " << prob << std::endl;
+float Decoder::decode(Sample sample) {
+  return this->amodel->calc_logprob("a", 0, sample.getFrame(0).getFeatures());
 }
