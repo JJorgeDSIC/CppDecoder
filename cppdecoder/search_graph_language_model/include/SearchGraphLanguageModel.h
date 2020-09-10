@@ -58,8 +58,14 @@ class SearchGraphLanguageModel {
 
  public:
   SearchGraphLanguageModel() : nstates(0), nedges(0), start(-1), final(-1) {}
-  int read_model(const std::string &filename);
-  int write_model(const std::string &filename);
+  int read_model(const std::string& filename);
+  int write_model(const std::string& filename);
+  const std::string& getIdToSym(int id) { return id_to_symbol[id]; }
+  const std::string& getIdToWord(int id) { return id_to_word[id]; }
+  int getNStates() { return nstates; }
+  int getNEdges() { return nedges; }
+  int getStartState() { return start; }
+  int getFinalState() { return final; }
 };
 
 #endif  // SEARCHGRAPHLANGUAGEMODEL_H_

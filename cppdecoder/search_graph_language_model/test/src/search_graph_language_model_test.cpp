@@ -55,6 +55,24 @@ TEST_F(SearchGraphLanguageModelTests, SearchGraphLanguageModelReadWriteTest) {
   ASSERT_TRUE(true);
 }
 
+TEST_F(SearchGraphLanguageModelTests, SearchGraphLanguageModelgetIdToSym) {
+  SearchGraphLanguageModel sgraph;
+  sgraph.read_model(SearchGraphFile);
+  ASSERT_EQ(sgraph.getIdToSym(0), "-");
+  ASSERT_EQ(sgraph.getIdToSym(592), "a");
+  ASSERT_EQ(sgraph.getIdToSym(2440), "J^");
+  ASSERT_EQ(sgraph.getIdToSym(1500000), "");
+}
+
+TEST_F(SearchGraphLanguageModelTests, SearchGraphLanguageModelgetIdToWord) {
+  SearchGraphLanguageModel sgraph;
+  sgraph.read_model(SearchGraphFile);
+  ASSERT_EQ(sgraph.getIdToWord(0), "-");
+  ASSERT_EQ(sgraph.getIdToWord(2487), "bueno");
+  ASSERT_EQ(sgraph.getIdToWord(2529), "durante");
+  ASSERT_EQ(sgraph.getIdToWord(2546), "empezamos");
+}
+
 }  // namespace
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
