@@ -58,10 +58,7 @@ TEST_F(SearchGraphLanguageModelTests, SearchGraphLanguageModelReadWriteTest) {
 TEST_F(SearchGraphLanguageModelTests, SearchGraphLanguageModelgetIdToSym) {
   SearchGraphLanguageModel sgraph;
   sgraph.read_model(SearchGraphFile);
-<<<<<<< 4fc9043535ac284f2557ef326795d688806065c5
-=======
 
->>>>>>> Added methods to SearchGraphLM for decoding.
   ASSERT_EQ(sgraph.getIdToSym(0), "-");
   ASSERT_EQ(sgraph.getIdToSym(592), "a");
   ASSERT_EQ(sgraph.getIdToSym(2440), "J^");
@@ -71,10 +68,7 @@ TEST_F(SearchGraphLanguageModelTests, SearchGraphLanguageModelgetIdToSym) {
 TEST_F(SearchGraphLanguageModelTests, SearchGraphLanguageModelgetIdToWord) {
   SearchGraphLanguageModel sgraph;
   sgraph.read_model(SearchGraphFile);
-<<<<<<< 4fc9043535ac284f2557ef326795d688806065c5
-=======
 
->>>>>>> Added methods to SearchGraphLM for decoding.
   ASSERT_EQ(sgraph.getIdToWord(0), "-");
   ASSERT_EQ(sgraph.getIdToWord(2487), "bueno");
   ASSERT_EQ(sgraph.getIdToWord(2529), "durante");
