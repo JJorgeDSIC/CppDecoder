@@ -34,11 +34,17 @@ int main() {
   SearchGraphLanguageModel sgraph2;
   sgraph2.read_model("/home/jjorge/PyDecoder/models/2.gram.graph");
 
-
   std::cout << sgraph2.getStartState() << std::endl;
 
+  //   std::unique_ptr<SGNode> sgnode(
+  //       new SGNode(sgraph2.getStartState(), 0.0, 0.0, 0.0, 0));
   std::unique_ptr<SGNode> sgnode(
       new SGNode(sgraph2.getStartState(), 0.0, 0.0, 0.0, 0));
 
   decoder.insert_search_graph_node(sgnode);
+
+  std::unique_ptr<SGNode> sgnode2(
+      new SGNode(sgraph2.getStartState(), 0.1, 0.0, 0.0, 0));
+
+  decoder.insert_search_graph_node(sgnode2);
 }

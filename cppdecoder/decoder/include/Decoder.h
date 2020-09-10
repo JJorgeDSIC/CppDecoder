@@ -27,7 +27,18 @@ class SGNode {
         lmlprob(lmlprob),
         hyp(hyp) {}
   int getStateId() { return state_id; }
+  float getLProb() { return lprob; }
+  float getHMMLProb() { return hmmlprob; }
+  float getLMLProb() { return lmlprob; }
+  int getHyp() { return hyp; }
+  void setLProb(float lprob) { this->lprob = lprob; }
+  void setHMMLProb(float hmmlprob) { this->hmmlprob = hmmlprob; }
+  void setLMLProb(float lmlprob) { this->lmlprob = lmlprob; }
+  void setHyp(int hyp) { this->hyp = hyp; }
   bool operator==(const SGNode& p) const { return state_id == p.state_id; }
+  void showState() {
+    std::cout << state_id << " " << lprob << " " << std::endl;
+  }
 };
 
 class HMMNode {
@@ -64,16 +75,31 @@ class Decoder {
   std::vector<std::unique_ptr<SGNode>> search_graph_null_nodes0;
   std::vector<std::unique_ptr<SGNode>> search_graph_null_nodes1;
   std::vector<std::unique_ptr<SGNode>> search_graph_nodes1;
+  std::vector<WordHyp> hypothesis;
+  float v_lm_max = 0.0;
+  float v_lm_beam = 0.0;
+  float v_lm_thr = 0.0;
+  int currIndex = 0;
 
  public:
   Decoder(std::unique_ptr<SearchGraphLanguageModel>& sgraph,
           std::unique_ptr<AcousticModel>& amodel);
   float decode(Sample sample);
   void expand_search_graph_nodes(std::vector<SGNode>& searchgraph_null_nodes0);
-  // void insert_search_graph_node(std::unique_ptr<SGNode>& node);
   void insert_search_graph_node(std::unique_ptr<SGNode>& node);
-  void addNodeToSearchGraphNullNodes1(std::unique_ptr<SGNode>& node);
-  void addNodeToSearchGraphNodes1(SGNode node);
+  int addNodeToSearchGraphNullNodes1(std::unique_ptr<SGNode>& node);
+  int addNodeToSearchGraphNodes1(std::unique_ptr<SGNode>& node);
+  void updateLmBeam(float lprob);
+  std::vector<std::unique_ptr<SGNode>>& getSearchGraphNullNodes0() {
+    return search_graph_null_nodes1;
+  }
+  std::vector<std::unique_ptr<SGNode>>& getSearchGraphNullNodes1() {
+    return search_graph_null_nodes1;
+  }
+  std::vector<std::unique_ptr<SGNode>>& getSearchGraphNodes1() {
+    return search_graph_nodes1;
+  }
+  std::vector<int> getActives() { return actives; }
 };
 
 #endif  // MIXTUREACOUSTICMODEL_H_

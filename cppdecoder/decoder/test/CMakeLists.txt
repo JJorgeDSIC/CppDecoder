@@ -11,3 +11,9 @@ BUILD_UNIT_TEST(TEST_SRC src/decoder_test.cpp
                              ${Sample_SOURCE_DIR}/include
                              ${SearchGraphLanguageModel_SOURCE_DIR}/include
                              )
+
+configure_file(
+     ${CMAKE_SOURCE_DIR}/models/2.gram.graph ${CMAKE_BINARY_DIR}/models/2.gram.graph COPYONLY)
+                         
+configure_file(
+     ${CMAKE_SOURCE_DIR}/models/mixture_monophoneme_I32.example.model ${CMAKE_BINARY_DIR}/models/mixture_monophoneme_I32.example.model COPYONLY)
