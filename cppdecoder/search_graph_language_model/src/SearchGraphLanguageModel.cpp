@@ -18,8 +18,20 @@ int SearchGraphLanguageModel::write_model(const std::string &filename) {
 
     for (SearchGraphLanguageModelState state : sg_lm_states) {
       fileO << state.id << " ";
-      fileO << state.symbol << " ";
-      fileO << state.word << " ";
+      if (state.symbol == "-") {
+        fileO << state.symbol << " ";
+
+      } else {
+        fileO << "'" << state.symbol << "' ";
+      }
+
+      if (state.word == "-") {
+        fileO << state.word << " ";
+
+      } else {
+        fileO << "'" << state.word << "' ";
+      }
+
       fileO << state.edge_begin << " ";
       fileO << state.edge_end << std::endl;
     }
@@ -68,10 +80,24 @@ int SearchGraphLanguageModel::read_model(const std::string &filename) {
       ss >> edge_begin;
       ss >> edge_end;
 
+      if (symbol != "-") {
+        symbol.erase(0, 1);
+        symbol.erase(symbol.size() - 1, symbol.size());
+      }
+
+      if (word != "-") {
+        word.erase(0, 1);
+        word.erase(word.size() - 1, word.size());
+      }
+
       SearchGraphLanguageModelState state(state_id, symbol, word, edge_begin,
                                           edge_end);
 
       sg_lm_states.push_back(state);
+
+      id_to_symbol[state_id] = symbol;
+      symbol_to_id[symbol] = state_id;
+      id_to_word[state_id] = word;
     }
 
     getline(fileI, line);  // Edges
