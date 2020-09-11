@@ -62,6 +62,12 @@ class SearchGraphLanguageModel {
   int write_model(const std::string& filename);
   const std::string& getIdToSym(int id) { return id_to_symbol[id]; }
   const std::string& getIdToWord(int id) { return id_to_word[id]; }
+  const SearchGraphLanguageModelState& getSearchGraphState(int id) {
+    return sg_lm_states[id];
+  }
+  const SearchGraphLanguageModelEdge& getSearchGraphEdge(int id) {
+    return sg_lm_edges[id];
+  }
   int getNStates() { return nstates; }
   int getNEdges() { return nedges; }
   int getStartState() { return start; }

@@ -17,7 +17,7 @@ int main() {
 
   std::cout << mixturemodel->getDim() << std::endl;
 
-  Decoder decoder(sgraph, mixturemodel);
+  Decoder decoder(std::move(sgraph), std::move(mixturemodel));
 
   Sample sample;
 
@@ -38,13 +38,30 @@ int main() {
 
   //   std::unique_ptr<SGNode> sgnode(
   //       new SGNode(sgraph2.getStartState(), 0.0, 0.0, 0.0, 0));
-  std::unique_ptr<SGNode> sgnode(
-      new SGNode(sgraph2.getStartState(), 0.0, 0.0, 0.0, 0));
+  //   std::unique_ptr<SGNode> sgnode(
+  //       new SGNode(sgraph2.getStartState(), 0.0, 0.0, 0.0, 0));
 
-  decoder.insert_search_graph_node(sgnode);
+  //   decoder.insert_search_graph_node(std::move(sgnode));
 
-  std::unique_ptr<SGNode> sgnode2(
-      new SGNode(sgraph2.getStartState(), 0.1, 0.0, 0.0, 0));
+  //   std::unique_ptr<SGNode> sgnode2(
+  //       new SGNode(sgraph2.getStartState(), 0.1, 0.0, 0.0, 0));
 
-  decoder.insert_search_graph_node(sgnode2);
+  //   decoder.insert_search_graph_node(std::move(sgnode2));
+
+  std::unique_ptr<SGNode> sgnodeIni(new SGNode(6408, 0.1, 0.0, 0.0, 0));
+
+  decoder.addNodeToSearchGraphNullNodes0(std::move(sgnodeIni));
+
+  std::vector<std::unique_ptr<SGNode>>& search_graph_null_nodes0 =
+      decoder.getSearchGraphNullNodes0();
+
+  decoder.expand_search_graph_nodes(std::move(search_graph_null_nodes0));
+
+  std::vector<std::unique_ptr<SGNode>>& search_graph_null_nodes1 =
+      decoder.getSearchGraphNullNodes1();
+
+  const std::vector<std::unique_ptr<SGNode>>& search_graph_nodes1 =
+      decoder.getSearchGraphNodes1();
+
+  decoder.printSGNode(search_graph_nodes1);
 }
