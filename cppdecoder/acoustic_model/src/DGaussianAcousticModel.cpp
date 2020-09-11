@@ -5,13 +5,13 @@
 
 #include "DGaussianAcousticModel.h"
 
-GaussianState::GaussianState(const size_t d) : dim(d), logc(0) {
+GaussianState::GaussianState(const uint32_t d) : dim(d), logc(0) {
   mu.reserve(dim);
   var.reserve(dim);
   ivar.reserve(dim);
 }
 
-GaussianState::GaussianState(const size_t d, const std::string &mu_line,
+GaussianState::GaussianState(const uint32_t d, const std::string &mu_line,
                              const std::string &var_line)
     : dim(d), logc(0) {
   mu.reserve(dim);
@@ -142,7 +142,7 @@ int DGaussianAcousticModel::write_model(const std::string &filename) {
     fileO << "DGaussian\n";
     fileO << "D " << dim << std::endl;
     fileO << "SMOOTH ";
-    for (size_t i = 0; i < smooth.size() - 1; i++) {
+    for (uint32_t i = 0; i < smooth.size() - 1; i++) {
       fileO << smooth[i] << " ";
     }
 
@@ -160,7 +160,7 @@ int DGaussianAcousticModel::write_model(const std::string &filename) {
 
       std::vector<float> trans = state_to_trans[name];
 
-      for (size_t i = 0; i < trans.size() - 1; i++) {
+      for (uint32_t i = 0; i < trans.size() - 1; i++) {
         fileO << trans[i] << " ";
       }
 
@@ -171,7 +171,7 @@ int DGaussianAcousticModel::write_model(const std::string &filename) {
       for (auto i = 0; i < n_q; i++) {
         fileO << "MU ";
         std::vector<float> mu = gstates[i].getMu();
-        for (size_t i = 0; i < mu.size() - 1; i++) {
+        for (uint32_t i = 0; i < mu.size() - 1; i++) {
           fileO << mu[i] << " ";
         }
 
@@ -180,7 +180,7 @@ int DGaussianAcousticModel::write_model(const std::string &filename) {
         fileO << "VAR ";
         std::vector<float> var = gstates[i].getVar();
 
-        for (size_t i = 0; i < var.size() - 1; i++) {
+        for (uint32_t i = 0; i < var.size() - 1; i++) {
           fileO << var[i] << " ";
         }
 

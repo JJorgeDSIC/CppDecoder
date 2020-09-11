@@ -26,23 +26,23 @@ class AcousticModel {
   /**
    * @brief Get vectors's dimension.
    *
-   * @return size_t The dimension.
+   * @return uint32_t The dimension.
    */
-  virtual size_t getDim() = 0;
+  virtual uint32_t getDim() = 0;
 
   /**
    * @brief Set vectors's dimension.
    *
    * @param[in] d The new dimension.
    */
-  virtual void setDim(const size_t d) = 0;
+  virtual void setDim(const uint32_t d) = 0;
 
   /**
    * @brief Get the number of states contained in this model.
    *
-   * @return size_t The number of states.
+   * @return uint32_t The number of states.
    */
-  virtual size_t getNStates() = 0;
+  virtual uint32_t getNStates() = 0;
 
   /**
    * @brief Read a Diagonal Gaussian Acoustic model from text file.

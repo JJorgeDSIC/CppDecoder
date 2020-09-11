@@ -17,7 +17,7 @@ class GaussianState {
   std::vector<float> var;
   std::vector<float> ivar;
   float logc;
-  size_t dim;
+  uint32_t dim;
 
  public:
   /**
@@ -25,7 +25,7 @@ class GaussianState {
    *
    * @param[in] d Vectors' dimension.
    */
-  explicit GaussianState(const size_t d);
+  explicit GaussianState(const uint32_t d);
 
   /**
    * @brief Construct a new Gaussian State object, providing mu and var line.
@@ -34,7 +34,7 @@ class GaussianState {
    * @param[in] mu_line Mu in text format (i.e: val1 val2 ... val_dim).
    * @param[in] var_line Var in text format (i.e: val1 val2 ... val_dim).
    */
-  GaussianState(const size_t d, const std::string &mu_line,
+  GaussianState(const uint32_t d, const std::string &mu_line,
                 const std::string &var_line);
 
   /**
@@ -82,9 +82,9 @@ class GaussianState {
   /**
    * @brief Get vectors's dimension.
    *
-   * @return size_t The dimension.
+   * @return uint32_t The dimension.
    */
-  size_t getDim() const { return dim; }
+  uint32_t getDim() const { return dim; }
 
   /**
    * @brief Get the Logc value.
@@ -114,8 +114,8 @@ class DGaussianAcousticModel : public AcousticModel {
   std::unordered_map<std::string, std::vector<float>> state_to_trans;
   std::unordered_map<std::string, int> state_to_num_q;
   std::vector<float> smooth;
-  size_t dim;
-  size_t n_states;
+  uint32_t dim;
+  uint32_t n_states;
 
  public:
   /**
@@ -127,23 +127,23 @@ class DGaussianAcousticModel : public AcousticModel {
   /**
    * @brief Get vectors's dimension.
    *
-   * @return size_t The dimension.
+   * @return uint32_t The dimension.
    */
-  size_t getDim() override { return dim; }
+  uint32_t getDim() override { return dim; }
 
   /**
    * @brief Set vectors's dimension
    *
    * @param[in] d The new dimension.
    */
-  void setDim(const size_t d) override { dim = d; };
+  void setDim(const uint32_t d) override { dim = d; };
 
   /**
    * @brief Get the number of states contained in this model.
    *
-   * @return size_t The number os states.
+   * @return uint32_t The number os states.
    */
-  size_t getNStates() override { return n_states; }
+  uint32_t getNStates() override { return n_states; }
 
   /**
    * @brief Read a Diagonal Gaussian Acoustic model from text file.

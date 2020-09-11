@@ -34,8 +34,8 @@ class SampleTests : public ::testing::Test {
 };
 
 TEST_F(SampleTests, SampleConstructionTest) {
-  size_t dim = frame.size();
-  size_t num_frames = 1;
+  uint32_t dim = frame.size();
+  uint32_t num_frames = 1;
   Sample sample(dim, num_frames);
 
   sample.addFrame(frame);

@@ -14,7 +14,7 @@ inline void WordHyp::showWordHyp() {
 inline void Decoder::printSGNode(
     const std::vector<std::unique_ptr<SGNode>>& nodes) {
   std::cout << "printSGNode" << std::endl;
-  for (size_t i = 0; i < nodes.size(); i++) {
+  for (uint32_t i = 0; i < nodes.size(); i++) {
     std::cout << nodes[i]->getStateId() << std::endl;
     std::cout << sgraph->getIdToSym(nodes[i]->getStateId()) << std::endl;
     std::cout << sgraph->getIdToWord(nodes[i]->getStateId()) << std::endl;

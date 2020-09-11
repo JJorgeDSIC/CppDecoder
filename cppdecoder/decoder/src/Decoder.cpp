@@ -18,7 +18,7 @@ SGNode::SGNode(const int state_id, const float lprob, const float hmmlprob,
 WordHyp::WordHyp(const int prev, const std::string& word)
     : prev(prev), word(word) {}
 
-HMMNodeManager::HMMNodeManager(const size_t max_size)
+HMMNodeManager::HMMNodeManager(const uint32_t max_size)
     : max_hyps(max_size), max_size(max_size + 1), size(0) {}
 
 Decoder::Decoder(std::unique_ptr<SearchGraphLanguageModel> sgraph,
@@ -83,7 +83,7 @@ void Decoder::expand_search_graph_nodes(
     std::cout << sgstate.edge_begin << std::endl;
     std::cout << sgstate.edge_end << std::endl;
 
-    for (size_t i = sgstate.edge_begin; i < sgstate.edge_end; i++) {
+    for (uint32_t i = sgstate.edge_begin; i < sgstate.edge_end; i++) {
       SearchGraphLanguageModelEdge sgedge = sgraph->getSearchGraphEdge(i);
 
       std::cout << "sgedge.dst " << sgedge.dst << std::endl;

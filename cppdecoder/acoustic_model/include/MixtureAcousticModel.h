@@ -30,28 +30,28 @@ class GaussianMixtureState {
  public:
   GaussianMixtureState();
 
-  GaussianMixtureState(size_t components, size_t dim);
+  GaussianMixtureState(uint32_t components, uint32_t dim);
 
-  size_t getComponents() const { return components; }
+  uint32_t getComponents() const { return components; }
 
-  void setComponents(const size_t comps) { components = comps; }
+  void setComponents(const uint32_t comps) { components = comps; }
 
-  void reserveComponents(const size_t comps);
+  void reserveComponents(const uint32_t comps);
 
   void addPMembers(const std::string &line);
 
-  int addGaussianState(const size_t d, const std::string &mu_line,
+  int addGaussianState(const uint32_t d, const std::string &mu_line,
                        const std::string &var_line);
 
-  GaussianState &getGaussianStateByComponent(const size_t component) {
+  GaussianState &getGaussianStateByComponent(const uint32_t component) {
     return gstates[component];
   }
 
   const std::vector<GaussianState> &getGStates() { return gstates; }
 
-  size_t getDim() const { return dim; }
+  uint32_t getDim() const { return dim; }
 
-  void setDim(const size_t dim) { this->dim = dim; }
+  void setDim(const uint32_t dim) { this->dim = dim; }
 
   std::vector<float> &getPMembers() { return pmembers; }
 
@@ -60,19 +60,19 @@ class GaussianMixtureState {
  private:
   std::vector<GaussianState> gstates;
   std::vector<float> pmembers;
-  size_t components;
-  size_t dim;
+  uint32_t components;
+  uint32_t dim;
 };
 
 class MixtureAcousticModel : public AcousticModel {
  public:
   explicit MixtureAcousticModel(const std::string &filename);
 
-  size_t getDim() override { return dim; }
+  uint32_t getDim() override { return dim; }
 
-  void setDim(const size_t dim) override { this->dim = dim; }
+  void setDim(const uint32_t dim) override { this->dim = dim; }
 
-  size_t getNStates() override { return n_states; }
+  uint32_t getNStates() override { return n_states; }
 
   int read_model(const std::string &filename) override;
 
@@ -93,8 +93,8 @@ class MixtureAcousticModel : public AcousticModel {
   std::unordered_map<std::string, std::string> state_to_type;
   std::unordered_map<std::string, int> state_to_num_q;
   std::vector<float> smooth;
-  size_t dim;
-  size_t n_states;
+  uint32_t dim;
+  uint32_t n_states;
 };
 
 #endif  // MIXTUREACOUSTICMODEL_H_

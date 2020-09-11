@@ -41,16 +41,16 @@ class SearchGraphLanguageModel {
 
   const std::string& getIdToSym(const int id) { return id_to_symbol[id]; }
   const std::string& getIdToWord(const int id) { return id_to_word[id]; }
-  const SearchGraphLanguageModelState& getSearchGraphState(const size_t id) {
+  const SearchGraphLanguageModelState& getSearchGraphState(const uint32_t id) {
     return sg_lm_states[id];
   }
-  const SearchGraphLanguageModelEdge& getSearchGraphEdge(const size_t id) {
+  const SearchGraphLanguageModelEdge& getSearchGraphEdge(const uint32_t id) {
     return sg_lm_edges[id];
   }
-  size_t getNStates() const { return nstates; }
-  size_t getNEdges() const { return nedges; }
-  size_t getStartState() const { return start; }
-  size_t getFinalState() const { return final; }
+  uint32_t getNStates() const { return nstates; }
+  uint32_t getNEdges() const { return nedges; }
+  uint32_t getStartState() const { return start; }
+  uint32_t getFinalState() const { return final; }
 
  private:
   std::unordered_map<std::string, int> symbol_to_id;
@@ -59,7 +59,7 @@ class SearchGraphLanguageModel {
   std::unordered_map<std::string, int> word_to_id;
   std::unordered_map<int, std::string> id_to_word;
 
-  size_t nstates, nedges, start, final;
+  uint32_t nstates, nedges, start, final;
 
   std::vector<SearchGraphLanguageModelState> sg_lm_states;
   std::vector<SearchGraphLanguageModelEdge> sg_lm_edges;

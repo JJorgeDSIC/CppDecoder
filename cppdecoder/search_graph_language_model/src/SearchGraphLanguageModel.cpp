@@ -74,7 +74,7 @@ int SearchGraphLanguageModel::read_model(const std::string& filename) {
 
     std::string symbol, word;
 
-    for (size_t i = 0; i < nstates; i++) {
+    for (uint32_t i = 0; i < nstates; i++) {
       getline(fileI, line);
       std::istringstream ss(line);
       ss >> state_id;
@@ -107,7 +107,7 @@ int SearchGraphLanguageModel::read_model(const std::string& filename) {
     int id, dst;
     float weight;
 
-    for (size_t i = 0; i < nedges; i++) {
+    for (uint32_t i = 0; i < nedges; i++) {
       getline(fileI, line);
       std::istringstream ss(line);
       ss >> id;

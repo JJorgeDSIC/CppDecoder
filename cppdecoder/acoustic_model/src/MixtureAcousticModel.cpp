@@ -10,13 +10,13 @@ TransValue::TransValue(const std::string &st, const float val)
 
 GaussianMixtureState::GaussianMixtureState() : components(0) {}
 
-GaussianMixtureState::GaussianMixtureState(size_t components, size_t dim) {
+GaussianMixtureState::GaussianMixtureState(uint32_t components, uint32_t dim) {
   this->dim = dim;
   this->components = components;
   gstates.reserve(components);
 }
 
-void GaussianMixtureState::reserveComponents(const size_t comps) {
+void GaussianMixtureState::reserveComponents(const uint32_t comps) {
   this->components = comps;
   gstates.reserve(components);
   pmembers.reserve(components);
@@ -26,7 +26,7 @@ void GaussianMixtureState::addPMembers(const std::string &line) {
   pmembers = read_vector<float>(line);
 }
 
-int GaussianMixtureState::addGaussianState(const size_t d,
+int GaussianMixtureState::addGaussianState(const uint32_t d,
                                            const std::string &mu_line,
                                            const std::string &var_line) {
   if (dim != d) return 1;
@@ -206,7 +206,7 @@ int MixtureAcousticModel::write_model(const std::string &filename) {
     fileO << "D " << dim << std::endl;
     fileO << "SMOOTH ";
 
-    for (size_t i = 0; i < smooth.size() - 1; i++) {
+    for (uint32_t i = 0; i < smooth.size() - 1; i++) {
       fileO << smooth[i] << " ";
     }
 
@@ -231,7 +231,7 @@ int MixtureAcousticModel::write_model(const std::string &filename) {
 
         std::vector<float> trans = state_to_trans[name];
 
-        for (size_t i = 0; i < trans.size() - 1; i++) {
+        for (uint32_t i = 0; i < trans.size() - 1; i++) {
           fileO << trans[i] << " ";
         }
 
@@ -270,7 +270,7 @@ int MixtureAcousticModel::write_model(const std::string &filename) {
         fileO << "PMembers ";
         std::vector<float> pmembers = dg_states.getPMembers();
 
-        for (size_t i = 0; i < pmembers.size() - 1; i++) {
+        for (uint32_t i = 0; i < pmembers.size() - 1; i++) {
           fileO << pmembers[i] << " ";
         }
 
@@ -284,7 +284,7 @@ int MixtureAcousticModel::write_model(const std::string &filename) {
 
           fileO << "MU ";
 
-          for (size_t i = 0; i < mu.size() - 1; i++) {
+          for (uint32_t i = 0; i < mu.size() - 1; i++) {
             fileO << mu[i] << " ";
           }
 
@@ -292,7 +292,7 @@ int MixtureAcousticModel::write_model(const std::string &filename) {
 
           fileO << "VAR ";
 
-          for (size_t i = 0; i < var.size() - 1; i++) {
+          for (uint32_t i = 0; i < var.size() - 1; i++) {
             fileO << var[i] << " ";
           }
 

@@ -16,16 +16,16 @@ class TiedStatesAcousticModel : public AcousticModel {
  public:
   explicit TiedStatesAcousticModel(const std::string &filename);
 
-  size_t getDim() override { return dim; }
+  uint32_t getDim() override { return dim; }
 
-  size_t getNStates() override { return n_states; }
+  uint32_t getNStates() override { return n_states; }
 
   /**
    * @brief Set vectors's dimension.
    *
    * @param[in] d The new dimension.
    */
-  void setDim(const size_t d) override { dim = d; };
+  void setDim(const uint32_t d) override { dim = d; };
 
   int read_model(const std::string &filename) override;
 
@@ -35,9 +35,9 @@ class TiedStatesAcousticModel : public AcousticModel {
                      const std::vector<float> &frame) override;
 
  private:
-  size_t dim;
-  size_t n_states;
-  size_t n_trans;
+  uint32_t dim;
+  uint32_t n_states;
+  uint32_t n_trans;
   std::vector<float> smooth;
 
   std::vector<std::string> symbols;

@@ -30,21 +30,21 @@ class Sample {
    * @param[in] d Vector dimension.
    * @param[in] n Number of frames in the sample.
    */
-  Sample(const size_t d, const size_t n);
+  Sample(const uint32_t d, const uint32_t n);
 
   /**
    * @brief Get the dimension of the vectors.
    *
-   * @return size_t Vector dimension.
+   * @return uint32_t Vector dimension.
    */
-  size_t getDim() const { return dim; }
+  uint32_t getDim() const { return dim; }
 
   /**
    * @brief Get the number of frames in this sample.
    *
-   * @return size_t Number of frames in the sample.
+   * @return uint32_t Number of frames in the sample.
    */
-  size_t getNFrames() const { return num_frames; }
+  uint32_t getNFrames() const { return num_frames; }
 
   /**
    * @brief Get the Frame object at position index.
@@ -52,7 +52,7 @@ class Sample {
    * @param[in] index Index inside the sample, usually temporal dimension.
    * @return Frame& Frame object at position index in the sample.
    */
-  Frame &getFrame(const size_t index) { return frames[index]; }
+  Frame &getFrame(const uint32_t index) { return frames[index]; }
 
   /**
    * @brief Read a Sample from text file.
@@ -92,14 +92,14 @@ class Sample {
    *
    * @param[in] d Vector dimension.
    */
-  void setDim(const size_t d) { dim = d; }
+  void setDim(const uint32_t d) { dim = d; }
 
   /**
    * @brief Set the number of frames for this sample.
    *
    * @param[in] n Number of frames.
    */
-  void setNFrames(const size_t n) { num_frames = n; }
+  void setNFrames(const uint32_t n) { num_frames = n; }
 
   /**
    * @brief Shows the content of this sample
@@ -114,8 +114,8 @@ class Sample {
 
  private:
   std::vector<Frame> frames;
-  size_t dim;
-  size_t num_frames;
+  uint32_t dim;
+  uint32_t num_frames;
 };
 
 #include "Sample.inl"

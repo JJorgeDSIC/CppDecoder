@@ -42,7 +42,7 @@ class SGNode {
 
 class HMMNode {
  private:
-  size_t s;
+  uint32_t s;
 };
 
 class WordHyp {
@@ -58,14 +58,14 @@ class WordHyp {
 
 class HMMNodeManager {
  public:
-  explicit HMMNodeManager(const size_t max_size);
+  explicit HMMNodeManager(const uint32_t max_size);
 
   bool isFull();
 
  private:
-  size_t max_hyps;
-  size_t max_size;
-  size_t size;
+  uint32_t max_hyps;
+  uint32_t max_size;
+  uint32_t size;
 };
 
 class Decoder {
