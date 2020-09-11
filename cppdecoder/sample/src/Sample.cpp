@@ -5,9 +5,9 @@
 
 #include "Sample.h"
 
-Sample::Sample(size_t dim, size_t num_frames) {
-  this->dim = dim;
-  this->num_frames = num_frames;
+Sample::Sample() : dim(0), num_frames(0) {}
+
+Sample::Sample(size_t d, size_t n) : dim(d), num_frames(n) {
   frames.reserve(num_frames);
 }
 

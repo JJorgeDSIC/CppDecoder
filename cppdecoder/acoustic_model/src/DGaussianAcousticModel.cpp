@@ -5,6 +5,22 @@
 
 #include "DGaussianAcousticModel.h"
 
+GaussianState::GaussianState(const size_t d) : dim(d), logc(0) {
+  mu.reserve(dim);
+  var.reserve(dim);
+  ivar.reserve(dim);
+}
+
+GaussianState::GaussianState(const size_t d, const std::string &mu_line,
+                             const std::string &var_line)
+    : dim(d), logc(0) {
+  mu.reserve(dim);
+  var.reserve(dim);
+  ivar.reserve(dim);
+  addMu(mu_line);
+  addVar(var_line);
+}
+
 void GaussianState::addMu(const std::string &line) {
   mu = read_vector<float>(line);
 }
@@ -67,7 +83,7 @@ int DGaussianAcousticModel::read_model(const std::string &filename) {
     std::string name;
     int n_q;
 
-    for (int statesIter = 0; statesIter < n_states; statesIter++) {
+    while (n_states--) {
       std::vector<float> trans;
 
       // Name
@@ -122,8 +138,6 @@ int DGaussianAcousticModel::write_model(const std::string &filename) {
   std::ofstream fileO(filename, std::ios::app);
 
   if (fileO.is_open()) {
-    int n_q;
-
     fileO << "AMODEL\n";
     fileO << "DGaussian\n";
     fileO << "D " << dim << std::endl;
@@ -137,7 +151,7 @@ int DGaussianAcousticModel::write_model(const std::string &filename) {
     fileO << "N " << n_states << std::endl;
 
     for (auto &name : states) {
-      n_q = state_to_num_q[name];
+      int n_q = state_to_num_q[name];
 
       fileO << "'" << name << "'" << std::endl;
       fileO << "Q " << n_q << std::endl;
@@ -183,11 +197,13 @@ int DGaussianAcousticModel::write_model(const std::string &filename) {
   return 0;
 }
 
-DGaussianAcousticModel::DGaussianAcousticModel(const std::string &filename): AcousticModel() {
+DGaussianAcousticModel::DGaussianAcousticModel(const std::string &filename)
+    : AcousticModel() {
   DGaussianAcousticModel::read_model(filename);
 }
 
-float DGaussianAcousticModel::calc_logprob(const std::string &state, int q,
+float DGaussianAcousticModel::calc_logprob(const std::string &state,
+                                           const int q,
                                            const std::vector<float> &frame) {
   typename std::unordered_map<std::string,
                               std::vector<GaussianState>>::const_iterator it =

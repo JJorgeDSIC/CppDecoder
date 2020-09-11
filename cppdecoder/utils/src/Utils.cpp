@@ -1,10 +1,14 @@
+/*
+ * Copyright 2020 Javier Jorge. All rights reserved.
+ * License: https://github.com/JJorgeDSIC/CppDecoder#license
+ */
+
 #include "Utils.h"
 
 float robust_add(const std::vector<float> &pprobs, const float &max,
                  const size_t &components) {
-
   if (max == -HUGE_VAL) return -HUGE_VAL;
-  
+
   size_t n;
   float res = 0.0;
   for (n = 0; n < components; ++n) {

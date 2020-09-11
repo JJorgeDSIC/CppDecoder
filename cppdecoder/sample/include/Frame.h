@@ -10,14 +10,15 @@
 #include <vector>
 
 class Frame {
-  std::vector<float> features;
-  size_t dim;
-
  public:
   explicit Frame(const std::vector<float>& values);
   std::vector<float>& getFeatures() { return features; }
-  size_t getDim() { return dim; }
+  size_t getDim() const { return dim; }
   void show_content();
+
+ private:
+  std::vector<float> features;
+  size_t dim;
 };
 
 #endif  // FRAME_H_

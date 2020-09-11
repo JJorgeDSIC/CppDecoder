@@ -5,14 +5,31 @@
 
 #include "MixtureAcousticModel.h"
 
+TransValue::TransValue(const std::string &st, const float val)
+    : state(st), value(val) {}
+
+GaussianMixtureState::GaussianMixtureState() : components(0) {}
+
+GaussianMixtureState::GaussianMixtureState(size_t components, size_t dim) {
+  this->dim = dim;
+  this->components = components;
+  gstates.reserve(components);
+}
+
+void GaussianMixtureState::reserveComponents(const size_t comps) {
+  this->components = comps;
+  gstates.reserve(components);
+  pmembers.reserve(components);
+}
+
 void GaussianMixtureState::addPMembers(const std::string &line) {
   pmembers = read_vector<float>(line);
 }
 
-int GaussianMixtureState::addGaussianState(size_t dim,
+int GaussianMixtureState::addGaussianState(const size_t d,
                                            const std::string &mu_line,
                                            const std::string &var_line) {
-  if (this->dim != dim) return 1;
+  if (dim != d) return 1;
 
   gstates.emplace_back(dim, mu_line, var_line);
   return 0;

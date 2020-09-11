@@ -5,7 +5,10 @@
 
 #include "SearchGraphLanguageModel.h"
 
-int SearchGraphLanguageModel::write_model(const std::string &filename) {
+SearchGraphLanguageModel::SearchGraphLanguageModel()
+    : nstates(0), nedges(0), start(-1), final(-1) {}
+
+int SearchGraphLanguageModel::write_model(const std::string& filename) {
   std::cout << "Writing model in " << filename << std::endl;
   std::ofstream fileO(filename, std::ios::app);
   if (fileO.is_open()) {
@@ -50,7 +53,7 @@ int SearchGraphLanguageModel::write_model(const std::string &filename) {
   return 0;
 }
 
-int SearchGraphLanguageModel::read_model(const std::string &filename) {
+int SearchGraphLanguageModel::read_model(const std::string& filename) {
   std::cout << "Reading language model..." << std::endl;
 
   std::ifstream fileI(filename, std::ifstream::in);
@@ -90,8 +93,8 @@ int SearchGraphLanguageModel::read_model(const std::string &filename) {
         word.erase(word.size() - 1, word.size());
       }
 
-      SearchGraphLanguageModelState state(state_id, symbol, word, edge_begin,
-                                          edge_end);
+      SearchGraphLanguageModelState state = {state_id, symbol, word, edge_begin,
+                                             edge_end};
 
       sg_lm_states.push_back(state);
 
@@ -111,7 +114,7 @@ int SearchGraphLanguageModel::read_model(const std::string &filename) {
       ss >> dst;
       ss >> weight;
 
-      SearchGraphLanguageModelEdge e(id, dst, weight);
+      SearchGraphLanguageModelEdge e = {id, dst, weight};
 
       sg_lm_edges.push_back(e);
     }

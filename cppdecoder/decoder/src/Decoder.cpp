@@ -1,4 +1,25 @@
+/*
+ * Copyright 2020 Javier Jorge. All rights reserved.
+ * License: https://github.com/JJorgeDSIC/CppDecoder#license
+ */
+
 #include <Decoder.h>
+
+SGNode::SGNode() : state_id(0), lprob(0.0), hmmlprob(0.0), lmlprob(0), hyp(0) {}
+
+SGNode::SGNode(const int state_id, const float lprob, const float hmmlprob,
+               const float lmlprob, const int hyp)
+    : state_id(state_id),
+      lprob(lprob),
+      hmmlprob(hmmlprob),
+      lmlprob(lmlprob),
+      hyp(hyp) {}
+
+WordHyp::WordHyp(const int prev, const std::string& word)
+    : prev(prev), word(word) {}
+
+HMMNodeManager::HMMNodeManager(const size_t max_size)
+    : max_hyps(max_size), max_size(max_size + 1), size(0) {}
 
 Decoder::Decoder(std::unique_ptr<SearchGraphLanguageModel> sgraph,
                  std::unique_ptr<AcousticModel> amodel) {
@@ -8,8 +29,6 @@ Decoder::Decoder(std::unique_ptr<SearchGraphLanguageModel> sgraph,
                                -1);  // Review this...
   actives = std::move(activesTemp);
 }
-
-
 
 float Decoder::decode(Sample sample) {
   // Init structs
@@ -58,7 +77,8 @@ void Decoder::expand_search_graph_nodes(
 
     // SearchGraphLanguageModelState sgstate =
     // sgraph->getSearchGraphState(node->getStateId());
-    SearchGraphLanguageModelState sgstate = sgraph->getSearchGraphState(node->getStateId());
+    SearchGraphLanguageModelState sgstate =
+        sgraph->getSearchGraphState(node->getStateId());
 
     std::cout << sgstate.edge_begin << std::endl;
     std::cout << sgstate.edge_end << std::endl;

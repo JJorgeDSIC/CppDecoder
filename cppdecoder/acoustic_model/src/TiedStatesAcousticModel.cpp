@@ -5,6 +5,11 @@
 
 #include "TiedStatesAcousticModel.h"
 
+TiedStatesAcousticModel::TiedStatesAcousticModel(const std::string &filename)
+    : AcousticModel() {
+  TiedStatesAcousticModel::read_model(filename);
+}
+
 int TiedStatesAcousticModel::read_model(const std::string &filename) {
   std::cout << "Reading TiedStatesAcousticModel from " << filename << "..."
             << std::endl;
@@ -237,11 +242,8 @@ int TiedStatesAcousticModel::write_model(const std::string &filename) {
   return 0;
 }
 
-TiedStatesAcousticModel::TiedStatesAcousticModel(const std::string &filename):AcousticModel() {
-  TiedStatesAcousticModel::read_model(filename);
-}
-
-float TiedStatesAcousticModel::calc_logprob(const std::string &state, int q,
+float TiedStatesAcousticModel::calc_logprob(const std::string &state,
+                                            const int q,
                                             const std::vector<float> &frame) {
   std::vector<std::string> senones = symbol_to_senones[state];
 
