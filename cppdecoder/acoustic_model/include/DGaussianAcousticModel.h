@@ -9,6 +9,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <memory>
 
 #include "AcousticModel.h"
 
@@ -110,7 +111,7 @@ class GaussianState {
 
 class DGaussianAcousticModel : public AcousticModel {
   std::vector<std::string> states;
-  std::unordered_map<std::string, std::vector<GaussianState>> state_to_gstate;
+  std::unordered_map<std::string, std::vector<std::unique_ptr<GaussianState>>> state_to_gstate;
   std::unordered_map<std::string, std::vector<float>> state_to_trans;
   std::unordered_map<std::string, int> state_to_num_q;
   std::vector<float> smooth;

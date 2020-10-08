@@ -83,7 +83,7 @@ int DGaussianAcousticModel::read_model(const std::string &filename) {
     std::string name;
     int n_q;
 
-    while (n_states--) {
+    for (int statesIter = 0; statesIter < n_states; statesIter++) {
       std::vector<float> trans;
 
       // Name
@@ -106,7 +106,7 @@ int DGaussianAcousticModel::read_model(const std::string &filename) {
 
       state_to_trans[name] = trans;
 
-      std::vector<GaussianState> gstates;
+      std::vector<std::unique_ptr<GaussianState>> gstates;
 
       gstates.reserve(n_q);
 
@@ -119,10 +119,10 @@ int DGaussianAcousticModel::read_model(const std::string &filename) {
         getline(fileI, line, del);  // VAR
         getline(fileI, var_line);   // values
 
-        gstates.emplace_back(dim, mu_line, var_line);
+        gstates.emplace_back(new GaussianState(dim, mu_line, var_line));
       }
 
-      state_to_gstate[name] = gstates;
+      state_to_gstate[name] = std::move(gstates);
     }
 
     fileI.close();
@@ -166,11 +166,11 @@ int DGaussianAcousticModel::write_model(const std::string &filename) {
 
       fileO << trans[trans.size() - 1] << std::endl;
 
-      std::vector<GaussianState> gstates = state_to_gstate[name];
+      auto it = state_to_gstate.find(name);
 
       for (auto i = 0; i < n_q; i++) {
         fileO << "MU ";
-        std::vector<float> mu = gstates[i].getMu();
+        std::vector<float> mu = it->second[i]->getMu();
         for (uint32_t i = 0; i < mu.size() - 1; i++) {
           fileO << mu[i] << " ";
         }
@@ -178,7 +178,7 @@ int DGaussianAcousticModel::write_model(const std::string &filename) {
         fileO << mu[mu.size() - 1] << std::endl;
 
         fileO << "VAR ";
-        std::vector<float> var = gstates[i].getVar();
+        std::vector<float> var = it->second[i]->getVar();
 
         for (uint32_t i = 0; i < var.size() - 1; i++) {
           fileO << var[i] << " ";
@@ -195,6 +195,7 @@ int DGaussianAcousticModel::write_model(const std::string &filename) {
     return 1;
   }
   return 0;
+  
 }
 
 DGaussianAcousticModel::DGaussianAcousticModel(const std::string &filename)
@@ -205,17 +206,11 @@ DGaussianAcousticModel::DGaussianAcousticModel(const std::string &filename)
 float DGaussianAcousticModel::calc_logprob(const std::string &state,
                                            const int q,
                                            const std::vector<float> &frame) {
-  typename std::unordered_map<std::string,
-                              std::vector<GaussianState>>::const_iterator it =
-      state_to_gstate.find(state);
+  auto it = state_to_gstate.find(state);
   if (it != state_to_gstate.end()) {
-    std::vector<GaussianState> gstates = it->second;
-
-    if (gstates.size() < q) return INFINITY;
-
-    if (frame.size() != gstates[q].getDim()) return INFINITY;
-
-    return gstates[q].calc_logprob(frame);
+    if (it->second.size() < q || frame.size() != it->second[q]->getDim())
+      return INFINITY;
+    return it->second[q]->calc_logprob(frame);
   } else {
     return INFINITY;
   }
