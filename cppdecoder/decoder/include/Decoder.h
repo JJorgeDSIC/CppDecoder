@@ -13,6 +13,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <cassert>  
 
 class SGNode {
  public:
@@ -80,7 +81,7 @@ class Decoder {
           std::unique_ptr<AcousticModel> amodel);
 
   /**
-   * @brief
+   * @brief Decode a sample providing the transcription.
    *
    * @param[in] sample
    * @return float
@@ -88,29 +89,22 @@ class Decoder {
   float decode(Sample sample);
 
   /**
-   * @brief
+   * @brief Expand a list of SGNodes.
    *
-   * @param[in] searchgraph_null_nodes0
+   * @param[in] searchgraph_nodes
    */
   void expand_search_graph_nodes(
-      std::vector<std::unique_ptr<SGNode>> searchgraph_null_nodes0);
+      std::vector<std::unique_ptr<SGNode>> searchgraph_nodes);
 
   /**
-   * @brief
-   *
-   * @param[in] searchgraph_null_nodes0
-   */
-  void expand_search_graph_nodes(std::vector<SGNode> searchgraph_null_nodes0);
-
-  /**
-   * @brief
+   * @brief Inserts a SGNode either in the null_nodes1 list (nodes that do not contain symbols or words) or the nodes1 list (nodes that contain symbols or words).
    *
    * @param[in] node
    */
   void insert_search_graph_node(std::unique_ptr<SGNode> node);
 
   /**
-   * @brief
+   * @brief Add a SGNode to null_nodes0. These nodes will be expanded during the iteration and this list will end up being empty.
    *
    * @param[in] node
    * @return int
@@ -118,7 +112,7 @@ class Decoder {
   int addNodeToSearchGraphNullNodes0(std::unique_ptr<SGNode> node);
 
   /**
-   * @brief
+   * @brief Add a SGNode to null_nodes1 list. Temporal list to store null nodes (nodes that do not contain symbols or words), that will be expanded again during the same iteration.
    *
    * @param[in] node
    * @return int
@@ -126,7 +120,7 @@ class Decoder {
   int addNodeToSearchGraphNullNodes1(std::unique_ptr<SGNode> node);
 
   /**
-   * @brief
+   * @brief Add a SGNode to nodes1 list. This list contains SGNode that contain a symbol or a word, they will be expanded during this iteration.
    *
    * @param[in] node
    * @return int
@@ -134,14 +128,14 @@ class Decoder {
   int addNodeToSearchGraphNodes1(std::unique_ptr<SGNode> node);
 
   /**
-   * @brief
+   * @brief Updates LM beam
    *
    * @param[in] lprob
    */
   void updateLmBeam(float lprob);
 
   /**
-   * @brief Get the Search Graph Null Nodes0 object
+   * @brief Get the Search Graph Null Nodes0 list
    *
    * @return std::vector<std::unique_ptr<SGNode>>&
    */
@@ -150,7 +144,7 @@ class Decoder {
   }
 
   /**
-   * @brief Get the Search Graph Null Nodes1 object
+   * @brief Get the Search Graph Null Nodes1 list
    *
    * @return std::vector<std::unique_ptr<SGNode>>&
    */
@@ -159,7 +153,7 @@ class Decoder {
   }
 
   /**
-   * @brief Get the Search Graph Nodes1 object
+   * @brief Get the Search Graph Nodes1 list
    *
    * @return std::vector<std::unique_ptr<SGNode>>&
    */
@@ -168,7 +162,7 @@ class Decoder {
   }
 
   /**
-   * @brief Get the Actives object
+   * @brief Get the Actives list
    *
    * @return std::vector<int>
    */
@@ -179,7 +173,7 @@ class Decoder {
    *
    * @param[in] nodes
    */
-  void printSGNode(const std::vector<std::unique_ptr<SGNode>>& nodes);
+  void printSGNodes(const std::vector<std::unique_ptr<SGNode>>& nodes);
 
  private:
   std::unique_ptr<SearchGraphLanguageModel> sgraph;
@@ -194,8 +188,8 @@ class Decoder {
   float v_lm_beam = 0.0;
   float v_lm_thr = 0.0;
   bool final_iter = false;
-  float GSF = 1;
-  float WIP = 1;
+  float GSF = 10;
+  float WIP = 0;
 };
 
 #include "Decoder.inl"
