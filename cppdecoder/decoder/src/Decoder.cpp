@@ -50,19 +50,21 @@ void Decoder::updateLmBeam(float lprob) {
 }
 
 void Decoder::expand_search_graph_nodes(
-    std::vector<std::unique_ptr<SGNode>> searchgraph_null_nodes0) {
-  // TODO
-  std::cout << "TODO" << std::endl;
+    std::vector<std::unique_ptr<SGNode>> searchgraph_nodes) {
+
   float max_prob = -HUGE_VAL;
   int max_hyp = -1;
   SGNode* max_node = nullptr;
   SGNode* prev_node = nullptr;
 
-  std::cout << "Size: " << searchgraph_null_nodes0.size() << std::endl;
+  assert(searchgraph_nodes.size() != 0);
 
-  while (searchgraph_null_nodes0.size() != 0) {
-    std::unique_ptr<SGNode> node = std::move(searchgraph_null_nodes0.back());
-    searchgraph_null_nodes0.pop_back();
+  std::cout << "Size: " << searchgraph_nodes.size() << std::endl;
+
+  while (searchgraph_nodes.size() != 0) {
+    std::unique_ptr<SGNode> node = std::move(searchgraph_nodes.back());
+    node->showState();
+    searchgraph_nodes.pop_back();
     std::cout << node->getStateId() << std::endl;
     if (final_iter && node->getStateId() == sgraph->getFinalState()) {
       if (node->getLProb() > max_prob) {
@@ -70,6 +72,7 @@ void Decoder::expand_search_graph_nodes(
         max_node = node.get();
         max_hyp = node->getHyp();
       }
+      // TODO Register final trans
     }
 
     float curr_lprob = node->getLProb();
@@ -80,18 +83,18 @@ void Decoder::expand_search_graph_nodes(
     SearchGraphLanguageModelState sgstate =
         sgraph->getSearchGraphState(node->getStateId());
 
-    std::cout << sgstate.edge_begin << std::endl;
-    std::cout << sgstate.edge_end << std::endl;
+    // std::cout << sgstate.edge_begin << std::endl;
+    // std::cout << sgstate.edge_end << std::endl;
 
     for (uint32_t i = sgstate.edge_begin; i < sgstate.edge_end; i++) {
       SearchGraphLanguageModelEdge sgedge = sgraph->getSearchGraphEdge(i);
 
-      std::cout << "sgedge.dst " << sgedge.dst << std::endl;
-      std::cout << "sgedge.weight " << sgedge.weight << std::endl;
+      std::cout << "sgedge.dst:  " << sgedge.dst << ", sgedge.weight "
+                << sgedge.weight << std::endl;
 
+      // TODO Final iter
       if (!final_iter) {
         if (sgedge.dst == sgraph->getFinalState()) {
-          // Final reached
           continue;
         }
       } else {
@@ -103,10 +106,17 @@ void Decoder::expand_search_graph_nodes(
       }
 
       float lprob = curr_lprob + sgedge.weight * GSF + WIP;
+
+      std::cout << "Lprob: " << lprob << std::endl;
+      std::cout << "GSF: " << GSF << std::endl;
+
       float lmlprob = curr_lmlprob + sgedge.weight;
       std::unique_ptr<SGNode> sgnode(
           new SGNode(sgedge.dst, lprob, 0.0, lmlprob, node->getHyp()));
+      std::cout << "Inserting: " << std::endl;
+      sgnode->showState();
       insert_search_graph_node(std::move(sgnode));
+      std::cout << "===========" << std::endl;
     }
   }
 }
@@ -134,13 +144,13 @@ void Decoder::insert_search_graph_node(std::unique_ptr<SGNode> node) {
 
   bool nullNode = symbol == "-";
 
-  if (nullNode) {
-    // Inserts in sg_null_nodes1
-    std::cout << "sg_null_nodes1" << std::endl;
-  } else {
-    // Insert in sg_nodes1
-    std::cout << "sg_nodes1" << std::endl;
-  }
+  // if (nullNode) {
+  //   // Inserts in sg_null_nodes1
+  //   std::cout << "sg_null_nodes1" << std::endl;
+  // } else {
+  //   // Insert in sg_nodes1
+  //   std::cout << "sg_nodes1" << std::endl;
+  // }
 
   // Not visited yet
   if (actives[node->getStateId()] == -1) {
@@ -148,7 +158,7 @@ void Decoder::insert_search_graph_node(std::unique_ptr<SGNode> node) {
       updateLmBeam(node->getLProb());
     }
 
-    std::cout << "Not visited" << std::endl;
+    // std::cout << "Not visited" << std::endl;
 
     if (insertWord) {
       hypothesis.emplace_back(node->getHyp(), word);
@@ -167,10 +177,10 @@ void Decoder::insert_search_graph_node(std::unique_ptr<SGNode> node) {
     }
 
   } else {
-    std::cout << "Visited" << std::endl;
-    std::cout << "Update state" << std::endl;
+    // std::cout << "Visited" << std::endl;
+    // std::cout << "Update state" << std::endl;
     int position = actives[node->getStateId()];
-    std::cout << "position: " << position << std::endl;
+    // std::cout << "position: " << position << std::endl;
     SGNode* prevNode = nullNode ? search_graph_null_nodes1[position].get()
                                 : search_graph_nodes1[position].get();
 

@@ -25,12 +25,13 @@ class DecoderTests : public ::testing::Test {
   const std::string searchGraphFile = "./models/2.gram.graph";
 
   Decoder* decoder;
+  size_t startState;
 
   void SetUp() override {
     std::unique_ptr<SearchGraphLanguageModel> sgraph(
         new SearchGraphLanguageModel());
     sgraph->read_model(searchGraphFile);
-
+    startState = sgraph->getStartState();
     std::unique_ptr<AcousticModel> mixturemodel(
         new MixtureAcousticModel(nameModelMixture));
 
@@ -164,7 +165,7 @@ TEST_F(DecoderTests, DecoderInsertSGDiffNodeAndNoUpdate) {
   ASSERT_EQ(search_graph_nodes1.size(), 0);
 }
 
-TEST_F(DecoderTests, DecoderInsertSGNodeInsGNodes1) {
+TEST_F(DecoderTests, DecoderInsertSGNodeInsSGNodes1) {
   std::vector<std::unique_ptr<SGNode>>& search_graph_null_nodes0 =
       decoder->getSearchGraphNullNodes0();
 
@@ -182,7 +183,7 @@ TEST_F(DecoderTests, DecoderInsertSGNodeInsGNodes1) {
   ASSERT_FLOAT_EQ(search_graph_nodes1[0]->getLProb(), 0.5);
 }
 
-TEST_F(DecoderTests, DecoderInsertSGNodeInsAndUpdateGNodes1) {
+TEST_F(DecoderTests, DecoderInsertSGNodeInsAndUpdateSGNodes1) {
   std::vector<std::unique_ptr<SGNode>>& search_graph_null_nodes0 =
       decoder->getSearchGraphNullNodes0();
 
@@ -222,6 +223,93 @@ TEST_F(DecoderTests, DecoderInsertSGNodeInsAndUpdateGNodes1) {
   ASSERT_EQ(search_graph_nodes1.size(), 2);
   ASSERT_FLOAT_EQ(search_graph_nodes1[0]->getLProb(), 0.6);
   ASSERT_FLOAT_EQ(search_graph_nodes1[1]->getLProb(), 0.3);
+}
+
+TEST_F(DecoderTests, DecoderaddNodeToSearchGraphNullNodes0) {
+  std::unique_ptr<SGNode> sgnodeIni(new SGNode(startState, 0.0, 0.0, 0.0, 0));
+
+  std::unique_ptr<SGNode> sgnode1(new SGNode(6408, 0.1, 0.0, 0.0, 0));
+
+  ASSERT_EQ(decoder->getSearchGraphNullNodes0().size(), 0);
+
+  decoder->addNodeToSearchGraphNullNodes0(std::move(sgnodeIni));
+
+  ASSERT_EQ(decoder->getSearchGraphNullNodes0().size(), 1);
+
+  decoder->getSearchGraphNullNodes0()[0]->showState();
+
+  decoder->addNodeToSearchGraphNullNodes0(std::move(sgnode1));
+
+  ASSERT_EQ(decoder->getSearchGraphNullNodes0().size(), 2);
+
+  decoder->getSearchGraphNullNodes0()[0]->showState();
+  decoder->getSearchGraphNullNodes0()[1]->showState();
+}
+
+TEST_F(DecoderTests, DecoderExpandSGNodeStartNode) {
+  std::unique_ptr<SGNode> sgnodeStart(new SGNode(startState, 0.0, 0.0, 0.0, 0));
+
+  decoder->addNodeToSearchGraphNullNodes0(std::move(sgnodeStart));
+
+  decoder->expand_search_graph_nodes(
+      std::move(decoder->getSearchGraphNullNodes0()));
+
+  ASSERT_FLOAT_EQ(decoder->getSearchGraphNullNodes1()[0]->getLProb(), -28.1341);
+}
+
+TEST_F(DecoderTests, DecoderExpandSGNodeExample1) {
+  std::unique_ptr<SGNode> sgnode1(
+      new SGNode(6408, -28.134100, -28.134100, 0.0, 0));
+  // std::unique_ptr<SGNode> sgnode2(new SGNode(2440, 0.1, 0.0, 0.0, 0));
+
+  decoder->addNodeToSearchGraphNullNodes0(std::move(sgnode1));
+
+  decoder->expand_search_graph_nodes(
+      std::move(decoder->getSearchGraphNullNodes0()));
+
+  ASSERT_FLOAT_EQ(decoder->getSearchGraphNullNodes1()[0]->getLProb(),
+                  -2302.504100);
+
+  std::vector<float> lprobs = {-28.134100, -39.120200, -39.120200, -39.120200,
+                               -46.051700, -39.120200, -32.188800, -39.120200,
+                               -46.051700, -32.188800, -46.051700, -46.051700,
+                               -32.188800, -32.188800, -39.120200, -46.051700,
+                               -39.120200, -46.051700, -29.957300};
+
+  for (auto i = 0; i < lprobs.size(); i++) {
+    ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes1()[i]->getLProb(), lprobs[i]);
+  }
+}
+
+TEST_F(DecoderTests, DecoderExpandSGNodeExample2) {
+  std::unique_ptr<SGNode> sgnode1(
+      new SGNode(2, -2302.504100, -2302.504100, 0.0, 0));
+
+  decoder->addNodeToSearchGraphNullNodes0(std::move(sgnode1));
+
+  decoder->expand_search_graph_nodes(
+      std::move(decoder->getSearchGraphNullNodes0()));
+
+  ASSERT_EQ(decoder->getSearchGraphNullNodes1().size(), 0);
+
+  std::vector<float> lprobs = {
+      -2326.583600, -2322.165300, -2337.569700, -2320.223700, -2348.555800,
+      -2330.638200, -2332.461500, -2326.583600, -2326.583600, -2334.692900,
+      -2315.233800, -2348.555800, -2332.461500, -2348.555800, -2318.110600,
+      -2337.569700, -2337.569700, -2341.624400, -2341.624400, -2348.555800,
+      -2315.974900, -2318.110600, -2311.920200, -2348.555800, -2348.555800,
+      -2315.233800, -2332.461500, -2341.624400, -2317.200900};
+  for (auto i = 0; i < lprobs.size(); i++) {
+    ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes1()[i]->getLProb(), lprobs[i]);
+  }
+}
+
+TEST_F(DecoderTests, DecoderViterbiIterSG) {
+
+    // TODO: Next set of tests...
+
+    ASSERT_TRUE(false);
+
 }
 
 }  // namespace
