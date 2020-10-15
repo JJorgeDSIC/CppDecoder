@@ -48,7 +48,10 @@ int main() {
 
   //   decoder.insert_search_graph_node(std::move(sgnode2));
 
-  std::unique_ptr<SGNode> sgnodeIni(new SGNode(6408, 0.1, 0.0, 0.0, 0));
+  // std::unique_ptr<SGNode> sgnodeIni(new SGNode(6408, 0.1, 0.0, 0.0, 0));
+
+  std::unique_ptr<SGNode> sgnodeIni(
+      new SGNode(sgraph2.getStartState(), 0.0, 0.0, 0.0, 0));
 
   decoder.addNodeToSearchGraphNullNodes0(std::move(sgnodeIni));
 
@@ -63,5 +66,33 @@ int main() {
   const std::vector<std::unique_ptr<SGNode>>& search_graph_nodes1 =
       decoder.getSearchGraphNodes1();
 
-  decoder.printSGNode(search_graph_nodes1);
+  std::cout << "Nodes in null_nodes_1 " << std::endl;
+  decoder.printSGNodes(decoder.getSearchGraphNullNodes1());
+
+  std::cout << "Nodes in nodes_1 " << std::endl;
+  decoder.printSGNodes(decoder.getSearchGraphNodes1());
+  std::cout << "========" << std::endl;
+
+  decoder.expand_search_graph_nodes(
+      std::move(decoder.getSearchGraphNullNodes1()));
+
+  std::cout << "========" << std::endl;
+
+  std::cout << "Nodes in null_nodes_1 " << std::endl;
+  decoder.printSGNodes(decoder.getSearchGraphNullNodes1());
+
+  std::cout << "Nodes in nodes_1 " << std::endl;
+  decoder.printSGNodes(decoder.getSearchGraphNodes1());
+  std::cout << "========" << std::endl;
+
+  decoder.expand_search_graph_nodes(
+      std::move(decoder.getSearchGraphNullNodes1()));
+ 
+  std::cout << "Nodes in null_nodes_1 " << std::endl;
+  decoder.printSGNodes(decoder.getSearchGraphNullNodes1());
+
+  std::cout << "Nodes in nodes_1 " << std::endl;
+  decoder.printSGNodes(decoder.getSearchGraphNodes1());
+
+  std::cout << "========" << std::endl;
 }
