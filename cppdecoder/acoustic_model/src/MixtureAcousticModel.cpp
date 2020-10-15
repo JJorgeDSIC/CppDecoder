@@ -44,8 +44,8 @@ float GaussianMixtureState::calc_logprob(const std::vector<float> &frame) {
   float max = -HUGE_VAL;
   float prob = 0.0, aux = 0.0;
   for (auto i = 0; i < components; i++) {
-    prob = this->getGaussianStateByComponent(i).calc_logprob(frame);
-
+    //prob = this->getGaussianStateByComponent(i).calc_logprob(frame);
+    prob = gstates[i].calc_logprob(frame);
     aux = pmembers[i] + prob;
 
     if (aux == -INFINITY) return -HUGE_VAL;
@@ -278,9 +278,9 @@ int MixtureAcousticModel::write_model(const std::string &filename) {
 
         fileO << "Members" << std::endl;
         for (auto j = 0; j < dg_states.getComponents(); j++) {
-          GaussianState gs = dg_states.getGaussianStateByComponent(j);
-          std::vector<float> mu = gs.getMu();
-          std::vector<float> var = gs.getVar();
+ 
+          std::vector<float> mu = dg_states.getMuByComponent(j);
+          std::vector<float> var = dg_states.getVarByComponent(j);
 
           fileO << "MU ";
 
@@ -316,6 +316,8 @@ MixtureAcousticModel::MixtureAcousticModel(const std::string &filename)
   MixtureAcousticModel::read_model(filename);
 }
 
+
+// TODO: Review the tipying...
 float MixtureAcousticModel::calc_logprob(const std::string &state, int q,
                                          const std::vector<float> &frame) {
   int n_q = state_to_num_q[state];

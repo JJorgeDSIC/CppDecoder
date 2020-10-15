@@ -183,8 +183,9 @@ int TiedStatesAcousticModel::write_model(const std::string &filename) {
 
       GaussianMixtureState gsmixstate = senone_to_mixturestate[senones[i]];
       for (auto j = 0; j < components; j++) {
-        GaussianState gstate = gsmixstate.getGaussianStateByComponent(j);
-        std::vector<float> mu = gstate.getMu();
+        std::vector<float> mu = gsmixstate.getMuByComponent(j);
+        std::vector<float> var = gsmixstate.getVarByComponent(j);
+
         fileO << "MU ";
         for (uint32_t i = 0; i < mu.size() - 1; i++) {
           fileO << mu[i] << " ";
@@ -192,7 +193,6 @@ int TiedStatesAcousticModel::write_model(const std::string &filename) {
 
         fileO << mu[mu.size() - 1] << std::endl;
 
-        std::vector<float> var = gstate.getVar();
         fileO << "VAR ";
         for (uint32_t i = 0; i < var.size() - 1; i++) {
           fileO << var[i] << " ";

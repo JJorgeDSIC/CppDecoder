@@ -75,45 +75,6 @@ class MixtureAcousticModelTests : public ::testing::Test {
   const std::string linePMembers = "-0.5108256237659907 -0.916290731874155";
 };
 
-TEST_F(MixtureAcousticModelTests, GaussianMixtureStateConstructor) {
-  GaussianMixtureState gstates(5, 10);
-  ASSERT_EQ(gstates.getGStates().size(), 0);  // Empty vector pre-reserved
-}
-
-TEST_F(MixtureAcousticModelTests, GaussianMixtureStateTestAddGaussianState) {
-  GaussianState gstate1(frame.size());
-
-  gstate1.addMu(lineMu);
-  gstate1.addVar(lineVar);
-
-  GaussianState gstate2(frame.size());
-
-  gstate2.addMu(lineMu);
-  gstate2.addVar(lineVar);
-
-  GaussianMixtureState gstates(2, frame.size());
-
-  gstates.addGaussianState(frame.size(), lineMu, lineVar);
-  gstates.addGaussianState(frame.size(), lineMu, lineVar);
-  gstates.addPMembers(linePMembers);
-
-  ASSERT_EQ(gstates.getGaussianStateByComponent(0).getMu(), gstate1.getMu());
-  ASSERT_EQ(gstates.getGaussianStateByComponent(1).getMu(), gstate2.getMu());
-  ASSERT_EQ(gstates.getGaussianStateByComponent(0).getVar(),
-  gstate1.getVar());
-  ASSERT_EQ(gstates.getGaussianStateByComponent(1).getVar(),
-  gstate2.getVar());
-  ASSERT_EQ(gstates.getGaussianStateByComponent(0).getIVar(),
-            gstate1.getIVar());
-  ASSERT_EQ(gstates.getGaussianStateByComponent(1).getIVar(),
-            gstate2.getIVar());
-
-  ASSERT_EQ(gstates.getGaussianStateByComponent(0).getLogc(),
-            gstate1.getLogc());
-  ASSERT_EQ(gstates.getGaussianStateByComponent(1).getLogc(),
-            gstate2.getLogc());
-}
-
 TEST_F(MixtureAcousticModelTests, GaussianMixtureStateTestCalcLogProb) {
   GaussianState gstate1(frame.size());
 

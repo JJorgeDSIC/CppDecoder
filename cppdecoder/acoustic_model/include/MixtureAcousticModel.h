@@ -43,11 +43,12 @@ class GaussianMixtureState {
   int addGaussianState(const uint32_t d, const std::string &mu_line,
                        const std::string &var_line);
 
-  GaussianState &getGaussianStateByComponent(const uint32_t component) {
-    return gstates[component];
+  std::vector<float> &getMuByComponent(const uint32_t component) {
+    return gstates[component].getMu();
   }
-
-  const std::vector<GaussianState> &getGStates() { return gstates; }
+  std::vector<float> &getVarByComponent(const uint32_t component) {
+    return gstates[component].getVar();
+  }
 
   uint32_t getDim() const { return dim; }
 
