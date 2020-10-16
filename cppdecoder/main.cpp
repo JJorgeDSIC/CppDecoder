@@ -50,49 +50,49 @@ int main() {
 
   // std::unique_ptr<SGNode> sgnodeIni(new SGNode(6408, 0.1, 0.0, 0.0, 0));
 
-  std::unique_ptr<SGNode> sgnodeIni(
-      new SGNode(sgraph2.getStartState(), 0.0, 0.0, 0.0, 0));
+//   std::unique_ptr<SGNode> sgnodeIni(
+//       new SGNode(sgraph2.getStartState(), 0.0, 0.0, 0.0, 0));
 
-  decoder.addNodeToSearchGraphNullNodes0(std::move(sgnodeIni));
+//   decoder.addNodeToSearchGraphNullNodes0(std::move(sgnodeIni));
 
-  std::vector<std::unique_ptr<SGNode>>& search_graph_null_nodes0 =
-      decoder.getSearchGraphNullNodes0();
+//   std::vector<std::unique_ptr<SGNode>>& search_graph_null_nodes0 =
+//       decoder.getSearchGraphNullNodes0();
 
-  decoder.expand_search_graph_nodes(std::move(search_graph_null_nodes0));
+//   decoder.expand_search_graph_nodes(std::move(search_graph_null_nodes0));
 
-  std::vector<std::unique_ptr<SGNode>>& search_graph_null_nodes1 =
-      decoder.getSearchGraphNullNodes1();
+//   std::vector<std::unique_ptr<SGNode>>& search_graph_null_nodes1 =
+//       decoder.getSearchGraphNullNodes1();
 
-  const std::vector<std::unique_ptr<SGNode>>& search_graph_nodes1 =
-      decoder.getSearchGraphNodes1();
+//   const std::vector<std::unique_ptr<SGNode>>& search_graph_nodes1 =
+//       decoder.getSearchGraphNodes1();
 
-  std::cout << "Nodes in null_nodes_1 " << std::endl;
-  decoder.printSGNodes(decoder.getSearchGraphNullNodes1());
+//   std::cout << "Nodes in null_nodes_1 " << std::endl;
+//   decoder.printSGNodes(decoder.getSearchGraphNullNodes1());
 
-  std::cout << "Nodes in nodes_1 " << std::endl;
-  decoder.printSGNodes(decoder.getSearchGraphNodes1());
-  std::cout << "========" << std::endl;
+//   std::cout << "Nodes in nodes_1 " << std::endl;
+//   decoder.printSGNodes(decoder.getSearchGraphNodes1());
+//   std::cout << "========" << std::endl;
 
-  decoder.expand_search_graph_nodes(
-      std::move(decoder.getSearchGraphNullNodes1()));
+//   decoder.expand_search_graph_nodes(
+//       std::move(decoder.getSearchGraphNullNodes1()));
 
-  std::cout << "========" << std::endl;
+//   std::cout << "========" << std::endl;
 
-  std::cout << "Nodes in null_nodes_1 " << std::endl;
-  decoder.printSGNodes(decoder.getSearchGraphNullNodes1());
+//   std::cout << "Nodes in null_nodes_1 " << std::endl;
+//   decoder.printSGNodes(decoder.getSearchGraphNullNodes1());
 
-  std::cout << "Nodes in nodes_1 " << std::endl;
-  decoder.printSGNodes(decoder.getSearchGraphNodes1());
-  std::cout << "========" << std::endl;
+//   std::cout << "Nodes in nodes_1 " << std::endl;
+//   decoder.printSGNodes(decoder.getSearchGraphNodes1());
+//   std::cout << "========" << std::endl;
 
-  decoder.expand_search_graph_nodes(
-      std::move(decoder.getSearchGraphNullNodes1()));
+//   decoder.expand_search_graph_nodes(
+//       std::move(decoder.getSearchGraphNullNodes1()));
  
-  std::cout << "Nodes in null_nodes_1 " << std::endl;
-  decoder.printSGNodes(decoder.getSearchGraphNullNodes1());
+//   std::cout << "Nodes in null_nodes_1 " << std::endl;
+//   decoder.printSGNodes(decoder.getSearchGraphNullNodes1());
 
-  std::cout << "Nodes in nodes_1 " << std::endl;
-  decoder.printSGNodes(decoder.getSearchGraphNodes1());
+//   std::cout << "Nodes in nodes_1 " << std::endl;
+//   decoder.printSGNodes(decoder.getSearchGraphNodes1());
 
-  std::cout << "========" << std::endl;
+//   std::cout << "========" << std::endl;
 }
