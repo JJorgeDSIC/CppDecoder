@@ -10,10 +10,10 @@
 #include <Sample.h>
 #include <SearchGraphLanguageModel.h>
 
+#include <cassert>
 #include <memory>
 #include <string>
 #include <vector>
-#include <cassert>  
 
 class SGNode {
  public:
@@ -94,38 +94,44 @@ class Decoder {
    * @param[in] searchgraph_nodes
    */
   void expand_search_graph_nodes(
-      std::vector<std::unique_ptr<SGNode>> searchgraph_nodes);
+      std::vector<std::unique_ptr<SGNode>>& searchgraph_nodes);
 
   /**
-   * @brief Inserts a SGNode either in the null_nodes1 list (nodes that do not contain symbols or words) or the nodes1 list (nodes that contain symbols or words).
+   * @brief Inserts a SGNode either in the null_nodes1 list (nodes that do not
+   * contain symbols or words) or the nodes1 list (nodes that contain symbols or
+   * words).
    *
    * @param[in] node
    */
-  void insert_search_graph_node(std::unique_ptr<SGNode> node);
+  void insert_search_graph_node(std::unique_ptr<SGNode>& node);
 
   /**
-   * @brief Add a SGNode to null_nodes0. These nodes will be expanded during the iteration and this list will end up being empty.
-   *
-   * @param[in] node
-   * @return int
-   */
-  int addNodeToSearchGraphNullNodes0(std::unique_ptr<SGNode> node);
-
-  /**
-   * @brief Add a SGNode to null_nodes1 list. Temporal list to store null nodes (nodes that do not contain symbols or words), that will be expanded again during the same iteration.
+   * @brief Add a SGNode to null_nodes0. These nodes will be expanded during the
+   * iteration and this list will end up being empty.
    *
    * @param[in] node
    * @return int
    */
-  int addNodeToSearchGraphNullNodes1(std::unique_ptr<SGNode> node);
+  int addNodeToSearchGraphNullNodes0(std::unique_ptr<SGNode>& node);
 
   /**
-   * @brief Add a SGNode to nodes1 list. This list contains SGNode that contain a symbol or a word, they will be expanded during this iteration.
+   * @brief Add a SGNode to null_nodes1 list. Temporal list to store null nodes
+   * (nodes that do not contain symbols or words), that will be expanded again
+   * during the same iteration.
    *
    * @param[in] node
    * @return int
    */
-  int addNodeToSearchGraphNodes1(std::unique_ptr<SGNode> node);
+  int addNodeToSearchGraphNullNodes1(std::unique_ptr<SGNode>& node);
+
+  /**
+   * @brief Add a SGNode to nodes1 list. This list contains SGNode that contain
+   * a symbol or a word, they will be expanded during this iteration.
+   *
+   * @param[in] node
+   * @return int
+   */
+  int addNodeToSearchGraphNodes1(std::unique_ptr<SGNode>& node);
 
   /**
    * @brief Updates LM beam
@@ -153,6 +159,14 @@ class Decoder {
   }
 
   /**
+   * @brief Get the Search Graph Nodes0 list
+   *
+   * @return std::vector<std::unique_ptr<SGNode>>&
+   */
+  std::vector<std::unique_ptr<SGNode>>& getSearchGraphNodes0() {
+    return search_graph_nodes0;
+  }
+  /**
    * @brief Get the Search Graph Nodes1 list
    *
    * @return std::vector<std::unique_ptr<SGNode>>&
@@ -174,6 +188,54 @@ class Decoder {
    * @param[in] nodes
    */
   void printSGNodes(const std::vector<std::unique_ptr<SGNode>>& nodes);
+  /**
+   * @brief TO DO
+   *
+   * @return true
+   * @return false
+   */
+  bool nodes0IsNotEmpty();
+  /**
+   * @brief TO DO
+   *
+   * @return true
+   * @return false
+   */
+  bool nodes1IsNotEmpty();
+  /**
+   * @brief TO DO
+   *
+   * @return true
+   * @return false
+   */
+  bool nullNodes0IsNotEmpty();
+  /**
+   * @brief TO DO
+   *
+   * @return true
+   * @return false
+   */
+  bool nullNodes1IsNotEmpty();
+  /**
+   * @brief TO DO
+   *
+   * @param t
+   */
+  void viterbiIterSG(const int t);
+  /**
+   * @brief
+   *
+   * @return true
+   * @return false
+   */
+  bool getReadyNullNodes();
+  /**
+   * @brief
+   *
+   * @return true
+   * @return false
+   */
+  bool getReadyNodes();
 
  private:
   std::unique_ptr<SearchGraphLanguageModel> sgraph;
@@ -182,6 +244,7 @@ class Decoder {
   std::vector<int> actives;
   std::vector<std::unique_ptr<SGNode>> search_graph_null_nodes0;
   std::vector<std::unique_ptr<SGNode>> search_graph_null_nodes1;
+  std::vector<std::unique_ptr<SGNode>> search_graph_nodes0;
   std::vector<std::unique_ptr<SGNode>> search_graph_nodes1;
   std::vector<WordHyp> hypothesis;
   float v_lm_max = 0.0;

@@ -50,8 +50,7 @@ void Decoder::updateLmBeam(float lprob) {
 }
 
 void Decoder::expand_search_graph_nodes(
-    std::vector<std::unique_ptr<SGNode>> searchgraph_nodes) {
-
+    std::vector<std::unique_ptr<SGNode>>& searchgraph_nodes) {
   float max_prob = -HUGE_VAL;
   int max_hyp = -1;
   SGNode* max_node = nullptr;
@@ -63,6 +62,7 @@ void Decoder::expand_search_graph_nodes(
 
   while (searchgraph_nodes.size() != 0) {
     std::unique_ptr<SGNode> node = std::move(searchgraph_nodes.back());
+    std::cout << "Expanding: ****** " << std::endl;
     node->showState();
     searchgraph_nodes.pop_back();
     std::cout << node->getStateId() << std::endl;
@@ -90,7 +90,8 @@ void Decoder::expand_search_graph_nodes(
       SearchGraphLanguageModelEdge sgedge = sgraph->getSearchGraphEdge(i);
 
       std::cout << "sgedge.dst:  " << sgedge.dst << ", sgedge.weight "
-                << sgedge.weight << std::endl;
+                << sgedge.weight << " sym: " << sgraph->getIdToSym(sgedge.dst)
+                << " word: " << sgraph->getIdToWord(sgedge.dst) << std::endl;
 
       // TODO Final iter
       if (!final_iter) {
@@ -115,28 +116,116 @@ void Decoder::expand_search_graph_nodes(
           new SGNode(sgedge.dst, lprob, 0.0, lmlprob, node->getHyp()));
       std::cout << "Inserting: " << std::endl;
       sgnode->showState();
-      insert_search_graph_node(std::move(sgnode));
-      std::cout << "===========" << std::endl;
+      insert_search_graph_node(sgnode);
     }
   }
 }
 
-int Decoder::addNodeToSearchGraphNullNodes0(std::unique_ptr<SGNode> node) {
+bool Decoder::nodes0IsNotEmpty() { return search_graph_nodes0.size() != 0; }
+
+bool Decoder::nodes1IsNotEmpty() { return search_graph_nodes1.size() != 0; }
+
+bool Decoder::nullNodes0IsNotEmpty() {
+  return search_graph_null_nodes0.size() != 0;
+}
+
+bool Decoder::nullNodes1IsNotEmpty() {
+  return search_graph_null_nodes1.size() != 0;
+}
+
+bool Decoder::getReadyNullNodes() {
+  for (const auto& node : search_graph_null_nodes1) {
+    actives[node->getStateId()] = -1;
+  }
+
+  for (const auto& node : search_graph_null_nodes0) {
+    node->showState();
+  }
+
+  std::cout << "------------------------" << std::endl;
+
+  for (const auto& node : search_graph_null_nodes1) {
+    node->showState();
+  }
+  search_graph_null_nodes0.swap(search_graph_null_nodes1);
+
+  std::cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=" << std::endl;
+  for (const auto& node : search_graph_null_nodes0) {
+    node->showState();
+  }
+  std::cout << "------------------------" << std::endl;
+
+  for (const auto& node : search_graph_null_nodes1) {
+    node->showState();
+  }
+}
+
+bool Decoder::getReadyNodes() {
+  for (const auto& node : search_graph_nodes1) {
+    actives[node->getStateId()] = -1;
+  }
+  for (const auto& node : search_graph_nodes0) {
+    node->showState();
+  }
+  std::cout << "------------------------" << std::endl;
+
+  for (const auto& node : search_graph_nodes1) {
+    node->showState();
+  }
+  search_graph_nodes0.swap(search_graph_nodes1);
+
+  std::cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=" << std::endl;
+  for (const auto& node : search_graph_nodes0) {
+    node->showState();
+  }
+  std::cout << "------------------------" << std::endl;
+
+  for (const auto& node : search_graph_nodes1) {
+    node->showState();
+  }
+}
+
+void Decoder::viterbiIterSG(const int t) {
+  std::cout << "viterbiIterSG" << std::endl;
+
+  // Clean null nodes: clean actives, copy null nodes1 to null nodes0
+  getReadyNullNodes();
+  // Clean nodes: clean actives, copy nodes1 to nodes0
+  getReadyNodes();
+
+  if (nodes0IsNotEmpty()) {
+    expand_search_graph_nodes(getSearchGraphNodes0());
+  }
+  for (const auto& node : search_graph_null_nodes0) {
+    node->showState();
+  }
+  if (nullNodes0IsNotEmpty()) {
+    expand_search_graph_nodes(getSearchGraphNullNodes0());
+  }
+  while (nullNodes1IsNotEmpty()) {
+    getReadyNullNodes();
+    expand_search_graph_nodes(getSearchGraphNullNodes0());
+  }
+
+  // Clean list?
+}
+
+int Decoder::addNodeToSearchGraphNullNodes0(std::unique_ptr<SGNode>& node) {
   search_graph_null_nodes0.push_back(std::move(node));
   return search_graph_null_nodes0.size() - 1;
 }
 
-int Decoder::addNodeToSearchGraphNullNodes1(std::unique_ptr<SGNode> node) {
+int Decoder::addNodeToSearchGraphNullNodes1(std::unique_ptr<SGNode>& node) {
   search_graph_null_nodes1.push_back(std::move(node));
   return search_graph_null_nodes1.size() - 1;
 }
 
-int Decoder::addNodeToSearchGraphNodes1(std::unique_ptr<SGNode> node) {
+int Decoder::addNodeToSearchGraphNodes1(std::unique_ptr<SGNode>& node) {
   search_graph_nodes1.push_back(std::move(node));
   return search_graph_nodes1.size() - 1;
 }
 
-void Decoder::insert_search_graph_node(std::unique_ptr<SGNode> node) {
+void Decoder::insert_search_graph_node(std::unique_ptr<SGNode>& node) {
   const std::string& symbol = sgraph->getIdToSym(node->getStateId());
   const std::string& word = sgraph->getIdToWord(node->getStateId());
 
@@ -158,7 +247,7 @@ void Decoder::insert_search_graph_node(std::unique_ptr<SGNode> node) {
       updateLmBeam(node->getLProb());
     }
 
-    // std::cout << "Not visited" << std::endl;
+    std::cout << "Not visited" << std::endl;
 
     if (insertWord) {
       hypothesis.emplace_back(node->getHyp(), word);
@@ -170,10 +259,9 @@ void Decoder::insert_search_graph_node(std::unique_ptr<SGNode> node) {
 
     if (nullNode) {
       std::cout << "nullNode" << std::endl;
-
-      actives[node_id] = addNodeToSearchGraphNullNodes1(std::move(node));
+      actives[node_id] = addNodeToSearchGraphNullNodes1(node);
     } else {
-      actives[node_id] = addNodeToSearchGraphNodes1(std::move(node));
+      actives[node_id] = addNodeToSearchGraphNodes1(node);
     }
 
   } else {
