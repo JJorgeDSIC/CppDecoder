@@ -19,10 +19,12 @@ else ()
 endif()
 
 set(SOURCE_FILES
+  src/HMM.cpp
   src/Decoder.cpp)
 
 set(HEADER_PATHS include)
 set(HEADER_FILES
+  include/HMM.h
   include/Decoder.h)
 
 include_directories(
@@ -37,7 +39,7 @@ include_directories(
 add_library(${NAME} STATIC ${SOURCE_FILES})
 add_library(
   cppdecoder::Decoder ALIAS ${NAME})
-
+  
 # Set the debug or relese mode.
 if (CMAKE_BUILD_TYPE MATCHES Debug)
   # Debug level

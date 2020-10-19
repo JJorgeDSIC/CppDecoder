@@ -9,41 +9,38 @@
 #include <AcousticModel.h>
 #include <Sample.h>
 #include <SearchGraphLanguageModel.h>
-
+#include <HMM.h>
 #include <cassert>
 #include <memory>
 #include <string>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 class SGNode {
  public:
   SGNode();
-  SGNode(const int state_id, const float lprob, const float hmmlprob,
-         const float lmlprob, const int hyp);
+  SGNode(const uint32_t state_id, const float lprob, const float hmmlprob,
+         const float lmlprob, const uint32_t hyp);
 
-  int getStateId() { return state_id; }
+  uint32_t getStateId() { return state_id; }
   float getLProb() { return lprob; }
   float getHMMLProb() { return hmmlprob; }
   float getLMLProb() { return lmlprob; }
-  int getHyp() { return hyp; }
+  uint32_t getHyp() { return hyp; }
   void setLProb(float lprob) { this->lprob = lprob; }
   void setHMMLProb(float hmmlprob) { this->hmmlprob = hmmlprob; }
   void setLMLProb(float lmlprob) { this->lmlprob = lmlprob; }
-  void setHyp(int hyp) { this->hyp = hyp; }
+  void setHyp(uint32_t hyp) { this->hyp = hyp; }
   bool operator==(const SGNode& p) const { return state_id == p.state_id; }
   void showState();
 
  private:
-  int state_id;
+  uint32_t state_id;
   float lprob;
   float hmmlprob;
   float lmlprob;
-  int hyp;
-};
-
-class HMMNode {
- private:
-  uint32_t s;
+  uint32_t hyp;
 };
 
 class WordHyp {
@@ -55,18 +52,6 @@ class WordHyp {
  private:
   int prev;
   std::string word;
-};
-
-class HMMNodeManager {
- public:
-  explicit HMMNodeManager(const uint32_t max_size);
-
-  bool isFull();
-
- private:
-  uint32_t max_hyps;
-  uint32_t max_size;
-  uint32_t size;
 };
 
 class Decoder {
@@ -104,6 +89,13 @@ class Decoder {
    * @param[in] node
    */
   void insert_search_graph_node(std::unique_ptr<SGNode>& node);
+
+  /**
+   * @brief TO DO
+   *
+   * @param hmmNode
+   */
+  void insert_hmm_node(std::unique_ptr<HMMNode>& hmmNode);
 
   /**
    * @brief Add a SGNode to null_nodes0. These nodes will be expanded during the
@@ -222,6 +214,13 @@ class Decoder {
    * @param t
    */
   void viterbiIterSG(const int t);
+
+  /**
+   * @brief
+   *
+   */
+
+  void viterbiSg2HMM();
   /**
    * @brief
    *
@@ -237,6 +236,42 @@ class Decoder {
    */
   bool getReadyNodes();
 
+  /**
+   * @brief
+   *
+   * @return std::vector<std::unique_ptr<HMMNode>>&
+   */
+  std::vector<std::unique_ptr<HMMNode>>& getHMMNodes0() { return hmm_nodes0; }
+  /**
+   * @brief
+   *
+   * @return std::vector<std::unique_ptr<HMMNode>>&
+   */
+  std::vector<std::unique_ptr<HMMNode>>& getHMMNodes1() { return hmm_nodes1; }
+
+  /**
+   * @brief Get the Min Prob From HMM Nodes object
+   *
+   * @return float
+   */
+  float getMinProbFromHMMNodes();
+
+  /**
+   * @brief
+   *
+   * @param nodeId
+   * @return int
+   */
+  int getHMMPosIfActive(const HMMNodeId& nodeId);
+  /**
+   * @brief
+   *
+   * @param nodeId
+   * @param position
+   * @return int
+   */
+  int setHMMActive(HMMNodeId nodeId, int position);
+
  private:
   std::unique_ptr<SearchGraphLanguageModel> sgraph;
   std::unique_ptr<AcousticModel> amodel;
@@ -246,10 +281,17 @@ class Decoder {
   std::vector<std::unique_ptr<SGNode>> search_graph_null_nodes1;
   std::vector<std::unique_ptr<SGNode>> search_graph_nodes0;
   std::vector<std::unique_ptr<SGNode>> search_graph_nodes1;
+
+  std::vector<std::unique_ptr<HMMNode>> hmm_nodes0;
+  std::vector<std::unique_ptr<HMMNode>> hmm_nodes1;
+  std::unordered_map<HMMNodeId, int, HMMNodeIdHasher> HMMActives;
+
   std::vector<WordHyp> hypothesis;
+  float v_thr = -HUGE_VAL;
   float v_lm_max = 0.0;
   float v_lm_beam = 0.0;
   float v_lm_thr = 0.0;
+  uint32_t nmaxstates = 100;
   bool final_iter = false;
   float GSF = 10;
   float WIP = 0;
@@ -257,4 +299,4 @@ class Decoder {
 
 #include "Decoder.inl"
 
-#endif  // MIXTUREACOUSTICMODEL_H_
+#endif  // DECODER_H_

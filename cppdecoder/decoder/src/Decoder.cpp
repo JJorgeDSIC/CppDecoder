@@ -7,8 +7,8 @@
 
 SGNode::SGNode() : state_id(0), lprob(0.0), hmmlprob(0.0), lmlprob(0), hyp(0) {}
 
-SGNode::SGNode(const int state_id, const float lprob, const float hmmlprob,
-               const float lmlprob, const int hyp)
+SGNode::SGNode(const uint32_t state_id, const float lprob, const float hmmlprob,
+               const float lmlprob, const uint32_t hyp)
     : state_id(state_id),
       lprob(lprob),
       hmmlprob(hmmlprob),
@@ -17,9 +17,6 @@ SGNode::SGNode(const int state_id, const float lprob, const float hmmlprob,
 
 WordHyp::WordHyp(const int prev, const std::string& word)
     : prev(prev), word(word) {}
-
-HMMNodeManager::HMMNodeManager(const uint32_t max_size)
-    : max_hyps(max_size), max_size(max_size + 1), size(0) {}
 
 Decoder::Decoder(std::unique_ptr<SearchGraphLanguageModel> sgraph,
                  std::unique_ptr<AcousticModel> amodel) {
@@ -206,8 +203,44 @@ void Decoder::viterbiIterSG(const int t) {
     getReadyNullNodes();
     expand_search_graph_nodes(getSearchGraphNullNodes0());
   }
+  getReadyNodes();
+}
 
-  // Clean list?
+void Decoder::viterbiSg2HMM() {
+  std::vector<std::unique_ptr<SGNode>>& nodes0 = getSearchGraphNodes0();
+
+  std::cout << "-----" << nodes0.size() << std::endl;
+
+  for (const auto& node : nodes0) {
+    node->showState();
+
+    // Create new node...
+    std::unique_ptr<HMMNode> new_node(
+        new HMMNode(node->getStateId(), 0, node->getLProb(),
+                    node->getHMMLProb(), node->getLMLProb(), 0, 0));
+    new_node->showHMMState();
+
+    std::cout << "Reading ID: s= " << new_node->getId().sg_state
+              << ", q= " << new_node->getId().hmm_q_state << std::endl;
+    // Trans type conditional
+
+    //
+  }
+}
+
+void Decoder::insert_hmm_node(std::unique_ptr<HMMNode>& hmmNode) {
+  // TODO: Prune before options
+  bool full;
+  float prob = 0.0;  // hmmNode->getLogprob();
+  float auxp = 0.0;
+
+  if (prob < v_thr) return;
+
+  if ((full = hmm_nodes1.size() == nmaxstates) &&
+      prob <= getMinProbFromHMMNodes())
+    return;
+
+  // TODO
 }
 
 int Decoder::addNodeToSearchGraphNullNodes0(std::unique_ptr<SGNode>& node) {
@@ -223,6 +256,24 @@ int Decoder::addNodeToSearchGraphNullNodes1(std::unique_ptr<SGNode>& node) {
 int Decoder::addNodeToSearchGraphNodes1(std::unique_ptr<SGNode>& node) {
   search_graph_nodes1.push_back(std::move(node));
   return search_graph_nodes1.size() - 1;
+}
+
+float Decoder::getMinProbFromHMMNodes() {
+  // TODO
+  return 0.0;
+}
+
+int Decoder::getHMMPosIfActive(const HMMNodeId& nodeId) {
+  auto result = HMMActives.find(nodeId);
+  if (result != HMMActives.end()) {
+    return result->second;
+  } else {
+    return -1;
+  }
+}
+
+int Decoder::setHMMActive(HMMNodeId nodeId, int position) {
+  HMMActives[nodeId] = position;
 }
 
 void Decoder::insert_search_graph_node(std::unique_ptr<SGNode>& node) {
