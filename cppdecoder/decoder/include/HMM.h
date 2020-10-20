@@ -71,22 +71,27 @@ class HMMNode {
 
 class HMMMinHeap {
  public:
-  HMMMinHeap(uint32_t capacity) : capacity(capacity), size(0) {
-    hmm_nodes.resize(capacity+1);
+  explicit HMMMinHeap(uint32_t capacity) : capacity(capacity), size(0) {
+    hmm_nodes.resize(capacity + 1);
   }
   float getMinLProb();
   std::unique_ptr<HMMNode> extractMinLProbHMMNode();
   int insert(std::unique_ptr<HMMNode> hmm_node);
   int pop_add(std::unique_ptr<HMMNode> hmm_node);
-  int update(std::unique_ptr<HMMNode> hmm_node);
-  int bubbleUp(std::unique_ptr<HMMNode>& hmm_node, int position);
+  int update(const uint32_t sg_state, const uint32_t hmm_q_state, float lprob);
+  int bubbleUp(const std::unique_ptr<HMMNode>& hmm_node, int position);
   int sink(int position);
+  void expandCapacity();
   void showHeapContent();
+
+  int getNodePositionById(const uint32_t sg_state, const uint32_t hmm_q_state);
+  std::unique_ptr<HMMNode>& getNodeAtPosition(int position);
 
  private:
   uint32_t capacity;
   uint32_t size;
   std::vector<std::unique_ptr<HMMNode>> hmm_nodes;
+  std::unordered_map<HMMNodeId, int, HMMNodeIdHasher> HMMActives;
 };
 
 class HMMNodeManager {
