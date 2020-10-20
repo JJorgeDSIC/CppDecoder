@@ -77,7 +77,7 @@ class HMMMinHeap {
   float getMinLProb();
   std::unique_ptr<HMMNode> extractMinLProbHMMNode();
   int insert(std::unique_ptr<HMMNode> hmm_node);
-  int pop_add(std::unique_ptr<HMMNode> hmm_node);
+  std::unique_ptr<HMMNode> popAndInsert(std::unique_ptr<HMMNode> hmm_node);
   int update(const uint32_t sg_state, const uint32_t hmm_q_state, float lprob);
   int bubbleUp(const std::unique_ptr<HMMNode>& hmm_node, int position);
   int sink(int position);

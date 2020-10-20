@@ -118,7 +118,15 @@ int HMMMinHeap::insert(std::unique_ptr<HMMNode> hmm_node) {
   return position;
 }
 
-int HMMMinHeap::pop_add(std::unique_ptr<HMMNode> hmm_node) {}
+std::unique_ptr<HMMNode> HMMMinHeap::popAndInsert(
+    std::unique_ptr<HMMNode> hmm_node) {
+  HMMActives[hmm_nodes[1]->getId()] = -1;
+  HMMActives[hmm_node->getId()] = 1;
+  std::unique_ptr<HMMNode> minNode = std::move(hmm_nodes[1]);
+  hmm_nodes[1] = std::move(hmm_node);
+  if (size > 1) sink(1);
+  return std::move(minNode);
+}
 
 int HMMMinHeap::update(const uint32_t sg_state, const uint32_t hmm_q_state,
                        float lprob) {
