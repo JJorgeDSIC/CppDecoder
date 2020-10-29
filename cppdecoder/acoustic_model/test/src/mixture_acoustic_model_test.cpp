@@ -109,7 +109,8 @@ TEST_F(MixtureAcousticModelTests, GaussianMixtureStateTestCalcLogProb) {
   ASSERT_EQ(r_add, gstates.calc_logprob(frame));
 }
 
-TEST_F(MixtureAcousticModelTests, GaussianMixtureStateTestCalcLogProbHugeVal) {
+TEST_F(MixtureAcousticModelTests, GaussianMixtureStateTestCalcLogProbHugeVal)
+{
   GaussianState gstate1(frame.size());
 
   gstate1.addMu(lineMu);
@@ -204,6 +205,15 @@ TEST_F(MixtureAcousticModelTests, MixtureAcousticModelCalcLogProb) {
 
   float probTrue = -51.783161;  // To review
   ASSERT_FLOAT_EQ(prob, probTrue);
+}
+
+TEST_F(MixtureAcousticModelTests, MixtureAcousticGetStateType) {
+  MixtureAcousticModel mixtureacousticmodel(nameModel);
+
+  std::string transType = mixtureacousticmodel.getStateTransType("a");
+  ASSERT_EQ(transType, "Trans");
+  std::string transTypeL = mixtureacousticmodel.getStateTransType("SP");
+  ASSERT_EQ(transTypeL, "TransL");
 }
 
 }  // namespace

@@ -123,6 +123,15 @@ TEST_F(TiedStatesAcousticModelTests, TiedStatesAcousticModelTestsCalcLogProb) {
   ASSERT_FLOAT_EQ(prob, probTrue);
 }
 
+TEST_F(TiedStatesAcousticModelTests, TiedStatesGetStateType) {
+  TiedStatesAcousticModel tiedstatesacousticmodel(nameModel);
+
+  std::string transType = tiedstatesacousticmodel.getStateTransType("ng_I-ng_E");
+  ASSERT_EQ(transType, "Trans");
+  std::string transTypeL = tiedstatesacousticmodel.getStateTransType("ng_I-ng_E+ch_S");
+  ASSERT_EQ(transTypeL, "TransP");
+}
+
 }  // namespace
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);

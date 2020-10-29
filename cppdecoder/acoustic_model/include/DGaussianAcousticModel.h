@@ -6,10 +6,10 @@
 #ifndef DGAUSSIANACOUSTICMODEL_H_
 #define DGAUSSIANACOUSTICMODEL_H_
 
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <memory>
 
 #include "AcousticModel.h"
 
@@ -111,9 +111,12 @@ class GaussianState {
 
 class DGaussianAcousticModel : public AcousticModel {
   std::vector<std::string> states;
-  std::unordered_map<std::string, std::vector<std::unique_ptr<GaussianState>>> state_to_gstate;
+  std::unordered_map<std::string, std::vector<std::unique_ptr<GaussianState>>>
+      state_to_gstate;
   std::unordered_map<std::string, std::vector<float>> state_to_trans;
   std::unordered_map<std::string, int> state_to_num_q;
+  std::unordered_map<std::string, std::string> state_to_type;
+
   std::vector<float> smooth;
   uint32_t dim;
   uint32_t n_states;
@@ -174,6 +177,14 @@ class DGaussianAcousticModel : public AcousticModel {
    */
   float calc_logprob(const std::string &state, const int q,
                      const std::vector<float> &frame) override;
+
+  /**
+   * @brief TODO
+   *
+   * @param state
+   * @return std::string&
+   */
+  std::string &getStateTransType(const std::string &state);
 };
 
 #endif  // DGAUSSIANACOUSTICMODEL_H_

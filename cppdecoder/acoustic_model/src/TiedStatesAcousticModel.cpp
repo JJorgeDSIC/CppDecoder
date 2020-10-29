@@ -117,6 +117,7 @@ int TiedStatesAcousticModel::read_model(const std::string &filename) {
         symbol_to_transitions[symbol] = trans;
         symbol_to_senones[symbol] = senones;
         symbol_to_symbol_transitions[symbol] = symbol;
+        symbol_to_type[symbol] = "Trans";
 
       } else {
         std::string token;
@@ -134,6 +135,7 @@ int TiedStatesAcousticModel::read_model(const std::string &filename) {
         symbol_to_transitions[symbol] = symbol_to_transitions[token];
         symbol_to_senones[symbol] = senones;
         symbol_to_symbol_transitions[symbol] = token;
+        symbol_to_type[symbol] = "TransP";
       }
     }
     fileI.close();
@@ -240,6 +242,11 @@ int TiedStatesAcousticModel::write_model(const std::string &filename) {
     return 1;
   }
   return 0;
+}
+
+std::string &TiedStatesAcousticModel::getStateTransType(
+    const std::string &state) {
+  return symbol_to_type[state];
 }
 
 float TiedStatesAcousticModel::calc_logprob(const std::string &state,

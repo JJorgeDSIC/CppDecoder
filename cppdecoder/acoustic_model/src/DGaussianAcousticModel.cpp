@@ -105,7 +105,7 @@ int DGaussianAcousticModel::read_model(const std::string &filename) {
       trans = read_vector<float>(line);
 
       state_to_trans[name] = trans;
-
+      state_to_type[name] = "Trans";
       std::vector<std::unique_ptr<GaussianState>> gstates;
 
       gstates.reserve(n_q);
@@ -196,6 +196,10 @@ int DGaussianAcousticModel::write_model(const std::string &filename) {
   }
   return 0;
   
+}
+
+std::string& DGaussianAcousticModel::getStateTransType(const std::string &state) {
+  return state_to_type[state];
 }
 
 DGaussianAcousticModel::DGaussianAcousticModel(const std::string &filename)

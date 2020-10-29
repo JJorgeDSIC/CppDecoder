@@ -14,13 +14,13 @@
 
 class TiedStatesAcousticModel : public AcousticModel {
  public:
- /**
-  * @brief Construct a new Tied States Acoustic Model object
-  * 
-  * @param[in] filename file location
-  */
+  /**
+   * @brief Construct a new Tied States Acoustic Model object
+   *
+   * @param[in] filename file location
+   */
   explicit TiedStatesAcousticModel(const std::string &filename);
- /**
+  /**
    * @brief Get vectors's dimension.
    *
    * @return uint32_t The dimension.
@@ -65,6 +65,13 @@ class TiedStatesAcousticModel : public AcousticModel {
    */
   float calc_logprob(const std::string &state, const int q,
                      const std::vector<float> &frame) override;
+  /**
+   * @brief TODO
+   *
+   * @param state
+   * @return std::string&
+   */
+  std::string &getStateTransType(const std::string &state);
 
  private:
   uint32_t dim;
@@ -80,6 +87,7 @@ class TiedStatesAcousticModel : public AcousticModel {
   std::unordered_map<std::string, std::string> symbol_to_symbol_transitions;
   std::unordered_map<std::string, std::vector<float>> symbol_to_transitions;
   std::unordered_map<std::string, std::vector<std::string>> symbol_to_senones;
+  std::unordered_map<std::string, std::string> symbol_to_type;
 };
 
 #endif  // TIEDSTATESACOUSTICMODEL_H_

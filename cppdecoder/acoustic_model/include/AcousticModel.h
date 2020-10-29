@@ -72,6 +72,14 @@ class AcousticModel {
    */
   virtual float calc_logprob(const std::string &state, const int q,
                              const std::vector<float> &frame) = 0;
+
+  /**
+   * @brief Get the State Trans Type from symbol/state
+   *
+   * @param state
+   * @return std::string&
+   */
+  virtual std::string &getStateTransType(const std::string &state) = 0;
 };
 
 #endif  // ACOUSTICMODEL_H_

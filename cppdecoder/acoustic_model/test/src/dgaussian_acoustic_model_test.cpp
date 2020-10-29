@@ -201,6 +201,14 @@ TEST_F(DGaussianAcousticModelTests, DGaussianAcousticModelCalcLogProb) {
   ASSERT_FLOAT_EQ(prob, probTrue);
 }
 
+TEST_F(DGaussianAcousticModelTests, DGaussianAcousticGetStateType) {
+  DGaussianAcousticModel dgaussianmodel(nameModel);
+
+  std::string transType = dgaussianmodel.getStateTransType("aa");
+  ASSERT_EQ(transType, "Trans");
+
+}
+
 }  // namespace
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
