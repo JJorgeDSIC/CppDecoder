@@ -102,6 +102,11 @@ std::unique_ptr<HMMNode>& HMMMinHeap::getNodeAtPosition(int position) {
   return hmm_nodes[position];
 }
 
+std::unique_ptr<HMMNode>& HMMMinHeap::getNodeById(const uint32_t sg_state,
+                                                  const uint32_t hmm_q_state) {
+  return hmm_nodes[getNodePositionById(sg_state, hmm_q_state)];
+}
+
 int HMMMinHeap::insert(std::unique_ptr<HMMNode> hmm_node) {
   if (size == hmm_nodes.size() - 1) {
     expandCapacity();
@@ -141,6 +146,19 @@ int HMMMinHeap::update(const uint32_t sg_state, const uint32_t hmm_q_state,
   HMMActives[hmm_nodes[position]->getId()] = position;
 }
 
+int HMMMinHeap::updateNodeAt(int position, float prob, float auxp) {
+  hmm_nodes[position]->setLogprob(prob);
+  hmm_nodes[position]->setHMMLogProb(hmm_nodes[position]->getHMMLogProb() +
+                                     auxp);
+  hmm_nodes[position]->setLMLogProb(hmm_nodes[position]->getLMLogProb());
+  hmm_nodes[position]->setH(hmm_nodes[position]->getH());
+
+  std::unique_ptr<HMMNode> hmm_node = std::move(hmm_nodes[position]);
+  position = bubbleUp(hmm_node, position);
+  hmm_nodes[position] = std::move(hmm_node);
+  HMMActives[hmm_nodes[position]->getId()] = position;
+}
+
 void HMMMinHeap::showHeapContent() {
   for (size_t i = 1; i < size + 1; i++) {
     std::cout << "Position: " << i << std::endl;
@@ -148,6 +166,11 @@ void HMMMinHeap::showHeapContent() {
     std::cout << "Position according to hash: "
               << HMMActives[hmm_nodes[i]->getId()] << std::endl;
   }
+}
+
+void HMMMinHeap::cleanActives() {
+  // TODO: Faster solution?
+  HMMActives.clear();
 }
 
 HMMNodeManager::HMMNodeManager(const uint32_t max_size)

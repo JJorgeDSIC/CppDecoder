@@ -7,9 +7,10 @@
 #define DECODER_H_
 
 #include <AcousticModel.h>
+#include <HMM.h>
 #include <Sample.h>
 #include <SearchGraphLanguageModel.h>
-#include <HMM.h>
+
 #include <cassert>
 #include <memory>
 #include <string>
@@ -95,7 +96,7 @@ class Decoder {
    *
    * @param hmmNode
    */
-  void insert_hmm_node(std::unique_ptr<HMMNode>& hmmNode);
+  void insert_hmm_node(std::unique_ptr<HMMNode> hmmNode);
 
   /**
    * @brief Add a SGNode to null_nodes0. These nodes will be expanded during the
@@ -220,7 +221,7 @@ class Decoder {
    *
    */
 
-  void viterbiSg2HMM();
+  void viterbiSg2HMM(const Sample& sample);
   /**
    * @brief
    *
@@ -241,13 +242,13 @@ class Decoder {
    *
    * @return std::vector<std::unique_ptr<HMMNode>>&
    */
-  std::vector<std::unique_ptr<HMMNode>>& getHMMNodes0() { return hmm_nodes0; }
+  std::vector<std::unique_ptr<HMMNode>>& getHMMNodes0();
   /**
    * @brief
    *
    * @return std::vector<std::unique_ptr<HMMNode>>&
    */
-  std::vector<std::unique_ptr<HMMNode>>& getHMMNodes1() { return hmm_nodes1; }
+  std::vector<std::unique_ptr<HMMNode>>& getHMMNodes1();
 
   /**
    * @brief Get the Min Prob From HMM Nodes object
@@ -257,20 +258,37 @@ class Decoder {
   float getMinProbFromHMMNodes();
 
   /**
-   * @brief
+   * @brief Get the Number Active H M M Nodes object
    *
-   * @param nodeId
    * @return int
    */
-  int getHMMPosIfActive(const HMMNodeId& nodeId);
+  int getNumberActiveHMMNodes();
+
+  /**
+   * @brief Get the Ready H M M Nodes0 object
+   *
+   */
+  void getReadyHMMNodes0();
+
+  /**
+   * @brief Get the Number Active H M M Nodes0 object
+   *
+   * @return int
+   */
+  int getNumberActiveHMMNodes0();
+  /**
+   * @brief Get the Number Active H M M Nodes1 object
+   *
+   * @return int
+   */
+  int getNumberActiveHMMNodes1();
+
   /**
    * @brief
    *
-   * @param nodeId
-   * @param position
-   * @return int
+   * @param sample
    */
-  int setHMMActive(HMMNodeId nodeId, int position);
+  void viterbiInit(const Sample& sample);
 
  private:
   std::unique_ptr<SearchGraphLanguageModel> sgraph;
@@ -281,20 +299,22 @@ class Decoder {
   std::vector<std::unique_ptr<SGNode>> search_graph_null_nodes1;
   std::vector<std::unique_ptr<SGNode>> search_graph_nodes0;
   std::vector<std::unique_ptr<SGNode>> search_graph_nodes1;
-
-  std::vector<std::unique_ptr<HMMNode>> hmm_nodes0;
-  std::vector<std::unique_ptr<HMMNode>> hmm_nodes1;
-  std::unordered_map<HMMNodeId, int, HMMNodeIdHasher> HMMActives;
+  std::unique_ptr<HMMMinHeap> hmm_minheap_nodes0;
+  std::unique_ptr<HMMMinHeap> hmm_minheap_nodes1;
 
   std::vector<WordHyp> hypothesis;
   float v_thr = -HUGE_VAL;
+  float v_max = -HUGE_VAL;
   float v_lm_max = 0.0;
   float v_lm_beam = 0.0;
   float v_lm_thr = 0.0;
+  int v_maxh = 0;
   uint32_t nmaxstates = 100;
   bool final_iter = false;
   float GSF = 10;
   float WIP = 0;
+  float beam = 300;
+  float v_abeam = HUGE_VAL;
 };
 
 #include "Decoder.inl"

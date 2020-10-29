@@ -60,7 +60,7 @@ class HMMNode {
   float getLMLogProb() { return lmp; }
   uint32_t getTrapos() { return trapos; }
   uint32_t getH() { return h; }
-
+  void setIdQ(uint32_t q) { id.hmm_q_state = q; }
   void setLogprob(float lprob) { this->lprob = lprob; }
   void setHMMLogProb(float hmmp) { this->hmmp = hmmp; }
   void setLMLogProb(float lmp) { this->lmp = lmp; }
@@ -75,17 +75,27 @@ class HMMMinHeap {
     hmm_nodes.resize(capacity + 1);
   }
   float getMinLProb();
+  std::vector<std::unique_ptr<HMMNode>>& getNodes() { return hmm_nodes; }
   std::unique_ptr<HMMNode> extractMinLProbHMMNode();
   int insert(std::unique_ptr<HMMNode> hmm_node);
   std::unique_ptr<HMMNode> popAndInsert(std::unique_ptr<HMMNode> hmm_node);
   int update(const uint32_t sg_state, const uint32_t hmm_q_state, float lprob);
+  int updateNodeAt(int position, float prob, float auxp);
   int bubbleUp(const std::unique_ptr<HMMNode>& hmm_node, int position);
   int sink(int position);
   void expandCapacity();
   void showHeapContent();
-
+  std::unordered_map<HMMNodeId, int, HMMNodeIdHasher>& getActives() {
+    return HMMActives;
+  }
   int getNodePositionById(const uint32_t sg_state, const uint32_t hmm_q_state);
+  std::unique_ptr<HMMNode>& getNodeById(const uint32_t sg_state,
+                                        const uint32_t hmm_q_state);
+
   std::unique_ptr<HMMNode>& getNodeAtPosition(int position);
+  int getSize() { return size; }
+  void setSize(uint32_t size) { this->size = size; }
+  void cleanActives();
 
  private:
   uint32_t capacity;

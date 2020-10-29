@@ -25,6 +25,10 @@ class DecoderTests : public ::testing::Test {
       "./models/mixture_monophoneme_I32.example.model";
   const std::string searchGraphFile = "./models/2.gram.graph";
 
+  const std::string sampleFile = "./samples/AAFA0016.features";
+
+  Sample sample;
+
   Decoder* decoder;
   size_t startState;
 
@@ -37,6 +41,8 @@ class DecoderTests : public ::testing::Test {
         new MixtureAcousticModel(nameModelMixture));
 
     decoder = new Decoder(std::move(sgraph), std::move(mixturemodel));
+
+    sample.read_sample(sampleFile);
   }
 };
 
@@ -227,7 +233,8 @@ TEST_F(DecoderTests, DecoderInsertSGNodeInsAndUpdateSGNodes1) {
 }
 
 TEST_F(DecoderTests, DecoderaddNodeToSearchGraphNullNodes0) {
-  std::unique_ptr<SGNode> sgnodeIni(new SGNode(startState, 0.0, 0.0, 0.0, 0));
+  std::unique_ptr<SGNode> sgnodeIni(new SGNode(startState, 0.0, 0.0, 0.0,
+  0));
 
   std::unique_ptr<SGNode> sgnode1(new SGNode(6408, 0.1, 0.0, 0.0, 0));
 
@@ -248,13 +255,15 @@ TEST_F(DecoderTests, DecoderaddNodeToSearchGraphNullNodes0) {
 }
 
 TEST_F(DecoderTests, DecoderExpandSGNodeStartNode) {
-  std::unique_ptr<SGNode> sgnodeStart(new SGNode(startState, 0.0, 0.0, 0.0, 0));
+  std::unique_ptr<SGNode> sgnodeStart(new SGNode(startState, 0.0, 0.0, 0.0,
+  0));
 
   decoder->addNodeToSearchGraphNullNodes0(sgnodeStart);
 
   decoder->expand_search_graph_nodes(decoder->getSearchGraphNullNodes0());
 
-  ASSERT_FLOAT_EQ(decoder->getSearchGraphNullNodes1()[0]->getLProb(), -28.1341);
+  ASSERT_FLOAT_EQ(decoder->getSearchGraphNullNodes1()[0]->getLProb(),
+  -28.1341);
 }
 
 TEST_F(DecoderTests, DecoderExpandSGNodeExample1) {
@@ -269,14 +278,17 @@ TEST_F(DecoderTests, DecoderExpandSGNodeExample1) {
   ASSERT_FLOAT_EQ(decoder->getSearchGraphNullNodes1()[0]->getLProb(),
                   -2302.504100);
 
-  std::vector<float> lprobs = {-28.134100, -39.120200, -39.120200, -39.120200,
-                               -46.051700, -39.120200, -32.188800, -39.120200,
-                               -46.051700, -32.188800, -46.051700, -46.051700,
-                               -32.188800, -32.188800, -39.120200, -46.051700,
+  std::vector<float> lprobs = {-28.134100, -39.120200, -39.120200,
+  -39.120200,
+                               -46.051700, -39.120200, -32.188800,
+                               -39.120200, -46.051700, -32.188800,
+                               -46.051700, -46.051700, -32.188800,
+                               -32.188800, -39.120200, -46.051700,
                                -39.120200, -46.051700, -29.957300};
 
   for (auto i = 0; i < lprobs.size(); i++) {
-    ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes1()[i]->getLProb(), lprobs[i]);
+    ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes1()[i]->getLProb(),
+    lprobs[i]);
   }
 }
 
@@ -298,7 +310,8 @@ TEST_F(DecoderTests, DecoderExpandSGNodeExample2) {
       -2315.974900, -2318.110600, -2311.920200, -2348.555800, -2348.555800,
       -2315.233800, -2332.461500, -2341.624400, -2317.200900};
   for (auto i = 0; i < lprobs.size(); i++) {
-    ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes1()[i]->getLProb(), lprobs[i]);
+    ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes1()[i]->getLProb(),
+    lprobs[i]);
   }
 }
 
@@ -339,19 +352,22 @@ TEST_F(DecoderTests, DecoderGetReadyNodes) {
   decoder->addNodeToSearchGraphNodes1(sgnode1);
   decoder->addNodeToSearchGraphNodes1(sgnode2);
 
-  ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes1()[0]->getLProb(), -28.134100);
-  ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes1()[1]->getLProb(), -18.103909);
+  ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes1()[0]->getLProb(),
+  -28.134100);
+  ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes1()[1]->getLProb(),
+  -18.103909);
 }
 
 TEST_F(DecoderTests, DecoderViterbiIterSG) {
-  std::unique_ptr<SGNode> sgnodeIni(new SGNode(startState, 0.0, 0.0, 0.0, 0));
+  std::unique_ptr<SGNode> sgnodeIni(new SGNode(startState, 0.0, 0.0, 0.0,
+  0));
 
   decoder->insert_search_graph_node(sgnodeIni);
 
   decoder->viterbiIterSG(0);
 
-  ASSERT_EQ(decoder->nodes0IsNotEmpty(), false);
-  ASSERT_EQ(decoder->nodes1IsNotEmpty(), true);
+  ASSERT_EQ(decoder->nodes0IsNotEmpty(), true);
+  ASSERT_EQ(decoder->nodes1IsNotEmpty(), false);
   ASSERT_EQ(decoder->nullNodes0IsNotEmpty(), false);
   ASSERT_EQ(decoder->nullNodes1IsNotEmpty(), false);
 
@@ -368,20 +384,129 @@ TEST_F(DecoderTests, DecoderViterbiIterSG) {
       -2332.461500, -2341.624400, -2317.200900};
 
   for (auto i = 0; i < lprobs.size(); i++) {
-    ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes1()[i]->getLProb(), lprobs[i]);
+    ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes0()[i]->getLProb(),
+    lprobs[i]);
   }
 }
 
-TEST_F(DecoderTests, DecoderViterbiSG2HMM) {
-  ASSERT_TRUE(false);
+TEST_F(DecoderTests, DecoderViterbiSG2HMM_test1) {
+  std::unique_ptr<SGNode> sgnodeIni(new SGNode(startState, 0.0, 0.0, 0.0, 0));
 
-  // std::unique_ptr<SGNode> sgnodeIni(new SGNode(startState, 0.0, 0.0, 0.0, 0));
+  std::unordered_map<int, float> gtruthLogProb = {
+      {429, -2348.555800}, {438, -2348.555800}, {436, -2348.555800},
+      {444, -2348.555800}, {448, -2348.555800}, {431, -2332.461500},
+      {427, -2337.569700}, {437, -2332.461500}, {442, -2341.624400},
+      {426, -2322.165300}, {449, -2348.555800}, {453, -2317.200900},
+      {430, -2330.638200}, {433, -2326.583600}, {434, -2334.692900},
+      {2455, -46.051700},  {425, -2326.583600}, {441, -2337.569700},
+      {443, -2341.624400}, {445, -2315.974900}, {446, -2318.110600},
+      {428, -2320.223700}, {452, -2341.624400}, {2451, -46.051700},
+      {2442, -39.120200},  {2452, -32.188800},  {432, -2326.583600},
+      {2453, -32.188800},  {2454, -39.120200},  {2446, -32.188800},
+      {435, -2315.233800}, {2440, -28.134100},  {2441, -39.120200},
+      {2456, -39.120200},  {439, -2318.110600}, {2447, -39.120200},
+      {2457, -46.051700},  {2458, -29.957300},  {440, -2337.569700},
+      {2449, -32.188800},  {2448, -46.051700},  {2450, -46.051700},
+      {447, -2311.920200}, {2443, -39.120200},  {450, -2315.233800},
+      {2444, -46.051700},  {451, -2332.461500}, {2445, -39.120200}};
 
-  // decoder->insert_search_graph_node(sgnodeIni);
+  std::unordered_map<int, float> gtruthLMLogProb = {
+      {429, -234.855580}, {438, -234.855580}, {436, -234.855580},
+      {444, -234.855580}, {448, -234.855580}, {431, -233.246150},
+      {427, -233.756970}, {437, -233.246150}, {442, -234.162440},
+      {426, -232.216530}, {449, -234.855580}, {453, -231.720090},
+      {430, -233.063820}, {433, -232.658360}, {434, -233.469290},
+      {2455, -4.605170},  {425, -232.658360}, {441, -233.756970},
+      {443, -234.162440}, {445, -231.597490}, {446, -231.811060},
+      {428, -232.022370}, {452, -234.162440}, {2451, -4.605170},
+      {2442, -3.912020},  {2452, -3.218880},  {432, -232.658360},
+      {2453, -3.218880},  {2454, -3.912020},  {2446, -3.218880},
+      {435, -231.523380}, {2440, -2.813410},  {2441, -3.912020},
+      {2456, -3.912020},  {439, -231.811060}, {2447, -3.912020},
+      {2457, -4.605170},  {2458, -2.995730},  {440, -233.756970},
+      {2449, -3.218880},  {2448, -4.605170},  {2450, -4.605170},
+      {447, -231.192020}, {2443, -3.912020},  {450, -231.523380},
+      {2444, -4.605170},  {451, -233.246150}, {2445, -3.912020}};
 
-  // decoder->viterbiIterSG(0);
+  decoder->insert_search_graph_node(sgnodeIni);
 
-  // decoder->viterbiSg2HMM();
+  decoder->viterbiIterSG(0);
+
+  decoder->viterbiSg2HMM(sample);
+
+  ASSERT_EQ(decoder->getNumberActiveHMMNodes1(), 48);
+
+  for (size_t i = 0; i < decoder->getNumberActiveHMMNodes1(); i++) {
+    ASSERT_FLOAT_EQ(
+        gtruthLogProb[decoder->getHMMNodes1()[i + 1]->getId().sg_state],
+        decoder->getHMMNodes1()[i + 1]->getLogProb());
+    ASSERT_FLOAT_EQ(
+        gtruthLMLogProb[decoder->getHMMNodes1()[i + 1]->getId().sg_state],
+        decoder->getHMMNodes1()[i + 1]->getLMLogProb());
+  }
+}
+
+TEST_F(DecoderTests, DecoderViterbiInit) {
+  std::unordered_map<int, float> gtruthLogProb = {
+      {429, -2348.555800}, {438, -2348.555800}, {436, -2348.555800},
+      {444, -2348.555800}, {448, -2348.555800}, {431, -2332.461500},
+      {427, -2337.569700}, {437, -2332.461500}, {442, -2341.624400},
+      {426, -2322.165300}, {449, -2348.555800}, {453, -2317.200900},
+      {430, -2330.638200}, {433, -2326.583600}, {434, -2334.692900},
+      {2455, -46.051700},  {425, -2326.583600}, {441, -2337.569700},
+      {443, -2341.624400}, {445, -2315.974900}, {446, -2318.110600},
+      {428, -2320.223700}, {452, -2341.624400}, {2451, -46.051700},
+      {2442, -39.120200},  {2452, -32.188800},  {432, -2326.583600},
+      {2453, -32.188800},  {2454, -39.120200},  {2446, -32.188800},
+      {435, -2315.233800}, {2440, -28.134100},  {2441, -39.120200},
+      {2456, -39.120200},  {439, -2318.110600}, {2447, -39.120200},
+      {2457, -46.051700},  {2458, -29.957300},  {440, -2337.569700},
+      {2449, -32.188800},  {2448, -46.051700},  {2450, -46.051700},
+      {447, -2311.920200}, {2443, -39.120200},  {450, -2315.233800},
+      {2444, -46.051700},  {451, -2332.461500}, {2445, -39.120200}};
+
+  std::unordered_map<int, float> gtruthLMLogProb = {
+      {429, -234.855580}, {438, -234.855580}, {436, -234.855580},
+      {444, -234.855580}, {448, -234.855580}, {431, -233.246150},
+      {427, -233.756970}, {437, -233.246150}, {442, -234.162440},
+      {426, -232.216530}, {449, -234.855580}, {453, -231.720090},
+      {430, -233.063820}, {433, -232.658360}, {434, -233.469290},
+      {2455, -4.605170},  {425, -232.658360}, {441, -233.756970},
+      {443, -234.162440}, {445, -231.597490}, {446, -231.811060},
+      {428, -232.022370}, {452, -234.162440}, {2451, -4.605170},
+      {2442, -3.912020},  {2452, -3.218880},  {432, -232.658360},
+      {2453, -3.218880},  {2454, -3.912020},  {2446, -3.218880},
+      {435, -231.523380}, {2440, -2.813410},  {2441, -3.912020},
+      {2456, -3.912020},  {439, -231.811060}, {2447, -3.912020},
+      {2457, -4.605170},  {2458, -2.995730},  {440, -233.756970},
+      {2449, -3.218880},  {2448, -4.605170},  {2450, -4.605170},
+      {447, -231.192020}, {2443, -3.912020},  {450, -231.523380},
+      {2444, -4.605170},  {451, -233.246150}, {2445, -3.912020}};
+
+  std::unique_ptr<SGNode> sgnodeIni(new SGNode(startState, 0.0, 0.0, 0.0, 0));
+
+  decoder->insert_search_graph_node(sgnodeIni);
+
+  decoder->viterbiIterSG(0);
+
+  std::cout << "Viterbisg2HMM" << std::endl;
+
+  decoder->viterbiSg2HMM(sample);
+
+  decoder->getReadyHMMNodes0();
+
+  ASSERT_EQ(decoder->getNumberActiveHMMNodes0(), 48);
+
+  for (size_t i = 0; i < decoder->getNumberActiveHMMNodes0(); i++) {
+    ASSERT_FLOAT_EQ(
+        gtruthLogProb[decoder->getHMMNodes0()[i + 1]->getId().sg_state],
+        decoder->getHMMNodes0()[i + 1]->getLogProb());
+    ASSERT_FLOAT_EQ(
+        gtruthLMLogProb[decoder->getHMMNodes0()[i + 1]->getId().sg_state],
+        decoder->getHMMNodes0()[i + 1]->getLMLogProb());
+  }
+
+  ASSERT_EQ(decoder->getNumberActiveHMMNodes1(), 0);
 }
 
 }  // namespace

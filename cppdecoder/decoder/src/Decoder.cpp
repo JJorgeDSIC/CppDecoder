@@ -25,12 +25,21 @@ Decoder::Decoder(std::unique_ptr<SearchGraphLanguageModel> sgraph,
   std::vector<int> activesTemp(this->sgraph->getNStates(),
                                -1);  // Review this...
   actives = std::move(activesTemp);
+
+  std::unique_ptr<HMMMinHeap> hmm_minheap_temp0(new HMMMinHeap(nmaxstates));
+  std::unique_ptr<HMMMinHeap> hmm_minheap_temp1(new HMMMinHeap(nmaxstates));
+
+  hmm_minheap_nodes0 = std::move(hmm_minheap_temp0);
+  hmm_minheap_nodes1 = std::move(hmm_minheap_temp1);
 }
 
 float Decoder::decode(Sample sample) {
   // Init structs
   // HMMNodeManager
   // viterbi_init with the first frame
+
+  // RESET AM CACHE
+
   // for each frame, perform:
   //  viterbi iteration
 
@@ -39,6 +48,19 @@ float Decoder::decode(Sample sample) {
   // Get and print the results
 
   return this->amodel->calc_logprob("a", 0, sample.getFrame(0).getFeatures());
+}
+
+void Decoder::viterbiInit(const Sample& sample) {
+  std::unique_ptr<SGNode> sgnodeIni(
+      new SGNode(this->sgraph->getStartState(), 0.0, 0.0, 0.0, 0));
+
+  insert_search_graph_node(sgnodeIni);
+
+  viterbiIterSG(0);
+
+  viterbiSg2HMM(sample);
+
+  getReadyHMMNodes0();
 }
 
 void Decoder::updateLmBeam(float lprob) {
@@ -206,7 +228,7 @@ void Decoder::viterbiIterSG(const int t) {
   getReadyNodes();
 }
 
-void Decoder::viterbiSg2HMM() {
+void Decoder::viterbiSg2HMM(const Sample& sample) {
   std::vector<std::unique_ptr<SGNode>>& nodes0 = getSearchGraphNodes0();
 
   std::cout << "-----" << nodes0.size() << std::endl;
@@ -218,29 +240,113 @@ void Decoder::viterbiSg2HMM() {
     std::unique_ptr<HMMNode> new_node(
         new HMMNode(node->getStateId(), 0, node->getLProb(),
                     node->getHMMLProb(), node->getLMLProb(), 0, 0));
-    new_node->showHMMState();
+
+    const std::string& symbol = sgraph->getIdToSym(new_node->getId().sg_state);
+    const std::string& transType = amodel->getStateTransType(symbol);
 
     std::cout << "Reading ID: s= " << new_node->getId().sg_state
-              << ", q= " << new_node->getId().hmm_q_state << std::endl;
-    // Trans type conditional
+              << ", q= " << new_node->getId().hmm_q_state
+              << ", symbol= " << symbol << ", Trans type: " << transType
+              << std::endl;
 
-    //
+    if (transType == "Trans") {
+      new_node->setIdQ(0);
+      new_node->setLogprob(node->getLProb());
+      new_node->setHMMLogProb(node->getHMMLProb());
+      new_node->showHMMState();
+      insert_hmm_node(std::move(new_node));
+    } else {
+      // TODO: alternative transition representation...
+      assert(false);
+    }
   }
 }
 
-void Decoder::insert_hmm_node(std::unique_ptr<HMMNode>& hmmNode) {
+std::vector<std::unique_ptr<HMMNode>>& Decoder::getHMMNodes0() {
+  return hmm_minheap_nodes0->getNodes();
+}
+
+std::vector<std::unique_ptr<HMMNode>>& Decoder::getHMMNodes1() {
+  return hmm_minheap_nodes1->getNodes();
+}
+
+int Decoder::getNumberActiveHMMNodes0() {
+  return hmm_minheap_nodes0->getSize();
+}
+
+int Decoder::getNumberActiveHMMNodes1() {
+  return hmm_minheap_nodes1->getSize();
+}
+
+void Decoder::getReadyHMMNodes0() {
+  // TODO: Copy hmm_minheap_nodes1 into nodes0
+
+  hmm_minheap_nodes0->getNodes().swap(hmm_minheap_nodes1->getNodes());
+  hmm_minheap_nodes0->setSize(hmm_minheap_nodes1->getSize());
+  hmm_minheap_nodes0->getActives().swap(hmm_minheap_nodes1->getActives());
+  hmm_minheap_nodes1->setSize(0);
+  hmm_minheap_nodes1->cleanActives();
+}
+
+void Decoder::insert_hmm_node(std::unique_ptr<HMMNode> hmmNode) {
   // TODO: Prune before options
   bool full;
-  float prob = 0.0;  // hmmNode->getLogprob();
+  float prob = hmmNode->getLogProb();
   float auxp = 0.0;
+  float tmp_p, tmp_hmmp;
+  std::unique_ptr<HMMNode> aux;
 
-  if (prob < v_thr) return;
+  std::cout << "v_thr: " << v_thr << ",v_max: " << v_max
+            << ", v_abeam: " << v_abeam << std::endl;
 
-  if ((full = hmm_nodes1.size() == nmaxstates) &&
-      prob <= getMinProbFromHMMNodes())
+  if (prob < v_thr) {
+    std::cout << "Pruned because of prob < v_thr: " << prob << " < " << v_thr
+              << std::endl;
     return;
+  }
+
+  full = hmm_minheap_nodes1->getNodes().size() == nmaxstates;
+
+  if (full && prob <= getMinProbFromHMMNodes()) {
+    std::cout << "Pruned because of full && prob <= getMinProbFromHMMNodes()"
+              << std::endl;
+    return;
+  }
 
   // TODO
+  int position = hmm_minheap_nodes1->getNodePositionById(
+      hmmNode->getId().sg_state, hmmNode->getId().hmm_q_state);
+  if (position == 0) { /* New node */
+    if (prob > v_max) {
+      v_max = prob;
+      v_thr = prob - v_abeam;
+
+      v_maxh = hmmNode->getH();
+    }
+
+    tmp_p = hmmNode->getLogProb();
+    tmp_hmmp = hmmNode->getHMMLogProb();
+    hmmNode->setLogprob(prob);
+    hmmNode->setHMMLogProb(hmmNode->getHMMLogProb() + auxp);
+    if (full) {
+      aux = hmm_minheap_nodes1->popAndInsert(std::move(hmmNode));
+    } else {
+      hmm_minheap_nodes1->insert(std::move(hmmNode));
+    }
+    // node->p = tmp_p;
+    // node->hmmp = tmp_hmmp;
+  } else if (prob >
+             hmm_minheap_nodes1->getNodeAtPosition(position)->getLogProb()) {
+    // Revisited node
+    if (prob > v_max) {
+      v_max = prob;
+      v_thr = prob - v_abeam;
+      v_maxh = hmmNode->getH();
+    }
+    hmm_minheap_nodes1->updateNodeAt(position, prob, auxp);
+  }
+
+  std::cout << "Position: " << position << std::endl;
 }
 
 int Decoder::addNodeToSearchGraphNullNodes0(std::unique_ptr<SGNode>& node) {
@@ -259,21 +365,7 @@ int Decoder::addNodeToSearchGraphNodes1(std::unique_ptr<SGNode>& node) {
 }
 
 float Decoder::getMinProbFromHMMNodes() {
-  // TODO
-  return 0.0;
-}
-
-int Decoder::getHMMPosIfActive(const HMMNodeId& nodeId) {
-  auto result = HMMActives.find(nodeId);
-  if (result != HMMActives.end()) {
-    return result->second;
-  } else {
-    return -1;
-  }
-}
-
-int Decoder::setHMMActive(HMMNodeId nodeId, int position) {
-  HMMActives[nodeId] = position;
+  return hmm_minheap_nodes1->getMinLProb();
 }
 
 void Decoder::insert_search_graph_node(std::unique_ptr<SGNode>& node) {
