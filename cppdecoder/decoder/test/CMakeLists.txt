@@ -30,3 +30,6 @@ configure_file(
                          
 configure_file(
      ${CMAKE_SOURCE_DIR}/models/mixture_monophoneme_I32.example.model ${CMAKE_BINARY_DIR}/models/mixture_monophoneme_I32.example.model COPYONLY)
+
+configure_file(
+     ${CMAKE_SOURCE_DIR}/samples/AAFA0016.features ${CMAKE_BINARY_DIR}/test/samples/AAFA0016.features COPYONLY)
