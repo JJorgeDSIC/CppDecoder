@@ -22,7 +22,7 @@ class Frame {
    * 
    * @return std::vector<float>& the vector representing the float values for this frame
    */
-  std::vector<float>& getFeatures() { return features; }
+  std::vector<float> getFeatures() const { return features; }
   /**
    * @brief Get the dimension of this frame
    * 

@@ -52,7 +52,7 @@ class Sample {
    * @param[in] index Index inside the sample, usually temporal dimension.
    * @return Frame& Frame object at position index in the sample.
    */
-  Frame &getFrame(const uint32_t index) { return frames[index]; }
+  Frame getFrame(const uint32_t index) const { return frames[index]; }
 
   /**
    * @brief Read a Sample from text file.
