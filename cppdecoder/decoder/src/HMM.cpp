@@ -114,7 +114,7 @@ int HMMMinHeap::insert(std::unique_ptr<HMMNode> hmm_node) {
   int position = size + 1;
   assert(size <= capacity);
 
-  if (size != 1) {
+  if (size != 0) {
     position = bubbleUp(hmm_node, position);
   }
   size++;

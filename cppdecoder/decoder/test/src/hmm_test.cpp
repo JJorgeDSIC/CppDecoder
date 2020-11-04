@@ -88,14 +88,17 @@ TEST_F(HMMTests, DecoderHMMAddAndExtractMinAndGettingPosition) {
   std::vector<float> sorted_vec = {2,   2,   4,   34,  68,  104, 112,
                                    134, 140, 156, 184, 190, 194};
 
-  std::vector<int> vec_posis_remove1 = {12, 11, 6,  8, 9,  1, 7,
-                                        2,  4,  10, 5, 13, 3};
-  std::vector<int> vec_posis_remove2 = {12, 11, 3,  8, 9, -1, 7,
-                                        2,  4,  10, 5, 6, 1};
-  std::vector<int> vec_posis_remove3 = {9, 11, 3,  8, 4, -1, 7,
-                                        1, 2,  10, 5, 6, -1};
-  std::vector<int> vec_posis_remove4 = {9,  5, 3,  8, 4, -1, 7,
-                                        -1, 1, 10, 2, 6, -1};
+  std::vector<int> vec_posis_remove1 = {8, 12, 6,  11, 9,  1, 7,
+                                        2, 4,  10, 5,  13, 3};
+
+  std::vector<int> vec_posis_remove2 = {8, 12, 3,  11, 9, -1, 7,
+                                        2, 4,  10, 5,  6, 1};
+
+  std::vector<int> vec_posis_remove3 = {8, 9, 3,  11, 4, -1, 7,
+                                        1, 2, 10, 5,  6, -1};
+
+  std::vector<int> vec_posis_remove4 = {8,  9, 3,  5, 4, -1, 7,
+                                        -1, 1, 10, 2,  6, -1};
 
   for (size_t i = 0; i < vec.size(); i++) {
     uint32_t sg_state = i;
@@ -110,6 +113,7 @@ TEST_F(HMMTests, DecoderHMMAddAndExtractMinAndGettingPosition) {
         new HMMNode(sg_state, hmm_q_state, lprob, hmmp, lmp, trapos, h));
 
     position = minHeap->insert(std::move(node));
+
   }
 
   for (size_t i = 0; i < vec.size(); i++) {
@@ -142,8 +146,7 @@ TEST_F(HMMTests, DecoderHMMAddAndExtractMinAndGettingPosition) {
     ASSERT_EQ(vec_posis_remove4[i], positionInside);
   }
 
-}  // namespace
-
+} 
 TEST_F(HMMTests, DecoderHMMUpdate) {
   int position = -1;
   int capacity = 100;
@@ -209,16 +212,10 @@ TEST_F(HMMTests, DecoderHMMUpdateAt) {
     position = minHeap->insert(std::move(node));
   }
 
-  minHeap->showHeapContent();
-  std::cout << "=================== " << std::endl;
-
   // TODO
   position = minHeap->getNodePositionById(8, 0);
 
   minHeap->updateNodeAt(position, 1, 0.2);
-
-  minHeap->showHeapContent();
-  std::cout << "=================== " << std::endl;
 
   ASSERT_EQ(minHeap->getMinLProb(), 1);
 
@@ -226,17 +223,11 @@ TEST_F(HMMTests, DecoderHMMUpdateAt) {
 
   minHeap->updateNodeAt(position, 2, 0.3);
 
-  minHeap->showHeapContent();
-  std::cout << "=================== " << std::endl;
-
   ASSERT_EQ(minHeap->getMinLProb(), 1);
 
   position = minHeap->getNodePositionById(0, 0);
 
   minHeap->updateNodeAt(position, 0, 0.4);
-
-  minHeap->showHeapContent();
-  std::cout << "=================== " << std::endl;
 
   ASSERT_EQ(minHeap->getMinLProb(), 0);
 }
