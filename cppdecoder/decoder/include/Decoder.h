@@ -290,6 +290,28 @@ class Decoder {
    */
   void viterbiInit(const Sample& sample);
 
+  /**
+   * @brief
+   *
+   * @param sample
+   */
+  void viterbiIter(const Sample& sample, const int t, const bool finalIter);
+
+  /**
+   * @brief
+   *
+   * @param v_lm_beam
+   */
+  void setVLMBeam(float v_lm_beam) { this->v_lm_beam = v_lm_beam; }
+  /**
+   * @brief
+   *
+   * @param v_lm_beam
+   */
+  void setVBeam(float v_abeam) { this->v_abeam = v_abeam; }
+
+  float compute_lprob(const Frame& frame, const std::string& sym, const int q);
+
  private:
   std::unique_ptr<SearchGraphLanguageModel> sgraph;
   std::unique_ptr<AcousticModel> amodel;
@@ -315,6 +337,8 @@ class Decoder {
   float WIP = 0;
   float beam = 300;
   float v_abeam = HUGE_VAL;
+
+  bool prune_before = true;
 };
 
 #include "Decoder.inl"

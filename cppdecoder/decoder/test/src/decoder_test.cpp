@@ -390,7 +390,8 @@ TEST_F(DecoderTests, DecoderViterbiIterSG) {
 }
 
 TEST_F(DecoderTests, DecoderViterbiSG2HMM_test1) {
-  std::unique_ptr<SGNode> sgnodeIni(new SGNode(startState, 0.0, 0.0, 0.0, 0));
+  std::unique_ptr<SGNode> sgnodeIni(new SGNode(startState, 0.0, 0.0, 0.0,
+  0));
 
   std::unordered_map<int, float> gtruthLogProb = {
       {429, -2348.555800}, {438, -2348.555800}, {436, -2348.555800},
@@ -483,17 +484,38 @@ TEST_F(DecoderTests, DecoderViterbiInit) {
       {447, -231.192020}, {2443, -3.912020},  {450, -231.523380},
       {2444, -4.605170},  {451, -233.246150}, {2445, -3.912020}};
 
-  std::unique_ptr<SGNode> sgnodeIni(new SGNode(startState, 0.0, 0.0, 0.0, 0));
+  std::vector<float> orderedValues = {
+      -2348.555800, -2348.555800, -2348.555800, -2348.555800, -2348.555800,
+      -2332.461500, -2337.569700, -2332.461500, -2341.624400, -2322.165300,
+      -2348.555800, -2317.200900, -2330.638200, -2326.583600, -2334.692900,
+      -46.051700,   -2326.583600, -2337.569700, -2341.624400, -2315.974900,
+      -2318.110600, -2320.223700, -2341.624400, -46.051700,   -39.120200,
+      -32.188800,   -2326.583600, -32.188800,   -39.120200,   -32.188800,
+      -2315.233800, -28.134100,   -39.120200,   -39.120200,   -2318.110600,
+      -39.120200,   -46.051700,   -29.957300,   -2337.569700, -32.188800,
+      -46.051700,   -46.051700,   -2311.920200, -39.120200,   -2315.233800,
+      -46.051700,   -2332.461500, -39.120200};
 
-  decoder->insert_search_graph_node(sgnodeIni);
+  std::vector<int> orderedIds = {
+      429,  438,  436, 444,  448,  431,  427, 437,  442,  426,  449, 453,
+      430,  433,  434, 2455, 425,  441,  443, 445,  446,  428,  452, 2451,
+      2442, 2452, 432, 2453, 2454, 2446, 435, 2440, 2441, 2456, 439, 2447,
+      2457, 2458, 440, 2449, 2448, 2450, 447, 2443, 450,  2444, 451, 2445};
 
-  decoder->viterbiIterSG(0);
+  // std::unique_ptr<SGNode> sgnodeIni(new
+  // SGNode(startState, 0.0, 0.0, 0.0, 0));
 
-  std::cout << "Viterbisg2HMM" << std::endl;
+  // decoder->insert_search_graph_node(sgnodeIni);
 
-  decoder->viterbiSg2HMM(sample);
+  // decoder->viterbiIterSG(0);
 
-  decoder->getReadyHMMNodes0();
+  // std::cout << "Viterbisg2HMM" << std::endl;
+
+  // decoder->viterbiSg2HMM(sample);
+
+  // decoder->getReadyHMMNodes0();
+
+  decoder->viterbiInit(sample);
 
   ASSERT_EQ(decoder->getNumberActiveHMMNodes0(), 48);
 
@@ -504,9 +526,30 @@ TEST_F(DecoderTests, DecoderViterbiInit) {
     ASSERT_FLOAT_EQ(
         gtruthLMLogProb[decoder->getHMMNodes0()[i + 1]->getId().sg_state],
         decoder->getHMMNodes0()[i + 1]->getLMLogProb());
+
+    ASSERT_FLOAT_EQ(orderedValues[i],
+                    decoder->getHMMNodes0()[i + 1]->getLogProb());
+
+    ASSERT_EQ(orderedIds[i], decoder->getHMMNodes0()[i + 1]->getId().sg_state);
   }
 
   ASSERT_EQ(decoder->getNumberActiveHMMNodes1(), 0);
+}
+
+TEST_F(DecoderTests, DecoderViterbiIter_test1) {
+  decoder->viterbiInit(sample);
+  // TODO: Fix prune before case
+  // TODO: Fix adaptative beam
+  // for (size_t i = 0; i < sample.getNFrames(); i++) {
+  for (size_t i = 0; i < 3; i++) {
+    // std::cout << sample.getFrame(i).getDim() << std::endl;
+    decoder->setVLMBeam(HUGE_VAL);  // LM rescoring related...
+    decoder->setVBeam(300);
+    decoder->viterbiIter(sample, i, false);
+  }
+
+  //TODO: Test case for iter 1,2, etc for viterbiIter...
+  ASSERT_TRUE(false);
 }
 
 }  // namespace
