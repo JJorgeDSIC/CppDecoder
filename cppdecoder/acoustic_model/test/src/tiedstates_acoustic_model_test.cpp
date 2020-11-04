@@ -110,11 +110,12 @@ TEST_F(TiedStatesAcousticModelTests,
        TiedStatesAcousticModelTestsCalcProbWrongFrameSize) {
   TiedStatesAcousticModel tiedstatesacousticmodel(nameModel);
 
-  float prob = tiedstatesacousticmodel.calc_logprob("aa_B+l_E", 0, wrongFrame);
-  ASSERT_FLOAT_EQ(prob, INFINITY);
+  float prob = tiedstatesacousticmodel.calc_logprob("aa_B+l_E", 0,
+  wrongFrame); ASSERT_FLOAT_EQ(prob, INFINITY);
 }
 
-TEST_F(TiedStatesAcousticModelTests, TiedStatesAcousticModelTestsCalcLogProb) {
+TEST_F(TiedStatesAcousticModelTests, TiedStatesAcousticModelTestsCalcLogProb)
+{
   TiedStatesAcousticModel tiedstatesacousticmodel(nameModel);
 
   float prob = tiedstatesacousticmodel.calc_logprob("aa_B+l_E", 0, frame);
@@ -126,10 +127,34 @@ TEST_F(TiedStatesAcousticModelTests, TiedStatesAcousticModelTestsCalcLogProb) {
 TEST_F(TiedStatesAcousticModelTests, TiedStatesGetStateType) {
   TiedStatesAcousticModel tiedstatesacousticmodel(nameModel);
 
-  std::string transType = tiedstatesacousticmodel.getStateTransType("ng_I-ng_E");
+  std::string transType =
+      tiedstatesacousticmodel.getStateTransType("ng_I-ng_E");
   ASSERT_EQ(transType, "Trans");
-  std::string transTypeL = tiedstatesacousticmodel.getStateTransType("ng_I-ng_E+ch_S");
+  std::string transTypeL =
+      tiedstatesacousticmodel.getStateTransType("ng_I-ng_E+ch_S");
   ASSERT_EQ(transTypeL, "TransP");
+}
+
+TEST_F(TiedStatesAcousticModelTests, TiedStatesGetTrans) {
+  TiedStatesAcousticModel tiedstatesacousticmodel(nameModel);
+
+  std::vector<float> trans = {-1.37142, -1.05402, -1.06411};
+  std::vector<float> transValue = tiedstatesacousticmodel.getStateTrans("jh_S");
+
+  ASSERT_EQ(transValue.size(), 3);
+
+  for (size_t i = 0; i < transValue.size(); i++) {
+    ASSERT_FLOAT_EQ(transValue[i], trans[i]);
+  }
+
+  std::vector<float> transValue2 =
+      tiedstatesacousticmodel.getStateTrans("jh_S-jh_S");
+
+  ASSERT_EQ(transValue2.size(), 3);
+
+  for (size_t i = 0; i < transValue2.size(); i++) {
+    ASSERT_FLOAT_EQ(transValue2[i], trans[i]);
+  }
 }
 
 }  // namespace

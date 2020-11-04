@@ -185,6 +185,14 @@ class DGaussianAcousticModel : public AcousticModel {
    * @return std::string&
    */
   std::string &getStateTransType(const std::string &state);
+
+  /**
+   * @brief TODO
+   *
+   * @param state
+   * @return std::vector<float>&
+   */
+  std::vector<float> &getStateTrans(const std::string &state);
 };
 
 #endif  // DGAUSSIANACOUSTICMODEL_H_

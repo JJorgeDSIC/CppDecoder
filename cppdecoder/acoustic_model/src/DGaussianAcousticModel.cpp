@@ -195,10 +195,10 @@ int DGaussianAcousticModel::write_model(const std::string &filename) {
     return 1;
   }
   return 0;
-  
 }
 
-std::string& DGaussianAcousticModel::getStateTransType(const std::string &state) {
+std::string &DGaussianAcousticModel::getStateTransType(
+    const std::string &state) {
   return state_to_type[state];
 }
 
@@ -218,4 +218,10 @@ float DGaussianAcousticModel::calc_logprob(const std::string &state,
   } else {
     return INFINITY;
   }
+}
+
+std::vector<float> &DGaussianAcousticModel::getStateTrans(
+    const std::string &state) {
+  // TODO: Check if transL or trans
+  return state_to_trans[state];
 }

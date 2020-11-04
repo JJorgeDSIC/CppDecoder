@@ -84,6 +84,8 @@ class MixtureAcousticModel : public AcousticModel {
 
   std::string &getStateTransType(const std::string &state);
 
+  std::vector<float> &getStateTrans(const std::string &state);
+
  private:
   typedef std::tuple<std::string, float> value_t;
   std::vector<std::string> states;

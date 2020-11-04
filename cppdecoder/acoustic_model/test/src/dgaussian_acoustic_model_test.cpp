@@ -175,9 +175,7 @@ TEST_F(DGaussianAcousticModelTests,
   ASSERT_FLOAT_EQ(prob, INFINITY);
 }
 
-
-TEST_F(DGaussianAcousticModelTests,
-       DGaussianAcousticModelCalcLogProbWrongQ) {
+TEST_F(DGaussianAcousticModelTests, DGaussianAcousticModelCalcLogProbWrongQ) {
   DGaussianAcousticModel dgaussianmodel(nameModel);
 
   float prob = dgaussianmodel.calc_logprob("aa", 56, frame);
@@ -206,7 +204,20 @@ TEST_F(DGaussianAcousticModelTests, DGaussianAcousticGetStateType) {
 
   std::string transType = dgaussianmodel.getStateTransType("aa");
   ASSERT_EQ(transType, "Trans");
+}
 
+TEST_F(DGaussianAcousticModelTests, DGaussianAcousticGetTrans) {
+  DGaussianAcousticModel dgaussianmodel(nameModel);
+
+  std::vector<float> trans = {-0.773387, -0.297447,-1.71044};
+
+  std::vector<float> transValue = dgaussianmodel.getStateTrans("aa");
+
+  ASSERT_EQ(transValue.size(), 3);
+
+  for (size_t i = 0; i < transValue.size(); i++) {
+    ASSERT_FLOAT_EQ(transValue[i], trans[i]);
+  }
 }
 
 }  // namespace

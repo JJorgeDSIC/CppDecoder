@@ -310,7 +310,7 @@ int MixtureAcousticModel::write_model(const std::string &filename) {
   return 0;
 }
 
-std::string& MixtureAcousticModel::getStateTransType(const std::string &state) {
+std::string &MixtureAcousticModel::getStateTransType(const std::string &state) {
   return state_to_type[state];
 }
 
@@ -335,4 +335,10 @@ float MixtureAcousticModel::calc_logprob(const std::string &state, int q,
   if (frame.size() != dgstate.getDim()) return INFINITY;
 
   return dgstate.calc_logprob(frame);
+}
+
+std::vector<float> &MixtureAcousticModel::getStateTrans(
+    const std::string &state) {
+  // TODO: Check if transL or trans
+  return state_to_trans[state];
 }

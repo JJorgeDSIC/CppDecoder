@@ -80,6 +80,14 @@ class AcousticModel {
    * @return std::string&
    */
   virtual std::string &getStateTransType(const std::string &state) = 0;
+
+  /**
+   * @brief TODO
+   *
+   * @param state
+   * @return std::vector<float>
+   */
+  virtual std::vector<float> &getStateTrans(const std::string &state) = 0;
 };
 
 #endif  // ACOUSTICMODEL_H_

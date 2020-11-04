@@ -266,3 +266,8 @@ float TiedStatesAcousticModel::calc_logprob(const std::string &state,
 
   return dgstate.calc_logprob(frame);
 }
+
+std::vector<float> &TiedStatesAcousticModel::getStateTrans(
+    const std::string &state) {
+  return symbol_to_transitions[state];
+}

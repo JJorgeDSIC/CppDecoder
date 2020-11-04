@@ -73,6 +73,14 @@ class TiedStatesAcousticModel : public AcousticModel {
    */
   std::string &getStateTransType(const std::string &state);
 
+  /**
+   * @brief TODO
+   *
+   * @param state
+   * @return std::vector<float>&
+   */
+  std::vector<float> &getStateTrans(const std::string &state);
+
  private:
   uint32_t dim;
   uint32_t n_states;

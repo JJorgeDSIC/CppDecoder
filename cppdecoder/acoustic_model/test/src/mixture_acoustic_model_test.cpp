@@ -109,8 +109,7 @@ TEST_F(MixtureAcousticModelTests, GaussianMixtureStateTestCalcLogProb) {
   ASSERT_EQ(r_add, gstates.calc_logprob(frame));
 }
 
-TEST_F(MixtureAcousticModelTests, GaussianMixtureStateTestCalcLogProbHugeVal)
-{
+TEST_F(MixtureAcousticModelTests, GaussianMixtureStateTestCalcLogProbHugeVal) {
   GaussianState gstate1(frame.size());
 
   gstate1.addMu(lineMu);
@@ -190,8 +189,7 @@ TEST_F(MixtureAcousticModelTests, MixtureAcousticModelCalcProbWrongQ) {
   ASSERT_FLOAT_EQ(prob, INFINITY);
 }
 
-TEST_F(MixtureAcousticModelTests, MixtureAcousticModelCalcProbWrongFrameSize)
-{
+TEST_F(MixtureAcousticModelTests, MixtureAcousticModelCalcProbWrongFrameSize) {
   MixtureAcousticModel mixtureacousticmodel(nameModel);
 
   float prob = mixtureacousticmodel.calc_logprob("a", 0, wrongFrame);
@@ -214,6 +212,19 @@ TEST_F(MixtureAcousticModelTests, MixtureAcousticGetStateType) {
   ASSERT_EQ(transType, "Trans");
   std::string transTypeL = mixtureacousticmodel.getStateTransType("SP");
   ASSERT_EQ(transTypeL, "TransL");
+}
+
+TEST_F(MixtureAcousticModelTests, MixtureAcousticGetTrans) {
+  MixtureAcousticModel mixtureacousticmodel(nameModel);
+
+  std::vector<float> trans = {-0.572344, -0.824113, -1.26625};
+  std::vector<float> transValue = mixtureacousticmodel.getStateTrans("a");
+
+  ASSERT_EQ(transValue.size(), 3);
+
+  for (size_t i = 0; i < transValue.size(); i++) {
+    ASSERT_FLOAT_EQ(transValue[i], trans[i]);
+  }
 }
 
 }  // namespace
