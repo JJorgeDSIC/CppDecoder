@@ -4,7 +4,8 @@
  */
 
 inline void SGNode::showState() {
-  std::cout << "State_id " << state_id << ", lprob: " << lprob << " " << std::endl;
+  std::cout << "State_id " << state_id << ", lprob: " << lprob
+            << ", hmmp: " << hmmlprob << ", hyp: " << hyp << std::endl;
 }
 
 inline void WordHyp::showWordHyp() {
@@ -19,6 +20,5 @@ inline void Decoder::printSGNodes(
     nodes[i]->showState();
     std::cout << sgraph->getIdToSym(nodes[i]->getStateId()) << std::endl;
     std::cout << sgraph->getIdToWord(nodes[i]->getStateId()) << std::endl;
-    
   }
 }

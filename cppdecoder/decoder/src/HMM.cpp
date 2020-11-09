@@ -27,7 +27,7 @@ HMMNode::HMMNode(const uint32_t sg_state, const uint32_t hmm_q_state,
 }
 
 void HMMNode::showHMMState() {
-  std::cout << "ID_S: " << id.sg_state << ", ID_Q: " << id.hmm_q_state
+  std::cout << "HMM ID_S: " << id.sg_state << ", ID_Q: " << id.hmm_q_state
             << ", LProb: " << lprob << ", HMMProb: " << hmmp
             << ", LMProb: " << lmp << ", Trapos: " << trapos << ", h: " << h
             << std::endl;
@@ -39,7 +39,7 @@ float HMMMinHeap::getMinLProb() {
 }
 
 std::unique_ptr<HMMNode> HMMMinHeap::extractMinLProbHMMNode() {
-  HMMActives[hmm_nodes[1]->getId()] = -1;
+  HMMActives[hmm_nodes[1]->getId()] = 0;
   HMMActives[hmm_nodes[size]->getId()] = 1;
 
   hmm_nodes[1].swap(hmm_nodes[size--]);
@@ -51,6 +51,7 @@ std::unique_ptr<HMMNode> HMMMinHeap::extractMinLProbHMMNode() {
 
 int HMMMinHeap::sink(int currentPos) {
   std::unique_ptr<HMMNode> nodeToSink = std::move(hmm_nodes[currentPos]);
+  int prevPos = currentPos;
   int son = currentPos * 2;
   bool isNotHeap = true;
   while (son <= size && isNotHeap) {
@@ -68,9 +69,9 @@ int HMMMinHeap::sink(int currentPos) {
       isNotHeap = false;
     }
   }
-
   hmm_nodes[currentPos] = std::move(nodeToSink);
   HMMActives[hmm_nodes[currentPos]->getId()] = currentPos;
+  return currentPos;
 }
 
 void HMMMinHeap::expandCapacity() {
@@ -125,7 +126,7 @@ int HMMMinHeap::insert(std::unique_ptr<HMMNode> hmm_node) {
 
 std::unique_ptr<HMMNode> HMMMinHeap::popAndInsert(
     std::unique_ptr<HMMNode> hmm_node) {
-  HMMActives[hmm_nodes[1]->getId()] = -1;
+  HMMActives[hmm_nodes[1]->getId()] = 0;
   HMMActives[hmm_node->getId()] = 1;
   std::unique_ptr<HMMNode> minNode = std::move(hmm_nodes[1]);
   hmm_nodes[1] = std::move(hmm_node);
@@ -148,23 +149,21 @@ int HMMMinHeap::update(const uint32_t sg_state, const uint32_t hmm_q_state,
 
 int HMMMinHeap::updateNodeAt(int position, float prob, float auxp) {
   hmm_nodes[position]->setLogprob(prob);
-  hmm_nodes[position]->setHMMLogProb(hmm_nodes[position]->getHMMLogProb() +
-                                     auxp);
+  hmm_nodes[position]->setHMMLogProb(auxp);
   hmm_nodes[position]->setLMLogProb(hmm_nodes[position]->getLMLogProb());
   hmm_nodes[position]->setH(hmm_nodes[position]->getH());
 
-  std::unique_ptr<HMMNode> hmm_node = std::move(hmm_nodes[position]);
-  position = bubbleUp(hmm_node, position);
-  hmm_nodes[position] = std::move(hmm_node);
-  HMMActives[hmm_nodes[position]->getId()] = position;
+  // TODO: TO fix this....
+  position = sink(position);
 }
 
 void HMMMinHeap::showHeapContent() {
   for (size_t i = 1; i < size + 1; i++) {
-    std::cout << "Position: " << i << std::endl;
     hmm_nodes[i]->showHMMState();
-    std::cout << "Position according to hash: "
-              << HMMActives[hmm_nodes[i]->getId()] << std::endl;
+    // std::cout << "Position: " << i << std::endl;
+
+    // std::cout << "Position according to hash: "
+    //          << HMMActives[hmm_nodes[i]->getId()] << std::endl;
   }
 }
 
@@ -173,5 +172,8 @@ void HMMMinHeap::cleanActives() {
   HMMActives.clear();
 }
 
-HMMNodeManager::HMMNodeManager(const uint32_t max_size)
-    : max_hyps(max_size), max_size(max_size + 1), size(0) {}
+void HMMMinHeap::reset() {
+  size = 0;
+  hmm_nodes.clear();
+  HMMActives.clear();
+}

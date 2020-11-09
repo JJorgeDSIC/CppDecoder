@@ -200,41 +200,51 @@ TEST_F(DecoderTests, DecoderInsertSGNodeInsAndUpdateSGNodes1) {
   std::vector<std::unique_ptr<SGNode>>& search_graph_nodes1 =
       decoder->getSearchGraphNodes1();
 
-  std::unique_ptr<SGNode> sgnode(new SGNode(2404, 0.5, 0.0, 0.0, 0));
+  // Symbol node 'a' with logprob
+  std::unique_ptr<SGNode> sgnode(new SGNode(2404, log(0.5), 0.0, 0.0, 0));
   decoder->insert_search_graph_node(sgnode);
 
   ASSERT_EQ(search_graph_null_nodes1.size(), 0);
   ASSERT_EQ(search_graph_nodes1.size(), 1);
-  ASSERT_FLOAT_EQ(search_graph_nodes1[0]->getLProb(), 0.5);
+  ASSERT_FLOAT_EQ(search_graph_nodes1[0]->getLProb(), log(0.5));
 
-  std::unique_ptr<SGNode> sgnode2(new SGNode(2407, 0.3, 0.0, 0.0, 0));
-  decoder->insert_search_graph_node(sgnode2);
+  // Pruned by v_lm_thr
+  // Symbol node 'b' with logprob
+  std::unique_ptr<SGNode> sgnode2_1(new SGNode(2407, log(0.3), 0.0, 0.0, 0));
+  decoder->insert_search_graph_node(sgnode2_1);
 
   ASSERT_EQ(search_graph_null_nodes1.size(), 0);
   ASSERT_EQ(search_graph_nodes1.size(), 2);
-  ASSERT_FLOAT_EQ(search_graph_nodes1[0]->getLProb(), 0.5);
-  ASSERT_FLOAT_EQ(search_graph_nodes1[1]->getLProb(), 0.3);
+  ASSERT_FLOAT_EQ(search_graph_nodes1[0]->getLProb(), log(0.5));
 
-  std::unique_ptr<SGNode> sgnode3(new SGNode(2404, 0.3, 0.0, 0.0, 0));
+  // Symbol node 'b' with logprob
+  std::unique_ptr<SGNode> sgnode2_2(new SGNode(2407, log(0.7), 0.0, 0.0, 0));
+  decoder->insert_search_graph_node(sgnode2_2);
+
+  ASSERT_EQ(search_graph_null_nodes1.size(), 0);
+  ASSERT_EQ(search_graph_nodes1.size(), 2);
+  ASSERT_FLOAT_EQ(search_graph_nodes1[0]->getLProb(), log(0.5));
+  ASSERT_FLOAT_EQ(search_graph_nodes1[1]->getLProb(), log(0.7));
+
+  std::unique_ptr<SGNode> sgnode3(new SGNode(2404, log(0.3), 0.0, 0.0, 0));
   decoder->insert_search_graph_node(sgnode3);
 
   ASSERT_EQ(search_graph_null_nodes1.size(), 0);
   ASSERT_EQ(search_graph_nodes1.size(), 2);
-  ASSERT_FLOAT_EQ(search_graph_nodes1[0]->getLProb(), 0.5);
-  ASSERT_FLOAT_EQ(search_graph_nodes1[1]->getLProb(), 0.3);
+  ASSERT_FLOAT_EQ(search_graph_nodes1[0]->getLProb(), log(0.5));
+  ASSERT_FLOAT_EQ(search_graph_nodes1[1]->getLProb(), log(0.7));
 
-  std::unique_ptr<SGNode> sgnode4(new SGNode(2404, 0.6, 0.0, 0.0, 0));
+  std::unique_ptr<SGNode> sgnode4(new SGNode(2404, log(0.8), 0.0, 0.0, 0));
   decoder->insert_search_graph_node(sgnode4);
 
   ASSERT_EQ(search_graph_null_nodes1.size(), 0);
   ASSERT_EQ(search_graph_nodes1.size(), 2);
-  ASSERT_FLOAT_EQ(search_graph_nodes1[0]->getLProb(), 0.6);
-  ASSERT_FLOAT_EQ(search_graph_nodes1[1]->getLProb(), 0.3);
+  ASSERT_FLOAT_EQ(search_graph_nodes1[0]->getLProb(), log(0.8));
+  ASSERT_FLOAT_EQ(search_graph_nodes1[1]->getLProb(), log(0.7));
 }
 
 TEST_F(DecoderTests, DecoderaddNodeToSearchGraphNullNodes0) {
-  std::unique_ptr<SGNode> sgnodeIni(new SGNode(startState, 0.0, 0.0, 0.0,
-  0));
+  std::unique_ptr<SGNode> sgnodeIni(new SGNode(startState, 0.0, 0.0, 0.0, 0));
 
   std::unique_ptr<SGNode> sgnode1(new SGNode(6408, 0.1, 0.0, 0.0, 0));
 
@@ -255,15 +265,13 @@ TEST_F(DecoderTests, DecoderaddNodeToSearchGraphNullNodes0) {
 }
 
 TEST_F(DecoderTests, DecoderExpandSGNodeStartNode) {
-  std::unique_ptr<SGNode> sgnodeStart(new SGNode(startState, 0.0, 0.0, 0.0,
-  0));
+  std::unique_ptr<SGNode> sgnodeStart(new SGNode(startState, 0.0, 0.0, 0.0, 0));
 
   decoder->addNodeToSearchGraphNullNodes0(sgnodeStart);
 
   decoder->expand_search_graph_nodes(decoder->getSearchGraphNullNodes0());
 
-  ASSERT_FLOAT_EQ(decoder->getSearchGraphNullNodes1()[0]->getLProb(),
-  -28.1341);
+  ASSERT_FLOAT_EQ(decoder->getSearchGraphNullNodes1()[0]->getLProb(), -28.1341);
 }
 
 TEST_F(DecoderTests, DecoderExpandSGNodeExample1) {
@@ -278,17 +286,14 @@ TEST_F(DecoderTests, DecoderExpandSGNodeExample1) {
   ASSERT_FLOAT_EQ(decoder->getSearchGraphNullNodes1()[0]->getLProb(),
                   -2302.504100);
 
-  std::vector<float> lprobs = {-28.134100, -39.120200, -39.120200,
-  -39.120200,
-                               -46.051700, -39.120200, -32.188800,
-                               -39.120200, -46.051700, -32.188800,
-                               -46.051700, -46.051700, -32.188800,
-                               -32.188800, -39.120200, -46.051700,
+  std::vector<float> lprobs = {-28.134100, -39.120200, -39.120200, -39.120200,
+                               -46.051700, -39.120200, -32.188800, -39.120200,
+                               -46.051700, -32.188800, -46.051700, -46.051700,
+                               -32.188800, -32.188800, -39.120200, -46.051700,
                                -39.120200, -46.051700, -29.957300};
 
   for (auto i = 0; i < lprobs.size(); i++) {
-    ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes1()[i]->getLProb(),
-    lprobs[i]);
+    ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes1()[i]->getLProb(), lprobs[i]);
   }
 }
 
@@ -310,8 +315,7 @@ TEST_F(DecoderTests, DecoderExpandSGNodeExample2) {
       -2315.974900, -2318.110600, -2311.920200, -2348.555800, -2348.555800,
       -2315.233800, -2332.461500, -2341.624400, -2317.200900};
   for (auto i = 0; i < lprobs.size(); i++) {
-    ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes1()[i]->getLProb(),
-    lprobs[i]);
+    ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes1()[i]->getLProb(), lprobs[i]);
   }
 }
 
@@ -352,15 +356,12 @@ TEST_F(DecoderTests, DecoderGetReadyNodes) {
   decoder->addNodeToSearchGraphNodes1(sgnode1);
   decoder->addNodeToSearchGraphNodes1(sgnode2);
 
-  ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes1()[0]->getLProb(),
-  -28.134100);
-  ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes1()[1]->getLProb(),
-  -18.103909);
+  ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes1()[0]->getLProb(), -28.134100);
+  ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes1()[1]->getLProb(), -18.103909);
 }
 
 TEST_F(DecoderTests, DecoderViterbiIterSG) {
-  std::unique_ptr<SGNode> sgnodeIni(new SGNode(startState, 0.0, 0.0, 0.0,
-  0));
+  std::unique_ptr<SGNode> sgnodeIni(new SGNode(startState, 0.0, 0.0, 0.0, 0));
 
   decoder->insert_search_graph_node(sgnodeIni);
 
@@ -368,7 +369,7 @@ TEST_F(DecoderTests, DecoderViterbiIterSG) {
 
   ASSERT_EQ(decoder->nodes0IsNotEmpty(), true);
   ASSERT_EQ(decoder->nodes1IsNotEmpty(), false);
-  ASSERT_EQ(decoder->nullNodes0IsNotEmpty(), false);
+  ASSERT_EQ(decoder->nullNodes0IsNotEmpty(), true);
   ASSERT_EQ(decoder->nullNodes1IsNotEmpty(), false);
 
   std::vector<float> lprobs = {
@@ -384,14 +385,12 @@ TEST_F(DecoderTests, DecoderViterbiIterSG) {
       -2332.461500, -2341.624400, -2317.200900};
 
   for (auto i = 0; i < lprobs.size(); i++) {
-    ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes0()[i]->getLProb(),
-    lprobs[i]);
+    ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes0()[i]->getLProb(), lprobs[i]);
   }
 }
 
 TEST_F(DecoderTests, DecoderViterbiSG2HMM_test1) {
-  std::unique_ptr<SGNode> sgnodeIni(new SGNode(startState, 0.0, 0.0, 0.0,
-  0));
+  std::unique_ptr<SGNode> sgnodeIni(new SGNode(startState, 0.0, 0.0, 0.0, 0));
 
   std::unordered_map<int, float> gtruthLogProb = {
       {429, -2348.555800}, {438, -2348.555800}, {436, -2348.555800},
@@ -540,16 +539,44 @@ TEST_F(DecoderTests, DecoderViterbiIter_test1) {
   decoder->viterbiInit(sample);
   // TODO: Fix prune before case
   // TODO: Fix adaptative beam
-  // for (size_t i = 0; i < sample.getNFrames(); i++) {
-  for (size_t i = 0; i < 3; i++) {
-    // std::cout << sample.getFrame(i).getDim() << std::endl;
-    decoder->setVLMBeam(HUGE_VAL);  // LM rescoring related...
-    decoder->setVBeam(300);
+
+  std::cout << "# of frames: " << sample.getNFrames() << std::endl;
+
+  decoder->getWordHyps().emplace_back(-1, "");
+  decoder->setVLMBeam(HUGE_VAL);  // LM rescoring related...
+  decoder->setVBeam(300);
+  for (size_t i = 0; i < sample.getNFrames() - 1; i++) {
     decoder->viterbiIter(sample, i, false);
   }
 
-  //TODO: Test case for iter 1,2, etc for viterbiIter...
-  ASSERT_TRUE(false);
+  decoder->viterbiIter(sample, sample.getNFrames() - 1, true);
+
+  ASSERT_EQ("la sangre se revuelve con estas migas de pan blanco ",
+            decoder->getResult());
+}
+
+TEST_F(DecoderTests, DecoderDecode) {
+  decoder->decode(sample);
+
+  std::cout << decoder->getResult() << std::endl;
+
+  ASSERT_EQ("la sangre se revuelve con estas migas de pan blanco ",
+            decoder->getResult());
+
+  decoder->resetDecoder();
+
+  const std::string sampleFile_local = "./samples/AAFA0002.features";
+
+  Sample sample_local;
+
+  sample_local.read_sample(sampleFile_local);
+
+  decoder->decode(sample_local);
+
+  std::cout << decoder->getResult() << std::endl;
+
+  ASSERT_EQ("mi primer profesor de lengua fue lopez garcia ",
+            decoder->getResult());
 }
 
 }  // namespace

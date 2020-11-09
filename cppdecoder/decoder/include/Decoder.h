@@ -48,6 +48,9 @@ class WordHyp {
  public:
   WordHyp(const int prev, const std::string& word);
 
+  std::string& getWord() { return word; }
+  int getPrev() { return prev; }
+
   void showWordHyp();
 
  private:
@@ -310,12 +313,80 @@ class Decoder {
    */
   void setVBeam(float v_abeam) { this->v_abeam = v_abeam; }
 
+  /**
+   * @brief
+   *
+   * @param frame
+   * @param sym
+   * @param q
+   * @return float
+   */
   float compute_lprob(const Frame& frame, const std::string& sym, const int q);
+
+  /**
+   * @brief
+   *
+   */
+  void resetAMCache();
+
+  /**
+   * @brief
+   *
+   */
+  void clearNodes0();
+
+  /**
+   * @brief TODO
+   *
+   * @return std::vector<WordHyp>&
+   */
+  std::vector<WordHyp>& getWordHyps();
+
+  /**
+   * @brief TODO
+   *
+   * @return int
+   */
+  int getMaxHyp() { return max_hyp; }
+
+  /**
+   * @brief TODO
+   *
+   * @return float
+   */
+  float getMaxProb() { return max_prob; }
+
+  /**
+   * @brief TODO
+   *
+   */
+  void resetDecoder();
+
+  std::string getResult();
+
+  class cacheLProbID {
+   public:
+    std::string sym;
+    uint32_t q;
+    cacheLProbID();
+    cacheLProbID(const std::string& sym, uint32_t q) : sym(sym), q(q) {}
+    bool operator==(const cacheLProbID& other) const {
+      return (sym == other.sym && q == other.q);
+    }
+  };
+
+  struct cacheLProbIDHasher {
+    std::size_t operator()(const cacheLProbID& k) const {
+      using std::hash;
+      using std::size_t;
+
+      return ((hash<std::string>()(k.sym) ^ (hash<uint32_t>()(k.q) << 1)));
+    }
+  };
 
  private:
   std::unique_ptr<SearchGraphLanguageModel> sgraph;
   std::unique_ptr<AcousticModel> amodel;
-  std::unique_ptr<SGNode> searchgraph_null_nodes0;
   std::vector<int> actives;
   std::vector<std::unique_ptr<SGNode>> search_graph_null_nodes0;
   std::vector<std::unique_ptr<SGNode>> search_graph_null_nodes1;
@@ -323,13 +394,14 @@ class Decoder {
   std::vector<std::unique_ptr<SGNode>> search_graph_nodes1;
   std::unique_ptr<HMMMinHeap> hmm_minheap_nodes0;
   std::unique_ptr<HMMMinHeap> hmm_minheap_nodes1;
+  std::unordered_map<cacheLProbID, float, cacheLProbIDHasher> lprob_cache;
 
   std::vector<WordHyp> hypothesis;
   float v_thr = -HUGE_VAL;
   float v_max = -HUGE_VAL;
-  float v_lm_max = 0.0;
-  float v_lm_beam = 0.0;
-  float v_lm_thr = 0.0;
+  float v_lm_max = -HUGE_VAL;
+  float v_lm_beam = HUGE_VAL;
+  float v_lm_thr = -HUGE_VAL;
   int v_maxh = 0;
   uint32_t nmaxstates = 100;
   bool final_iter = false;
@@ -337,7 +409,9 @@ class Decoder {
   float WIP = 0;
   float beam = 300;
   float v_abeam = HUGE_VAL;
-
+  int max_hyp = -1;
+  float max_prob = -HUGE_VAL;
+  int currentIteration = 0;
   bool prune_before = true;
 };
 

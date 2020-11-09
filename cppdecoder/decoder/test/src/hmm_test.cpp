@@ -91,14 +91,14 @@ TEST_F(HMMTests, DecoderHMMAddAndExtractMinAndGettingPosition) {
   std::vector<int> vec_posis_remove1 = {8, 12, 6,  11, 9,  1, 7,
                                         2, 4,  10, 5,  13, 3};
 
-  std::vector<int> vec_posis_remove2 = {8, 12, 3,  11, 9, -1, 7,
+  std::vector<int> vec_posis_remove2 = {8, 12, 3,  11, 9, 0, 7,
                                         2, 4,  10, 5,  6, 1};
 
-  std::vector<int> vec_posis_remove3 = {8, 9, 3,  11, 4, -1, 7,
-                                        1, 2, 10, 5,  6, -1};
+  std::vector<int> vec_posis_remove3 = {8, 9, 3,  11, 4, 0, 7,
+                                        1, 2, 10, 5,  6, 0};
 
-  std::vector<int> vec_posis_remove4 = {8,  9, 3,  5, 4, -1, 7,
-                                        -1, 1, 10, 2,  6, -1};
+  std::vector<int> vec_posis_remove4 = {8,  9, 3,  5, 4, 0, 7,
+                                        0, 1, 10, 2, 6, 0};
 
   for (size_t i = 0; i < vec.size(); i++) {
     uint32_t sg_state = i;
@@ -113,7 +113,6 @@ TEST_F(HMMTests, DecoderHMMAddAndExtractMinAndGettingPosition) {
         new HMMNode(sg_state, hmm_q_state, lprob, hmmp, lmp, trapos, h));
 
     position = minHeap->insert(std::move(node));
-
   }
 
   for (size_t i = 0; i < vec.size(); i++) {
@@ -145,8 +144,7 @@ TEST_F(HMMTests, DecoderHMMAddAndExtractMinAndGettingPosition) {
     int positionInside = minHeap->getNodePositionById(i, 0);
     ASSERT_EQ(vec_posis_remove4[i], positionInside);
   }
-
-} 
+}
 TEST_F(HMMTests, DecoderHMMUpdate) {
   int position = -1;
   int capacity = 100;
@@ -182,52 +180,6 @@ TEST_F(HMMTests, DecoderHMMUpdate) {
   ASSERT_EQ(minHeap->getMinLProb(), 1);
 
   minHeap->update(0, 0, 0);
-
-  ASSERT_EQ(minHeap->getMinLProb(), 0);
-}
-
-TEST_F(HMMTests, DecoderHMMUpdateAt) {
-  int position = -1;
-  int capacity = 100;
-  std::unique_ptr<HMMMinHeap> minHeap(new HMMMinHeap(5));
-
-  std::vector<float> vec = {190, 140, 68,  156, 134, 2, 194,
-                            4,   34,  184, 104, 112, 2};
-
-  std::vector<float> sorted_vec = {2,   2,   4,   34,  68,  104, 112,
-                                   134, 140, 156, 184, 190, 194};
-
-  for (size_t i = 0; i < vec.size(); i++) {
-    uint32_t sg_state = i;
-    uint32_t hmm_q_state = 0;
-    float lprob = vec[i];
-    float hmmp = vec[i];
-    float lmp = vec[i];
-    uint32_t trapos = 0;
-    uint32_t h = 0;
-
-    std::unique_ptr<HMMNode> node(
-        new HMMNode(sg_state, hmm_q_state, lprob, hmmp, lmp, trapos, h));
-
-    position = minHeap->insert(std::move(node));
-  }
-
-  // TODO
-  position = minHeap->getNodePositionById(8, 0);
-
-  minHeap->updateNodeAt(position, 1, 0.2);
-
-  ASSERT_EQ(minHeap->getMinLProb(), 1);
-
-  position = minHeap->getNodePositionById(11, 0);
-
-  minHeap->updateNodeAt(position, 2, 0.3);
-
-  ASSERT_EQ(minHeap->getMinLProb(), 1);
-
-  position = minHeap->getNodePositionById(0, 0);
-
-  minHeap->updateNodeAt(position, 0, 0.4);
 
   ASSERT_EQ(minHeap->getMinLProb(), 0);
 }
@@ -281,6 +233,106 @@ TEST_F(HMMTests, DecoderHMMPopAdd) {
     ASSERT_EQ(minProbOnEachPopAndInsertAfter[i], minHeap->getMinLProb());
   }
 }
+
+//TODO: This test should be updated, now updateNodeAt only sinks nodes...
+// TEST_F(HMMTests, DecoderHMMUpdateAt) {
+//   int position = -1;
+//   int capacity = 100;
+//   std::unique_ptr<HMMMinHeap> minHeap(new HMMMinHeap(5));
+
+//   std::vector<float> vec = {190, 140, 68,  156, 134, 2, 194,
+//                             4,   34,  184, 104, 112, 2};
+
+//   std::vector<float> sorted_vec = {2,   4,   2,   34,  104, 68, 194,
+//                                    190, 134, 184, 156, 140, 112};
+
+//   for (size_t i = 0; i < vec.size(); i++) {
+//     uint32_t sg_state = i;
+//     uint32_t hmm_q_state = 0;
+//     float lprob = vec[i];
+//     float hmmp = vec[i];
+//     float lmp = vec[i];
+//     uint32_t trapos = 0;
+//     uint32_t h = 0;
+
+//     std::unique_ptr<HMMNode> node(
+//         new HMMNode(sg_state, hmm_q_state, lprob, hmmp, lmp, trapos, h));
+
+//     position = minHeap->insert(std::move(node));
+//   }
+
+//   minHeap->showHeapContent();
+
+//   // TODO
+//   position = minHeap->getNodePositionById(8, 0);
+
+//   minHeap->updateNodeAt(position, 1, 0.2);
+
+//   ASSERT_EQ(minHeap->getMinLProb(), 1);
+
+//   position = minHeap->getNodePositionById(11, 0);
+
+//   minHeap->updateNodeAt(position, 2, 0.3);
+
+//   ASSERT_EQ(minHeap->getMinLProb(), 1);
+
+//   position = minHeap->getNodePositionById(0, 0);
+
+//   minHeap->updateNodeAt(position, 0, 0.4);
+
+//   ASSERT_EQ(minHeap->getMinLProb(), 0);
+// }
+
+TEST_F(HMMTests, DecoderHMMUpdateAt_test2) {
+  int position = -1;
+  int capacity = 100;
+  std::unique_ptr<HMMMinHeap> minHeap(new HMMMinHeap(5));
+
+  std::vector<float> vec = {-78.591865, -78.829592,  -81.856697,
+                            -82.682708, -100.904552, -101.340816,
+                            -88.548487, -90.915582,  -69.244107};
+
+  std::vector<float> prev_update_vec = {-101.340816, -90.915582, -100.904552,
+                                        -82.682708,  -81.856697, -78.829592,
+                                        -88.548487,  -78.591865, -69.244107};
+
+  std::vector<float> post_update_vec = {-101.340816, -90.915582, -88.548487,
+                                        -82.682708,  -81.856697, -78.829592,
+                                        -69.560925,  -78.591865, -69.244107};
+
+  for (size_t i = 0; i < vec.size(); i++) {
+    uint32_t sg_state = i;
+    uint32_t hmm_q_state = 0;
+    float lprob = vec[i];
+    float hmmp = vec[i];
+    float lmp = vec[i];
+    uint32_t trapos = 0;
+    uint32_t h = 0;
+
+    std::unique_ptr<HMMNode> node(
+        new HMMNode(sg_state, hmm_q_state, lprob, hmmp, lmp, trapos, h));
+
+    position = minHeap->insert(std::move(node));
+  }
+
+  ASSERT_EQ(minHeap->getSize(), vec.size());
+
+  for (size_t i = 1; i < prev_update_vec.size() + 1; i++) {
+    ASSERT_FLOAT_EQ(minHeap->getNodeAtPosition(i)->getLogProb(),
+                    prev_update_vec[i - 1]);
+  }
+
+  minHeap->updateNodeAt(3, -69.5609, -55.0894);
+
+  ASSERT_EQ(minHeap->getSize(), post_update_vec.size());
+
+  for (size_t i = 1; i < post_update_vec.size() + 1; i++) {
+    ASSERT_FLOAT_EQ(minHeap->getNodeAtPosition(i)->getLogProb(),
+                    post_update_vec[i - 1]);
+  }
+
+}  // namespace
+
 }  // namespace
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);

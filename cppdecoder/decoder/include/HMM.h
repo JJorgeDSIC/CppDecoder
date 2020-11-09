@@ -96,24 +96,13 @@ class HMMMinHeap {
   int getSize() { return size; }
   void setSize(uint32_t size) { this->size = size; }
   void cleanActives();
+  void reset();
 
  private:
   uint32_t capacity;
   uint32_t size;
   std::vector<std::unique_ptr<HMMNode>> hmm_nodes;
   std::unordered_map<HMMNodeId, int, HMMNodeIdHasher> HMMActives;
-};
-
-class HMMNodeManager {
- public:
-  explicit HMMNodeManager(const uint32_t max_size);
-
-  bool isFull();
-
- private:
-  uint32_t max_hyps;
-  uint32_t max_size;
-  uint32_t size;
 };
 
 #endif  // HMM_H_
