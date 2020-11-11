@@ -251,15 +251,10 @@ class Decoder {
   void insertSearchGraphNode(std::unique_ptr<SGNode>& node);
 
   /**
-   * @brief TO DO
-   *
-   * @param hmmNode
-   */
-  void insert_hmm_node(std::unique_ptr<HMMNode> hmmNode);
-
-  /**
-   * @brief Add a SGNode to null_nodes0. These nodes will be expanded during the
-   * iteration and this list will end up being empty.
+   * Add a Search Graph node that does not contain a symbol/word, that is, a
+   * null node, in the search_graph_null_nodes0. These nodes will be expanded
+   * during the decoding iteration and this structure will end up being empty.
+   * @brief Add a SGNode to null_nodes0.
    *
    * @param[in] node
    * @return int
@@ -267,9 +262,10 @@ class Decoder {
   int addNodeToSearchGraphNullNodes0(std::unique_ptr<SGNode>& node);
 
   /**
-   * @brief Add a SGNode to null_nodes1 list. Temporal list to store null nodes
-   * (nodes that do not contain symbols or words), that will be expanded again
-   * during the same iteration.
+   * Add a Search Graph node that do not contain a symbol/word, that is, a null
+   * node, in the search_graph_null_nodes1. These nodes will be expanded during
+   * the decoding iteration and this structure will end up being empty.
+   * @brief Add a SGNode to null_nodes1.
    *
    * @param[in] node
    * @return int
@@ -277,8 +273,12 @@ class Decoder {
   int addNodeToSearchGraphNullNodes1(std::unique_ptr<SGNode>& node);
 
   /**
-   * @brief Add a SGNode to nodes1 list. This list contains SGNode that contain
-   * a symbol or a word, they will be expanded during this iteration.
+   * Add a Search Graph node to the search_graph_nodes1. This structure contains
+   * SGNodes that contain a symbol or a word, coming from the expansion of
+   * previous null nodes. This nodes will end up being transformed into HMM
+   * nodes in a posterior step. This structure is empty at the beginning of the
+   * iteration and it is empty at the end of each iteration.
+   * @brief Add a SGNode to nodes1 list.
    *
    * @param[in] node
    * @return int
@@ -286,14 +286,61 @@ class Decoder {
   int addNodeToSearchGraphNodes1(std::unique_ptr<SGNode>& node);
 
   /**
-   * @brief Updates LM beam
    *
-   * @param[in] lprob
+   * This method updates the Language Model threshold after finding the maximum
+   * log probability so far, updating the language model max. log prob and then
+   * adjusting the language model threshold with the max. log prob minus the
+   * language model beam provided as param to the decoder.
+   * @brief Updates LM threshold
+   *
+   * @param[in] lprob Log probability that is the maximum value so far
    */
-  void updateLmBeam(float lprob);
+  void updateLmThreshold(float lprob);
 
   /**
-   * @brief Get the Search Graph Null Nodes0 list
+   * This method updates the HMM threshold after finding the maximum
+   * log probability so far, updating the HMM maximum log prob and then
+   * adjusting the HMM log prob threshold with the max. log prob minus the
+   * HMM beam (v_abeam) provided as param to the decoder.
+   * @brief Updates the HMM threshold
+   *
+   * @param[in] lprob Log probability that is the maximum value so far
+   * @param[in] hyp_index Hypothesis index of the best hypothesis so far
+   */
+  void updateHMMThreshold(float lprob, uint32_t hyp_index);
+
+  /**
+   *
+   * This method inserts an HMM node (HMMNode) into the HMM nodes1 structure, if
+   * the node is not pruned. Related to the pruning steps:
+   *  -If the log prob of this node is lower than the current threshold (v_thr),
+   * the node is pruned directly (not inserted).
+   *  -If the number of maximum HMM states has been reached (nmaxstates param)
+   * and the log prob is lower than the lowest log prob from the already
+   * inserted nodes, the node is pruned. If the node gets over these prunings,
+   * the position in the nodes1 structure is retrieved, then:
+   *  -If position is 0, this means that is a new node. This could happen if the
+   * node comes from a new SGNode that is transformed into an HMM node, i.e: at
+   * the beginning of a word. First the HMM threshold is updated if this the
+   * best log prob seen so far, and then depending on the number of max states,
+   * an insert or a pop-and-insert operation is performed. This passes the
+   * ownership of this node to the hmm_minheam_nodes1 structure.
+   *  -If position is different from 0, means that this is an active node (it
+   * was added before). If the log probability of this new version of the node
+   * is better than the one that is stored in the hmm_minheap_nodes1 structure,
+   * the threshold is updated is required and the node is updated in the
+   * structure as well.
+   *
+   * @brief Inserts, if it is not pruned, an HMM Node (HMMNode) into the HMM
+   * nodes1 structure.
+   *
+   * @param[in] hmmNode
+   */
+  void insertHMMNode(std::unique_ptr<HMMNode> hmmNode);
+
+  /**
+   * @brief Get the Search Graph Null Nodes0 that contains the Search graph
+   * nodes that are not a symbol/word node for the current iteration.
    *
    * @return std::vector<std::unique_ptr<SGNode>>&
    */
@@ -302,7 +349,8 @@ class Decoder {
   }
 
   /**
-   * @brief Get the Search Graph Null Nodes1 list
+   * @brief Get the Search Graph Null Nodes1 that contains the Search graph
+   * nodes that are not symbol/word node for the next iteration.
    *
    * @return std::vector<std::unique_ptr<SGNode>>&
    */
@@ -311,7 +359,8 @@ class Decoder {
   }
 
   /**
-   * @brief Get the Search Graph Nodes0 list
+   * @brief Get the Search Graph Nodes0 that contains the Search graph
+   * nodes that are symbol/word nodes for the current iteration.
    *
    * @return std::vector<std::unique_ptr<SGNode>>&
    */
@@ -319,7 +368,8 @@ class Decoder {
     return search_graph_nodes0;
   }
   /**
-   * @brief Get the Search Graph Nodes1 list
+   * @brief Get the Search Graph Nodes1 that contains the Search graph
+   * nodes that are symbol/word nodes for the next iteration.
    *
    * @return std::vector<std::unique_ptr<SGNode>>&
    */
@@ -328,198 +378,292 @@ class Decoder {
   }
 
   /**
-   * @brief Get the Actives list
+   * @brief Get the Search Graph node position in either the
+   * search_graph_null_nodes1 or search_graph_nodes1 from the Search graph
+   * active nodes structure, depending on the kind of node (null or symbol/word
+   * node), -1 if this is a new node.
    *
-   * @return std::vector<int>
+   * @return position Position on the corresponding search graph node structure
+   * or -1 if not active.
    */
-  std::vector<int> getActives() { return actives; }
+  int getSearchGraphNodePosition(uint32_t state_id) {
+    return actives[state_id];
+  }
+  /**
+   * @brief Set the Search Graph Node Position in the Search graph active nodes
+   * structure.
+   *
+   * @param node_id Node identifier
+   * @param position New position
+   */
+  void setSearchGraphNodePosition(uint32_t node_id, int position) {
+    actives[node_id] = position;
+  }
 
   /**
-   * @brief
+   * @brief Checks if search_graph_nodes0 is NOT empty.
    *
-   * @param[in] nodes
+   * @return true It is not empty
+   * @return false Otherwise
    */
-  void printSGNodes(const std::vector<std::unique_ptr<SGNode>>& nodes);
+
+  bool nodes0IsNotEmpty() { return search_graph_nodes0.size() != 0; }
+
   /**
-   * @brief TO DO
+   * @brief Checks if search_graph_nodes1 is NOT empty.
    *
-   * @return true
-   * @return false
+   * @return true It is not empty
+   * @return false Otherwise
    */
-  bool nodes0IsNotEmpty();
+
+  bool nodes1IsNotEmpty() { return search_graph_nodes1.size() != 0; }
+
   /**
-   * @brief TO DO
+   * @brief Checks if search_graph_null_nodes0 is NOT empty.
    *
-   * @return true
-   * @return false
+   * @return true It is not empty
+   * @return false Otherwise
    */
-  bool nodes1IsNotEmpty();
+  bool nullNodes0IsNotEmpty() { return search_graph_null_nodes0.size() != 0; }
   /**
-   * @brief TO DO
+   * @brief Checks if search_graph_null_nodes1 is NOT empty.
    *
-   * @return true
-   * @return false
+   * @return true It is not empty
+   * @return false Otherwise
    */
-  bool nullNodes0IsNotEmpty();
+  bool nullNodes1IsNotEmpty() { return search_graph_null_nodes1.size() != 0; }
+
   /**
-   * @brief TO DO
+   * This method performs an iteration of the Viterbi algorithm part where
+   * Search Graph nodes will be expanded. It starts by resetting Search Graph
+   * Null nodes 0 and Search Grap (non-null) nodes 0 structures, cleaning
+   * actives and exchanging nodes0 with nodes1 from previous iteration.
+   *  First it expands nodes 0, this is a special case that can happen during
+   * the beginning of recognition. Second, null nodes 0 will be expanded. After
+   * this, all SGNodes are either in null nodes 1 or nodes 1.
+   *  Finally, it iterates until null nodes 1 is empty, first getting null nodes
+   * 0 ready (moving nodes from null nodes 1 to null nodes 0), and then
+   * expanding null nodes 0. The idea is that when this iterative process ends,
+   * all SG nodes are non-null nodes that are in nodes 1. Before leaving this
+   * method, nodes 1 is exchanged with nodes 0, so all the Search Graph nodes
+   * are in nodes 0 for the next step.
    *
-   * @return true
-   * @return false
-   */
-  bool nullNodes1IsNotEmpty();
-  /**
-   * @brief TO DO
+   * @brief Performs the expansion of the Search Graph nodes during the
+   * Viterbi's algorithm iteration. When this is completed, all search graph
+   * nodes (if any) are in nodes 1 (search_graph_nodes1).
    *
-   * @param t
+   * @param t Position of the current frame, from 0 (first frame) to sample's
+   * length - 1 (last frame).
    */
   void viterbiIterSG(const int t);
 
   /**
-   * @brief
+   * @brief Reset the active nodes structure and exchange Search Graph null
+   * nodes 0 with Search Graph null nodes 1, the latter will end up empty.
+   */
+  void getReadyNullNodes();
+  /**
+   * @brief Reset the active nodes structure and exchange Search Graph nodes 0
+   * with Search Graph nodes 1, the latter will end up empty.
+   */
+  void getReadyNodes();
+
+  /**
+   * @brief Clear Search Graph Nodes 0
    *
    */
+  void clearNodes0() { search_graph_nodes0.clear(); }
 
+  /**
+   *
+   * This method converts the SGNodes from Nodes 0 into initial HMM nodes,
+   * creating these new nodes, propagating and setting the parameters of the
+   * node: Log prob, HMM log prob LM log prob, and the hypothesis' index. This
+   * method will call insertHMMnode to try to insert the node in the HMM min
+   * heap nodes 1, but the node could be pruned during that step.
+   *  After this method Nodes 0 will be empty.
+   *
+   * @brief Iterates over Search Graph Nodes 0 to creating HMM nodes from the
+   * SGNodes and tries to insert them in HMM min heap nodes 1.
+   *
+   * @param sample
+   */
   void viterbiSg2HMM(const Sample& sample);
-  /**
-   * @brief
-   *
-   * @return true
-   * @return false
-   */
-  bool getReadyNullNodes();
-  /**
-   * @brief
-   *
-   * @return true
-   * @return false
-   */
-  bool getReadyNodes();
 
   /**
-   * @brief
+   * @brief Get a vector with the HMM nodes in nodes 0, for this iteration.
    *
-   * @return std::vector<std::unique_ptr<HMMNode>>&
+   * @return std::vector<std::unique_ptr<HMMNode>>& Vector with HMM nodes for
+   * this iteration
    */
-  std::vector<std::unique_ptr<HMMNode>>& getHMMNodes0();
+  std::vector<std::unique_ptr<HMMNode>>& getHMMNodes0() {
+    return hmm_minheap_nodes0->getNodes();
+  }
   /**
-   * @brief
+   * @brief Get a vector with the HMM nodes in nodes 1, for the following
+   * iteration.
    *
-   * @return std::vector<std::unique_ptr<HMMNode>>&
+   * @return std::vector<std::unique_ptr<HMMNode>>& Vector with HMM nodes for
+   * the following iteration
    */
-  std::vector<std::unique_ptr<HMMNode>>& getHMMNodes1();
+  std::vector<std::unique_ptr<HMMNode>>& getHMMNodes1() {
+    return hmm_minheap_nodes1->getNodes();
+  }
 
   /**
-   * @brief Get the Min Prob From HMM Nodes object
+   * @brief Get the Number Active HMM nodes in HMM min heap Nodes 0.
+   *
+   * @return int Number of active nodes in nodes 0
+   */
+  int getNumberActiveHMMNodes0() { return hmm_minheap_nodes0->getSize(); }
+
+  /**
+   * @brief Get the Number Active HMM nodes in HMM min heap Nodes 1.
+   *
+   * @return int Number of active nodes in nodes 1
+   */
+  int getNumberActiveHMMNodes1() { return hmm_minheap_nodes1->getSize(); }
+
+  /**
+   * @brief Get the minimum log prob From HMM min heap nodes 1.
    *
    * @return float
    */
-  float getMinProbFromHMMNodes();
+  float getMinProbFromHMMNodes() { return hmm_minheap_nodes1->getMinLProb(); }
 
   /**
-   * @brief Get the Number Active H M M Nodes object
-   *
-   * @return int
-   */
-  int getNumberActiveHMMNodes();
-
-  /**
-   * @brief Get the Ready H M M Nodes0 object
+   * @brief Get ready HMM min heap nodes 0, exchanging it with HMM min heap 1,
+   * the latter will be empty after this method.
    *
    */
   void getReadyHMMNodes0();
 
   /**
-   * @brief Get the Number Active H M M Nodes0 object
+   * This method starts the Viterbi algorithm, as follows:
+   *  -Add the initial Search Graph node to start the decoding.
+   *  -Perform an iteration of the algorithm at Search Graph level, expanding
+   * this initial node and filling the Search Graph nodes 0 structure. -From the
+   * Search Graph nodes 0 the HMM nodes will be created, providing the initial
+   * HMM nodes to continue with the decoding algorithm.
    *
-   * @return int
-   */
-  int getNumberActiveHMMNodes0();
-  /**
-   * @brief Get the Number Active H M M Nodes1 object
+   * @brief Performs the first iteration of the Viterbi algorithm using the
+   * provided sample.
    *
-   * @return int
-   */
-  int getNumberActiveHMMNodes1();
-
-  /**
-   * @brief
-   *
-   * @param sample
+   * @param sample Sample with the frames to be recognised.
    */
   void viterbiInit(const Sample& sample);
 
   /**
-   * @brief
    *
-   * @param sample
+   * This method performs an iteration of the Viterbi algorithm (not the first
+   * one) to decode the provided sample, expanding HMM min heap nodes 0,
+   * following, for each HMM node:
+   *  -Getting the current node from the HMM node structure.
+   *  -Checking if can be pruned if the log prob is lower than the threshold
+   * from the previous iteration. -Current node's log prob is adjusted according
+   * to the previous maximum log prob. -Compute the emission log prob according
+   * to the current frame and the HMM node (id, state in the HMM model and
+   * symbol), updating the node's log prob and HMM log prob.
+   *  -Depending on the type of transition (currently only supported linear
+   * transition models), it is performed the transition between HMM states,
+   * considering the loop transition or the forward transition. Creates a new
+   * node for each case and calls insertHMMNode with the updated attributes
+   * according to:
+   *    -log prob = log prob + emission score + p0 or log prob = log prob +
+   * emission score + p1
+   *  -If the node is in the last HMM state, a new Search
+   * Graph node is created and then it calls insertSearchGraphNode with this new
+   * node to try to insert it.
+   *  -After expanding all the HMM nodes, new Search Graph nodes that could have
+   * been created are in Search Graph Nodes 1. Then, viterbiIterSG is called to
+   * perform a SG Node expansion, followed by viterbiSg2HMM call to create the
+   * new HMM nodes in HMM min heap nodes 1, resulted from this SG node
+   * expansion. -Finally, the acoustic model cache is restarted and it is
+   * perfomed the exchange of HMM min heap nodes 1 with HMM min heap nodes 0 to
+   * be ready for the next iteration.
+   * @brief Performs an iteration of the Viterbi algorithm to decode the
+   * provided sample.
+   *
+   * @param sample Sample with the frames to be recognised.
    */
   void viterbiIter(const Sample& sample, const int t, const bool finalIter);
 
   /**
-   * @brief
+   * @brief Resets the acoustic model log probs cache.
    *
-   * @param v_lm_beam
+   */
+  void resetAMCache() { lprob_cache.clear(); }
+
+  /**
+   * @brief Sets the Language Model beam
+   *
+   * @param v_lm_beam Language Model beam
    */
   void setVLMBeam(float v_lm_beam) { this->v_lm_beam = v_lm_beam; }
+
   /**
-   * @brief
+   * @brief Sets the HMM beam
    *
-   * @param v_lm_beam
+   * @param v_abeam HMM beam
    */
   void setVBeam(float v_abeam) { this->v_abeam = v_abeam; }
 
   /**
-   * @brief
+   * @brief Computes the emission log prob or score with a given frame
+   * (n-dimensional vector), a symbol or senone and the state index of the HMM
+   * model (q)
    *
-   * @param frame
-   * @param sym
-   * @param q
-   * @return float
+   * @param frame Frame to be used to compute the log prob score
+   * @param sym Symbol or senone, to index the HMM model
+   * @param q State of the HMM model.
+   * @return float Log probability or log(p(x,HMM(sym,q)))
    */
   float compute_lprob(const Frame& frame, const std::string& sym, const int q);
 
   /**
-   * @brief
+   * @brief Get the vector of WordHyps where the partial hypotheses are stored.
    *
+   * @return std::vector<WordHyp>& Vector of WordHyp that contains (prev_index,
+   * word string).
    */
-  void resetAMCache();
+  std::vector<WordHyp>& getWordHyps() { return hypothesis; }
 
   /**
-   * @brief
+   * @brief Get the hypothesis with the maximum log prob.
    *
-   */
-  void clearNodes0();
-
-  /**
-   * @brief TODO
-   *
-   * @return std::vector<WordHyp>&
-   */
-  std::vector<WordHyp>& getWordHyps();
-
-  /**
-   * @brief TODO
-   *
-   * @return int
+   * @return int Index in hypothesis vector of the best hypothesis.
    */
   int getMaxHyp() { return max_hyp; }
 
   /**
-   * @brief TODO
+   * @brief Get the maximum log prob so far.
    *
-   * @return float
+   * @return float Maximum log probability.
    */
   float getMaxProb() { return max_prob; }
 
   /**
-   * @brief TODO
+   * This method resets the decoder state, as follows:
+   *  -Reset HMM threshold, HMM max, LM max, LM beam, LM threshold and max
+   * hypothesis. -Clear Search Graph actives structure -Clear Search Graph null
+   * nodes 0 and 1 -Reset Search Graph nodes 0 and 1 -Reset HMM min heap nodes 0
+   * and 1 -Clear Acoustic model log prob cache (just in case) -Clear the
+   * current Hypothesis vector.
+   *
+   * @brief Reset all the structures and variables to perform the decoding with
+   * another sample.
    *
    */
   void resetDecoder();
 
+  /**
+   * @brief Get the string with the sequence of words that were recognized.
+   *
+   * @return std::string The sequence of words that were recognized
+   */
   std::string getResult();
 
+  /** Acoustic Model cache related Hashing functions **/
   class cacheLProbID {
    public:
     std::string sym;
@@ -568,7 +712,6 @@ class Decoder {
   int max_hyp = -1;
   float max_prob = -HUGE_VAL;
   int currentIteration = 0;
-  bool prune_before = true;
 };
 
 #include "Decoder.inl"

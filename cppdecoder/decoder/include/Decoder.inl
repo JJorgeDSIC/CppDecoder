@@ -12,13 +12,13 @@ inline void WordHyp::showWordHyp() {
   std::cout << "Prev: " << prev << " Word: " << word << std::endl;
 }
 
-inline void Decoder::printSGNodes(
-    const std::vector<std::unique_ptr<SGNode>>& nodes) {
-  std::cout << "printSGNodes: " << std::endl;
-  for (uint32_t i = 0; i < nodes.size(); i++) {
-    std::cout << nodes[i]->getStateId() << std::endl;
-    nodes[i]->showState();
-    std::cout << sgraph->getIdToSym(nodes[i]->getStateId()) << std::endl;
-    std::cout << sgraph->getIdToWord(nodes[i]->getStateId()) << std::endl;
-  }
-}
+// inline void Decoder::printSGNodes(
+//     const std::vector<std::unique_ptr<SGNode>>& nodes) {
+//   std::cout << "printSGNodes: " << std::endl;
+//   for (uint32_t i = 0; i < nodes.size(); i++) {
+//     std::cout << nodes[i]->getStateId() << std::endl;
+//     nodes[i]->showState();
+//     std::cout << sgraph->getIdToSym(nodes[i]->getStateId()) << std::endl;
+//     std::cout << sgraph->getIdToWord(nodes[i]->getStateId()) << std::endl;
+//   }
+// }

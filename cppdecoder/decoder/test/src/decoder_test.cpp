@@ -55,8 +55,6 @@ TEST_F(DecoderTests, DecoderInsertSGNodeNull) {
   std::vector<std::unique_ptr<SGNode>>& search_graph_null_nodes1 =
       decoder->getSearchGraphNullNodes1();
 
-  std::vector<int> actives = decoder->getActives();
-
   std::unique_ptr<SGNode> sgnode(new SGNode(0, 0.0, 0.0, 0.0, 0));
   decoder->insertSearchGraphNode(sgnode);
 
@@ -82,8 +80,6 @@ TEST_F(DecoderTests, DecoderInsertSGWordNode) {
 
   std::vector<std::unique_ptr<SGNode>>& search_graph_nodes1 =
       decoder->getSearchGraphNodes1();
-
-  std::vector<int> actives = decoder->getActives();
 
   std::unique_ptr<SGNode> sgnode(new SGNode(2405, 0.0, 0.0, 0.0, 0));
   decoder->insertSearchGraphNode(sgnode);
@@ -111,8 +107,6 @@ TEST_F(DecoderTests, DecoderInsertSGDifferentNodes) {
   std::vector<std::unique_ptr<SGNode>>& search_graph_nodes1 =
       decoder->getSearchGraphNodes1();
 
-  std::vector<int> actives = decoder->getActives();
-
   std::unique_ptr<SGNode> sgnode(new SGNode(2405, 0.0, 0.0, 0.0, 0));
   decoder->insertSearchGraphNode(sgnode);
 
@@ -135,8 +129,6 @@ TEST_F(DecoderTests, DecoderInsertSGDiffNodeAndNoUpdate) {
 
   std::vector<std::unique_ptr<SGNode>>& search_graph_nodes1 =
       decoder->getSearchGraphNodes1();
-
-  std::vector<int> actives = decoder->getActives();
 
   std::unique_ptr<SGNode> sgnode(new SGNode(2405, 0.0, 0.0, 0.0, 0));
   decoder->insertSearchGraphNode(sgnode);
