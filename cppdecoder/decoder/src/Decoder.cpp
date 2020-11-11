@@ -5,6 +5,12 @@
 
 #include <Decoder.h>
 
+
+/**
+ * @brief Search Graph Node methods' definition
+ * 
+ */
+
 SGNode::SGNode() : state_id(0), lprob(0.0), hmmlprob(0.0), lmlprob(0), hyp(0) {}
 
 SGNode::SGNode(const uint32_t state_id, const float lprob, const float hmmlprob,
@@ -15,8 +21,18 @@ SGNode::SGNode(const uint32_t state_id, const float lprob, const float hmmlprob,
       lmlprob(lmlprob),
       hyp(hyp) {}
 
+/**
+ * @brief Word Hypothesis methods' definition
+ * 
+ */
+
 WordHyp::WordHyp(const int prev, const std::string& word)
     : prev(prev), word(word) {}
+
+/**
+ * @brief Decoder methods' definition
+ * 
+ */
 
 Decoder::Decoder(std::unique_ptr<SearchGraphLanguageModel> sgraph,
                  std::unique_ptr<AcousticModel> amodel) {

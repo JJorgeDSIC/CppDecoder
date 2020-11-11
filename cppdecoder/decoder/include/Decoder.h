@@ -18,21 +18,84 @@
 #include <utility>
 #include <vector>
 
+/**
+ * @brief This class provides the Search Graph nodes (SGNode) attributes and
+ * functions, this could be seen as nodes in a graph at language model level.
+ * It contains the unique identifier, the current accumulated log probability,
+ * also at HMM and Language Model level, and the index of the hypothesis
+ * associated with this state.
+ *
+ */
 class SGNode {
  public:
   SGNode();
   SGNode(const uint32_t state_id, const float lprob, const float hmmlprob,
          const float lmlprob, const uint32_t hyp);
 
+  /**
+   * @brief Get the Id of this Search Graph Node
+   *
+   * @return uint32_t Unique identifier
+   */
   uint32_t getStateId() { return state_id; }
+  /**
+   * @brief Get the log probability of the Search Graph Node
+   *
+   * @return float Log probability
+   */
   float getLProb() { return lprob; }
+  /**
+   * @brief Get the log probability at HMM state level
+   *
+   * @return float Log probability at HMM level
+   */
   float getHMMLProb() { return hmmlprob; }
+  /**
+   * @brief Get the log probability at language model state level
+   *
+   * @return float Log probability at Language model level
+   */
   float getLMLProb() { return lmlprob; }
+  /**
+   * @brief Get the hypothesis index for this Search Graph node, this indexes
+   * the hypothesis vector in the decoder
+   *
+   * @return uint32_t Index of the associated hypothesis
+   */
   uint32_t getHyp() { return hyp; }
+
+  /**
+   * @brief Set Log probability for this Search Graph Node
+   *
+   * @param[in] lprob Log probability
+   */
   void setLProb(float lprob) { this->lprob = lprob; }
+  /**
+   * @brief Set Log probability at HMM level for this Search Graph Node
+   *
+   * @param[in] lprob Log probability
+   */
   void setHMMLProb(float hmmlprob) { this->hmmlprob = hmmlprob; }
+  /**
+   * @brief Set Log probability at Language model for this Search Graph Node
+   *
+   * @param[in] lprob Log probability
+   */
   void setLMLProb(float lmlprob) { this->lmlprob = lmlprob; }
+  /**
+   * @brief Set the index of the hypothesis for this Search Graph Node
+   *
+   * @param[in] hyp
+   */
   void setHyp(uint32_t hyp) { this->hyp = hyp; }
+
+  /**
+   * @brief Equals operator for Search Graph node, comparing the id
+   *
+   * @param[in] p Search Graph Node to be compared
+   * @return true If they are equal
+   * @return false otherwise
+   */
   bool operator==(const SGNode& p) const { return state_id == p.state_id; }
   void showState();
 
@@ -44,13 +107,39 @@ class SGNode {
   uint32_t hyp;
 };
 
+/**
+ * @brief This class provides the partial hypothesis at word level, with the
+ * current word and the position of the previous hypothesis.
+ *
+ */
+
 class WordHyp {
  public:
+  /**
+   * @brief Construct a new Word Hyp object with the index of the previous
+   * hypothesis and the current word.
+   *
+   * @param prev Index to the previous hypothesis
+   * @param word Word included in this hypothesis
+   */
   WordHyp(const int prev, const std::string& word);
 
+  /**
+   * @brief Get the word (string) of this hypothesis
+   *
+   * @return std::string& Word on this hypothesis
+   */
   std::string& getWord() { return word; }
+  /**
+   * @brief Get the previous index where the previous hypothesis is stored in the internal decoder structure.
+   * 
+   * @return int Position of the previous index
+   */
   int getPrev() { return prev; }
-
+  /**
+   * @brief Show the current hypothesis, the index of the previos hypothesis and the word on this hypothesis.
+   * 
+   */
   void showWordHyp();
 
  private:
