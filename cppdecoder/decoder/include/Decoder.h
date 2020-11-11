@@ -152,6 +152,15 @@ class WordHyp {
 class Decoder {
  public:
   /**
+   *
+   * This method moves the Search Grap and the acoustic model to the decoder, it
+   * owns this models after this call. It initializes Search Graph active
+   * hypothesis structure to its empty state, and it initializes also the HMM
+   * min heaps with the number of max states allowed in the nmaxstates param.
+   * There are two of this structure as it is required one for the current
+   * iteration (hmm_minheap_nodes0) and the second one to store the ones for the
+   * next iteration (hmm_minheap_nodes1). These structures will be exchanged at
+   * the end of each iteration.
    * @brief Construct a new Decoder object with the Search Graph Language Model
    * and the Acoustic Model.
    *
@@ -203,9 +212,39 @@ class Decoder {
       std::vector<std::unique_ptr<SGNode>>& searchgraph_nodes);
 
   /**
+   *
+   * This method inserts a Search Graph Node (SGNode), if not pruned, in either
+   * in search_graph_null_nodes1 (nodes that do not contain symbol or word) or
+   * in search_graph_nodes1 (nodes that contain symbol or word). Considering the
+   * following pruning steps, node will be pruned if:
+   *  -If the node's log probability is lower than the language model threshold.
+   *  -If WIP is negative or zero and the log probability of this node is lower
+   * than the beam threshold.
+   *
+   * The method checks if this node is active (it was reached during this
+   * iteration), if node is not active, so it is a new node:
+   *  -If the node's log prob is higher than the LM max log prob (log prob at
+   * SGNode level), this value is updated, and LM threshold is updated with
+   * node's log prob and adjusted with the LM beam (lm_beam).
+   *  -If this is a word node (it contains a word string), this will be included
+   * in the hypothesis' vector. This sets log prob and HMM log prob to 0.0,
+   * including the hypothesis' position in the node.
+   *  -Depending on the kind of node (null node or symbol/word node), it will be
+   * inserted in search_graph_null_nodes1 or search_graph_nodes1.
+   *
+   * In the event of this node being an already visited node (active node),
+   * then:
+   *  -Get the position of this node according to the active nodes
+   * structure, and getting the previous inserted node from the corresponding
+   * search graph nodes structure: search_graph_null_nodes1 or
+   * search_graph_nodes1.
+   *  -If this node has better log prob than the old one,
+   * first the language model threshold (v_lm_thr) will be updated as in the non
+   * active situation, and then the node's attributes will be updated: log prob,
+   * hmm log prob, LM log prob and the hypothesis index.
    * @brief Inserts a SGNode either in the null_nodes1 list (nodes that do not
    * contain symbols or words) or the nodes1 list (nodes that contain symbols or
-   * words).
+   * words), if it overcomes pruning thresholds.
    *
    * @param[in] node
    */

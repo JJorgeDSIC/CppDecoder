@@ -48,6 +48,106 @@ Decoder::Decoder(std::unique_ptr<SearchGraphLanguageModel> sgraph,
   hmm_minheap_nodes1 = std::move(hmm_minheap_temp1);
 }
 
+// TODO: searchgraph_nodes candidate to be const?
+void Decoder::expandSearchGraphNodes(
+    std::vector<std::unique_ptr<SGNode>>& searchgraph_nodes) {
+  max_prob = -HUGE_VAL;
+  SGNode* max_node = nullptr;
+  SGNode* prev_node = nullptr;
+  float local_wip = 0.0;
+
+  assert(searchgraph_nodes.size() != 0);
+
+  for (size_t i = 0; i < searchgraph_nodes.size(); i++) {
+    std::unique_ptr<SGNode>& node = searchgraph_nodes[i];
+
+    if (final_iter && node->getStateId() == sgraph->getFinalState()) {
+      if (node->getLProb() > max_prob) {
+        max_prob = node->getLProb();
+        max_node = node.get();
+        max_hyp = node->getHyp();
+      }
+      // TODO Register final trans
+      // TODO Store hypothesis at symbol level in the future
+    }
+
+    float curr_lprob = node->getLProb();
+    float curr_lmlprob = node->getLMLProb();
+    std::string wordInNode = sgraph->getIdToWord(node->getStateId());
+    local_wip = (wordInNode != "-" && wordInNode != ">") ? WIP : 0;
+
+    SearchGraphLanguageModelState sgstate =
+        sgraph->getSearchGraphState(node->getStateId());
+
+    for (uint32_t i = sgstate.edge_begin; i < sgstate.edge_end; i++) {
+      SearchGraphLanguageModelEdge sgedge = sgraph->getSearchGraphEdge(i);
+      if (!final_iter) {
+        if (sgedge.dst == sgraph->getFinalState()) {
+          continue;
+        }
+      } else if (sgraph->getIdToSym(sgedge.dst) != "-") {
+        continue;
+      }
+
+      float lprob = curr_lprob + sgedge.weight * GSF + local_wip;
+      float lmlprob = curr_lmlprob + sgedge.weight;
+      std::unique_ptr<SGNode> sgnode(new SGNode(
+          sgedge.dst, lprob, node->getHMMLProb(), lmlprob, node->getHyp()));
+      insertSearchGraphNode(sgnode);
+    }
+  }
+}
+
+void Decoder::insertSearchGraphNode(std::unique_ptr<SGNode>& node) {
+  const std::string& symbol = sgraph->getIdToSym(node->getStateId());
+  const std::string& word = sgraph->getIdToWord(node->getStateId());
+
+  bool insertWord = word != "-" && word != ">";
+
+  bool nullNode = symbol == "-";
+
+  if (node->getLProb() < v_lm_thr) return;
+  if (WIP <= 0 && node->getLProb() < v_thr) return;
+
+  // Not visited yet
+  if (actives[node->getStateId()] == -1) {
+    if (node->getLProb() > v_lm_max) {
+      updateLmBeam(node->getLProb());
+    }
+
+    if (insertWord) {
+      // hypothesis.emplace_back(node->getHyp(), word);
+      hypothesis.push_back(WordHyp(node->getHyp(), word));
+      node->setHyp(hypothesis.size() - 1);
+      node->setHMMLProb(0.0);
+      node->setLMLProb(0.0);
+    }
+    int node_id = node->getStateId();
+
+    if (nullNode) {
+      actives[node_id] = addNodeToSearchGraphNullNodes1(node);
+    } else {
+      actives[node_id] = addNodeToSearchGraphNodes1(node);
+    }
+
+  } else {
+    int position = actives[node->getStateId()];
+    std::unique_ptr<SGNode>& prevNode = nullNode
+                                            ? search_graph_null_nodes1[position]
+                                            : search_graph_nodes1[position];
+
+    if (node->getLProb() > prevNode->getLProb()) {
+      if (node->getLProb() > v_lm_max) {
+        updateLmBeam(node->getLProb());
+      }
+      prevNode->setLProb(node->getLProb());
+      prevNode->setHMMLProb(node->getHMMLProb());
+      prevNode->setLMLProb(node->getLMLProb());
+      prevNode->setHyp(node->getHyp());
+    }
+  }
+}
+
 float Decoder::decode(Sample sample) {
   viterbiInit(sample);
   // TODO: Fix prune before case
@@ -224,56 +324,6 @@ void Decoder::viterbiInit(const Sample& sample) {
 void Decoder::updateLmBeam(float lprob) {
   v_lm_max = lprob;
   v_lm_thr = lprob - v_lm_beam;
-}
-
-// TODO: searchgraph_nodes candidate to be const?
-void Decoder::expandSearchGraphNodes(
-    std::vector<std::unique_ptr<SGNode>>& searchgraph_nodes) {
-  max_prob = -HUGE_VAL;
-  SGNode* max_node = nullptr;
-  SGNode* prev_node = nullptr;
-  float local_wip = 0.0;
-
-  assert(searchgraph_nodes.size() != 0);
-
-  for (size_t i = 0; i < searchgraph_nodes.size(); i++) {
-    std::unique_ptr<SGNode>& node = searchgraph_nodes[i];
-
-    if (final_iter && node->getStateId() == sgraph->getFinalState()) {
-      if (node->getLProb() > max_prob) {
-        max_prob = node->getLProb();
-        max_node = node.get();
-        max_hyp = node->getHyp();
-      }
-      // TODO Register final trans
-      // TODO Store hypothesis at symbol level in the future
-    }
-
-    float curr_lprob = node->getLProb();
-    float curr_lmlprob = node->getLMLProb();
-    std::string wordInNode = sgraph->getIdToWord(node->getStateId());
-    local_wip = (wordInNode != "-" && wordInNode != "<") ? WIP : 0;
-
-    SearchGraphLanguageModelState sgstate =
-        sgraph->getSearchGraphState(node->getStateId());
-
-    for (uint32_t i = sgstate.edge_begin; i < sgstate.edge_end; i++) {
-      SearchGraphLanguageModelEdge sgedge = sgraph->getSearchGraphEdge(i);
-      if (!final_iter) {
-        if (sgedge.dst == sgraph->getFinalState()) {
-          continue;
-        }
-      } else if (sgraph->getIdToSym(sgedge.dst) != "-") {
-        continue;
-      }
-
-      float lprob = curr_lprob + sgedge.weight * GSF + local_wip;
-      float lmlprob = curr_lmlprob + sgedge.weight;
-      std::unique_ptr<SGNode> sgnode(new SGNode(
-          sgedge.dst, lprob, node->getHMMLProb(), lmlprob, node->getHyp()));
-      insertSearchGraphNode(sgnode);
-    }
-  }
 }
 
 void Decoder::clearNodes0() { search_graph_nodes0.clear(); }
@@ -453,59 +503,6 @@ int Decoder::addNodeToSearchGraphNodes1(std::unique_ptr<SGNode>& node) {
 
 float Decoder::getMinProbFromHMMNodes() {
   return hmm_minheap_nodes1->getMinLProb();
-}
-
-void Decoder::insertSearchGraphNode(std::unique_ptr<SGNode>& node) {
-  const std::string& symbol = sgraph->getIdToSym(node->getStateId());
-  const std::string& word = sgraph->getIdToWord(node->getStateId());
-
-  bool insertWord = word != "-" && word != ">";
-
-  bool nullNode = symbol == "-";
-
-  if (node->getLProb() < v_lm_thr) return;
-  if (WIP <= 0 && node->getLProb() < v_thr) return;
-
-  // Not visited yet
-  if (actives[node->getStateId()] == -1) {
-    if (node->getLProb() > v_lm_max) {
-      updateLmBeam(node->getLProb());
-    }
-
-    if (insertWord) {
-      // hypothesis.emplace_back(node->getHyp(), word);
-      hypothesis.push_back(WordHyp(node->getHyp(), word));
-      node->setHyp(hypothesis.size() - 1);
-      node->setHMMLProb(0.0);
-      node->setLMLProb(0.0);
-    }
-    int node_id = node->getStateId();
-
-    if (nullNode) {
-      actives[node_id] = addNodeToSearchGraphNullNodes1(node);
-    } else {
-      actives[node_id] = addNodeToSearchGraphNodes1(node);
-    }
-
-  } else {
-    int position = actives[node->getStateId()];
-    std::unique_ptr<SGNode>& prevNode = nullNode
-                                            ? search_graph_null_nodes1[position]
-                                            : search_graph_nodes1[position];
-    // SGNode* prevNode = nullNode ? search_graph_null_nodes1[position].get()
-    //                            : search_graph_nodes1[position].get();
-
-    if (node->getLProb() > prevNode->getLProb()) {
-      if (node->getLProb() > v_lm_max) {
-        updateLmBeam(node->getLProb());
-      }
-
-      prevNode->setLProb(node->getLProb());
-      prevNode->setHMMLProb(node->getHMMLProb());
-      prevNode->setLMLProb(node->getLMLProb());
-      prevNode->setHyp(node->getHyp());
-    }
-  }
 }
 
 std::vector<WordHyp>& Decoder::getWordHyps() { return hypothesis; }
