@@ -58,7 +58,7 @@ TEST_F(DecoderTests, DecoderInsertSGNodeNull) {
   std::vector<int> actives = decoder->getActives();
 
   std::unique_ptr<SGNode> sgnode(new SGNode(0, 0.0, 0.0, 0.0, 0));
-  decoder->insert_search_graph_node(sgnode);
+  decoder->insertSearchGraphNode(sgnode);
 
   search_graph_null_nodes1[0]->showState();
 
@@ -66,7 +66,7 @@ TEST_F(DecoderTests, DecoderInsertSGNodeNull) {
 
   std::unique_ptr<SGNode> sgnode2(new SGNode(0, 0.1, 0.0, 0.0, 0));
 
-  decoder->insert_search_graph_node(sgnode2);
+  decoder->insertSearchGraphNode(sgnode2);
 
   search_graph_null_nodes1[0]->showState();
 
@@ -86,7 +86,7 @@ TEST_F(DecoderTests, DecoderInsertSGWordNode) {
   std::vector<int> actives = decoder->getActives();
 
   std::unique_ptr<SGNode> sgnode(new SGNode(2405, 0.0, 0.0, 0.0, 0));
-  decoder->insert_search_graph_node(sgnode);
+  decoder->insertSearchGraphNode(sgnode);
 
   search_graph_null_nodes1[0]->showState();
 
@@ -94,7 +94,7 @@ TEST_F(DecoderTests, DecoderInsertSGWordNode) {
 
   std::unique_ptr<SGNode> sgnode2(new SGNode(0, 0.1, 0.0, 0.0, 0));
 
-  decoder->insert_search_graph_node(sgnode2);
+  decoder->insertSearchGraphNode(sgnode2);
 
   search_graph_null_nodes1[0]->showState();
 
@@ -114,10 +114,10 @@ TEST_F(DecoderTests, DecoderInsertSGDifferentNodes) {
   std::vector<int> actives = decoder->getActives();
 
   std::unique_ptr<SGNode> sgnode(new SGNode(2405, 0.0, 0.0, 0.0, 0));
-  decoder->insert_search_graph_node(sgnode);
+  decoder->insertSearchGraphNode(sgnode);
 
   std::unique_ptr<SGNode> sgnode2(new SGNode(0, 0.2, 0.0, 0.0, 0));
-  decoder->insert_search_graph_node(sgnode2);
+  decoder->insertSearchGraphNode(sgnode2);
 
   search_graph_null_nodes1[0]->showState();
   search_graph_null_nodes1[1]->showState();
@@ -139,31 +139,31 @@ TEST_F(DecoderTests, DecoderInsertSGDiffNodeAndNoUpdate) {
   std::vector<int> actives = decoder->getActives();
 
   std::unique_ptr<SGNode> sgnode(new SGNode(2405, 0.0, 0.0, 0.0, 0));
-  decoder->insert_search_graph_node(sgnode);
+  decoder->insertSearchGraphNode(sgnode);
 
   std::unique_ptr<SGNode> sgnode2(new SGNode(0, 0.2, 0.0, 0.0, 0));
-  decoder->insert_search_graph_node(sgnode2);
+  decoder->insertSearchGraphNode(sgnode2);
 
   ASSERT_FLOAT_EQ(search_graph_null_nodes1[0]->getLProb(), 0.0);
   ASSERT_FLOAT_EQ(search_graph_null_nodes1[1]->getLProb(), 0.2);
 
   std::unique_ptr<SGNode> sgnode3(new SGNode(0, 0.1, 0.0, 0.0, 0));
 
-  decoder->insert_search_graph_node(sgnode3);
+  decoder->insertSearchGraphNode(sgnode3);
 
   ASSERT_FLOAT_EQ(search_graph_null_nodes1[0]->getLProb(), 0.0);
   ASSERT_FLOAT_EQ(search_graph_null_nodes1[1]->getLProb(), 0.2);
 
   std::unique_ptr<SGNode> sgnode4(new SGNode(0, 0.3, 0.0, 0.0, 0));
 
-  decoder->insert_search_graph_node(sgnode4);
+  decoder->insertSearchGraphNode(sgnode4);
 
   ASSERT_FLOAT_EQ(search_graph_null_nodes1[0]->getLProb(), 0.0);
   ASSERT_FLOAT_EQ(search_graph_null_nodes1[1]->getLProb(), 0.3);
 
   std::unique_ptr<SGNode> sgnode5(new SGNode(2405, 0.3, 0.0, 0.0, 0));
 
-  decoder->insert_search_graph_node(sgnode5);
+  decoder->insertSearchGraphNode(sgnode5);
 
   ASSERT_FLOAT_EQ(search_graph_null_nodes1[0]->getLProb(), 0.3);
   ASSERT_FLOAT_EQ(search_graph_null_nodes1[1]->getLProb(), 0.3);
@@ -183,7 +183,7 @@ TEST_F(DecoderTests, DecoderInsertSGNodeInsSGNodes1) {
       decoder->getSearchGraphNodes1();
 
   std::unique_ptr<SGNode> sgnode(new SGNode(2404, 0.5, 0.0, 0.0, 0));
-  decoder->insert_search_graph_node(sgnode);
+  decoder->insertSearchGraphNode(sgnode);
 
   ASSERT_EQ(search_graph_null_nodes1.size(), 0);
   ASSERT_EQ(search_graph_nodes1.size(), 1);
@@ -202,7 +202,7 @@ TEST_F(DecoderTests, DecoderInsertSGNodeInsAndUpdateSGNodes1) {
 
   // Symbol node 'a' with logprob
   std::unique_ptr<SGNode> sgnode(new SGNode(2404, log(0.5), 0.0, 0.0, 0));
-  decoder->insert_search_graph_node(sgnode);
+  decoder->insertSearchGraphNode(sgnode);
 
   ASSERT_EQ(search_graph_null_nodes1.size(), 0);
   ASSERT_EQ(search_graph_nodes1.size(), 1);
@@ -211,7 +211,7 @@ TEST_F(DecoderTests, DecoderInsertSGNodeInsAndUpdateSGNodes1) {
   // Pruned by v_lm_thr
   // Symbol node 'b' with logprob
   std::unique_ptr<SGNode> sgnode2_1(new SGNode(2407, log(0.3), 0.0, 0.0, 0));
-  decoder->insert_search_graph_node(sgnode2_1);
+  decoder->insertSearchGraphNode(sgnode2_1);
 
   ASSERT_EQ(search_graph_null_nodes1.size(), 0);
   ASSERT_EQ(search_graph_nodes1.size(), 2);
@@ -219,7 +219,7 @@ TEST_F(DecoderTests, DecoderInsertSGNodeInsAndUpdateSGNodes1) {
 
   // Symbol node 'b' with logprob
   std::unique_ptr<SGNode> sgnode2_2(new SGNode(2407, log(0.7), 0.0, 0.0, 0));
-  decoder->insert_search_graph_node(sgnode2_2);
+  decoder->insertSearchGraphNode(sgnode2_2);
 
   ASSERT_EQ(search_graph_null_nodes1.size(), 0);
   ASSERT_EQ(search_graph_nodes1.size(), 2);
@@ -227,7 +227,7 @@ TEST_F(DecoderTests, DecoderInsertSGNodeInsAndUpdateSGNodes1) {
   ASSERT_FLOAT_EQ(search_graph_nodes1[1]->getLProb(), log(0.7));
 
   std::unique_ptr<SGNode> sgnode3(new SGNode(2404, log(0.3), 0.0, 0.0, 0));
-  decoder->insert_search_graph_node(sgnode3);
+  decoder->insertSearchGraphNode(sgnode3);
 
   ASSERT_EQ(search_graph_null_nodes1.size(), 0);
   ASSERT_EQ(search_graph_nodes1.size(), 2);
@@ -235,7 +235,7 @@ TEST_F(DecoderTests, DecoderInsertSGNodeInsAndUpdateSGNodes1) {
   ASSERT_FLOAT_EQ(search_graph_nodes1[1]->getLProb(), log(0.7));
 
   std::unique_ptr<SGNode> sgnode4(new SGNode(2404, log(0.8), 0.0, 0.0, 0));
-  decoder->insert_search_graph_node(sgnode4);
+  decoder->insertSearchGraphNode(sgnode4);
 
   ASSERT_EQ(search_graph_null_nodes1.size(), 0);
   ASSERT_EQ(search_graph_nodes1.size(), 2);
@@ -269,7 +269,7 @@ TEST_F(DecoderTests, DecoderExpandSGNodeStartNode) {
 
   decoder->addNodeToSearchGraphNullNodes0(sgnodeStart);
 
-  decoder->expand_search_graph_nodes(decoder->getSearchGraphNullNodes0());
+  decoder->expandSearchGraphNodes(decoder->getSearchGraphNullNodes0());
 
   ASSERT_FLOAT_EQ(decoder->getSearchGraphNullNodes1()[0]->getLProb(), -28.1341);
 }
@@ -281,7 +281,7 @@ TEST_F(DecoderTests, DecoderExpandSGNodeExample1) {
 
   decoder->addNodeToSearchGraphNullNodes0(sgnode1);
 
-  decoder->expand_search_graph_nodes(decoder->getSearchGraphNullNodes0());
+  decoder->expandSearchGraphNodes(decoder->getSearchGraphNullNodes0());
 
   ASSERT_FLOAT_EQ(decoder->getSearchGraphNullNodes1()[0]->getLProb(),
                   -2302.504100);
@@ -303,7 +303,7 @@ TEST_F(DecoderTests, DecoderExpandSGNodeExample2) {
 
   decoder->addNodeToSearchGraphNullNodes0(sgnode1);
 
-  decoder->expand_search_graph_nodes(decoder->getSearchGraphNullNodes0());
+  decoder->expandSearchGraphNodes(decoder->getSearchGraphNullNodes0());
 
   ASSERT_EQ(decoder->getSearchGraphNullNodes1().size(), 0);
 
@@ -317,6 +317,14 @@ TEST_F(DecoderTests, DecoderExpandSGNodeExample2) {
   for (auto i = 0; i < lprobs.size(); i++) {
     ASSERT_FLOAT_EQ(decoder->getSearchGraphNodes1()[i]->getLProb(), lprobs[i]);
   }
+}
+
+TEST_F(DecoderTests, DecoderExpandSGNodeNotFinalIterAndDSTFinalState) {
+  ASSERT_TRUE(false);
+}
+
+TEST_F(DecoderTests, DecoderExpandSGNodeFinalIterAndNullNode) {
+  ASSERT_TRUE(false);
 }
 
 TEST_F(DecoderTests, DecoderGetReadyNullNodes) {
@@ -363,7 +371,7 @@ TEST_F(DecoderTests, DecoderGetReadyNodes) {
 TEST_F(DecoderTests, DecoderViterbiIterSG) {
   std::unique_ptr<SGNode> sgnodeIni(new SGNode(startState, 0.0, 0.0, 0.0, 0));
 
-  decoder->insert_search_graph_node(sgnodeIni);
+  decoder->insertSearchGraphNode(sgnodeIni);
 
   decoder->viterbiIterSG(0);
 
@@ -428,7 +436,7 @@ TEST_F(DecoderTests, DecoderViterbiSG2HMM_test1) {
       {447, -231.192020}, {2443, -3.912020},  {450, -231.523380},
       {2444, -4.605170},  {451, -233.246150}, {2445, -3.912020}};
 
-  decoder->insert_search_graph_node(sgnodeIni);
+  decoder->insertSearchGraphNode(sgnodeIni);
 
   decoder->viterbiIterSG(0);
 
@@ -504,7 +512,7 @@ TEST_F(DecoderTests, DecoderViterbiInit) {
   // std::unique_ptr<SGNode> sgnodeIni(new
   // SGNode(startState, 0.0, 0.0, 0.0, 0));
 
-  // decoder->insert_search_graph_node(sgnodeIni);
+  // decoder->insertSearchGraphNode(sgnodeIni);
 
   // decoder->viterbiIterSG(0);
 

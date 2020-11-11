@@ -131,14 +131,16 @@ class WordHyp {
    */
   std::string& getWord() { return word; }
   /**
-   * @brief Get the previous index where the previous hypothesis is stored in the internal decoder structure.
-   * 
+   * @brief Get the previous index where the previous hypothesis is stored in
+   * the internal decoder structure.
+   *
    * @return int Position of the previous index
    */
   int getPrev() { return prev; }
   /**
-   * @brief Show the current hypothesis, the index of the previos hypothesis and the word on this hypothesis.
-   * 
+   * @brief Show the current hypothesis, the index of the previos hypothesis and
+   * the word on this hypothesis.
+   *
    */
   void showWordHyp();
 
@@ -150,10 +152,13 @@ class WordHyp {
 class Decoder {
  public:
   /**
-   * @brief Construct a new Decoder object
+   * @brief Construct a new Decoder object with the Search Graph Language Model
+   * and the Acoustic Model.
    *
-   * @param[in] sgraph
-   * @param[in] amodel
+   * @param[in] sgraph Search Graph Language Model, a graph-like structure with
+   * nodes with LM related information (symbols, words) and weighted edges.
+   * @param[in] amodel  Acoustic Model, an statistical model that provides the
+   * transitions between HMM nodes and the emission log probabilities.
    */
   Decoder(std::unique_ptr<SearchGraphLanguageModel> sgraph,
           std::unique_ptr<AcousticModel> amodel);
@@ -161,17 +166,40 @@ class Decoder {
   /**
    * @brief Decode a sample providing the transcription.
    *
-   * @param[in] sample
-   * @return float
+   * @param[in] sample Sample that contains the feature vectors
+   * @return float Log probability of this sample
    */
   float decode(Sample sample);
 
   /**
+   * This method takes a non-empty vector of Search Graph nodes (SGNode) and
+   * expand it. The process of this expansion involves iterating on each SGNode
+   * in the vector once and:
+   * -If this is the final iteration, that is, the last frame of the sample, and
+   * the current node is connected to the node labeled as final state, the max
+   * log probability is updated storing the max hypothesis and the current
+   * SGNode.
+   * -Expand edges of the current node, considering that if this is not the last
+   * iteration (the last frame) to not include the incoming node that is the
+   * final state in the Search Graph. Additionally, if this is the final
+   * iteration and the incoming node is a null node (nodes without symbol or
+   * word, labeled with '-') will not be indluced as well.
+   * -For each incoming node (destiny node) a new SGNode will be created with
+   * the log probability and the language model log probability updated
+   * according to:
+   *  - log_prob = current_log_prob + edge_weight * Grammar_Scale_Factor (GSF) +
+   * Word_Insertion_Penalty (WIP)
+   *  - LM log_prob = current_LM_log_prob + edge_weight
+   * -Finally, this node is provided to the insertSearchGraphNode to,
+   * potentially, be inserted in the internal decoder structure (check
+   * insertSearchGraphNode for more details).
+   * -The input vector is not modified in this method, being read-only.
+   *
    * @brief Expand a list of SGNodes.
    *
    * @param[in] searchgraph_nodes
    */
-  void expand_search_graph_nodes(
+  void expandSearchGraphNodes(
       std::vector<std::unique_ptr<SGNode>>& searchgraph_nodes);
 
   /**
@@ -181,7 +209,7 @@ class Decoder {
    *
    * @param[in] node
    */
-  void insert_search_graph_node(std::unique_ptr<SGNode>& node);
+  void insertSearchGraphNode(std::unique_ptr<SGNode>& node);
 
   /**
    * @brief TO DO

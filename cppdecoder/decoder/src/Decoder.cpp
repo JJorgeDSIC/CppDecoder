@@ -5,10 +5,9 @@
 
 #include <Decoder.h>
 
-
 /**
  * @brief Search Graph Node methods' definition
- * 
+ *
  */
 
 SGNode::SGNode() : state_id(0), lprob(0.0), hmmlprob(0.0), lmlprob(0), hyp(0) {}
@@ -23,7 +22,7 @@ SGNode::SGNode(const uint32_t state_id, const float lprob, const float hmmlprob,
 
 /**
  * @brief Word Hypothesis methods' definition
- * 
+ *
  */
 
 WordHyp::WordHyp(const int prev, const std::string& word)
@@ -31,7 +30,7 @@ WordHyp::WordHyp(const int prev, const std::string& word)
 
 /**
  * @brief Decoder methods' definition
- * 
+ *
  */
 
 Decoder::Decoder(std::unique_ptr<SearchGraphLanguageModel> sgraph,
@@ -195,7 +194,7 @@ void Decoder::viterbiIter(const Sample& sample, const int t,
                                                 current_hmmp + p1, current_lmp,
                                                 current_hyp));
       sgNodesExpanded++;
-      insert_search_graph_node(sgnode);
+      insertSearchGraphNode(sgnode);
     }
   }
 
@@ -213,7 +212,7 @@ void Decoder::viterbiInit(const Sample& sample) {
   std::unique_ptr<SGNode> sgnodeIni(
       new SGNode(sgraph->getStartState(), 0.0, 0.0, 0.0, 0));
 
-  insert_search_graph_node(sgnodeIni);
+  insertSearchGraphNode(sgnodeIni);
 
   viterbiIterSG(0);
 
@@ -227,11 +226,13 @@ void Decoder::updateLmBeam(float lprob) {
   v_lm_thr = lprob - v_lm_beam;
 }
 
-void Decoder::expand_search_graph_nodes(
+// TODO: searchgraph_nodes candidate to be const?
+void Decoder::expandSearchGraphNodes(
     std::vector<std::unique_ptr<SGNode>>& searchgraph_nodes) {
   max_prob = -HUGE_VAL;
   SGNode* max_node = nullptr;
   SGNode* prev_node = nullptr;
+  float local_wip = 0.0;
 
   assert(searchgraph_nodes.size() != 0);
 
@@ -245,18 +246,19 @@ void Decoder::expand_search_graph_nodes(
         max_hyp = node->getHyp();
       }
       // TODO Register final trans
+      // TODO Store hypothesis at symbol level in the future
     }
 
     float curr_lprob = node->getLProb();
     float curr_lmlprob = node->getLMLProb();
+    std::string wordInNode = sgraph->getIdToWord(node->getStateId());
+    local_wip = (wordInNode != "-" && wordInNode != "<") ? WIP : 0;
 
     SearchGraphLanguageModelState sgstate =
         sgraph->getSearchGraphState(node->getStateId());
 
     for (uint32_t i = sgstate.edge_begin; i < sgstate.edge_end; i++) {
       SearchGraphLanguageModelEdge sgedge = sgraph->getSearchGraphEdge(i);
-
-      // TODO Final iter
       if (!final_iter) {
         if (sgedge.dst == sgraph->getFinalState()) {
           continue;
@@ -265,11 +267,11 @@ void Decoder::expand_search_graph_nodes(
         continue;
       }
 
-      float lprob = curr_lprob + sgedge.weight * GSF + WIP;
+      float lprob = curr_lprob + sgedge.weight * GSF + local_wip;
       float lmlprob = curr_lmlprob + sgedge.weight;
       std::unique_ptr<SGNode> sgnode(new SGNode(
           sgedge.dst, lprob, node->getHMMLProb(), lmlprob, node->getHyp()));
-      insert_search_graph_node(sgnode);
+      insertSearchGraphNode(sgnode);
     }
   }
 }
@@ -313,15 +315,15 @@ void Decoder::viterbiIterSG(const int t) {
   getReadyNodes();
 
   if (nodes0IsNotEmpty()) {
-    expand_search_graph_nodes(getSearchGraphNodes0());
+    expandSearchGraphNodes(getSearchGraphNodes0());
   }
 
   if (nullNodes0IsNotEmpty()) {
-    expand_search_graph_nodes(getSearchGraphNullNodes0());
+    expandSearchGraphNodes(getSearchGraphNullNodes0());
   }
   while (nullNodes1IsNotEmpty()) {
     getReadyNullNodes();
-    expand_search_graph_nodes(getSearchGraphNullNodes0());
+    expandSearchGraphNodes(getSearchGraphNullNodes0());
   }
   getReadyNodes();
 }
@@ -453,7 +455,7 @@ float Decoder::getMinProbFromHMMNodes() {
   return hmm_minheap_nodes1->getMinLProb();
 }
 
-void Decoder::insert_search_graph_node(std::unique_ptr<SGNode>& node) {
+void Decoder::insertSearchGraphNode(std::unique_ptr<SGNode>& node) {
   const std::string& symbol = sgraph->getIdToSym(node->getStateId());
   const std::string& word = sgraph->getIdToWord(node->getStateId());
 
