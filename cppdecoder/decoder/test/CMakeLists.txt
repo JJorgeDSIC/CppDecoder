@@ -36,3 +36,9 @@ configure_file(
 
 configure_file(
      ${CMAKE_SOURCE_DIR}/samples/AAFA0016.features ${CMAKE_BINARY_DIR}/test/samples/AAFA0016.features COPYONLY)
+
+configure_file(
+     ${CMAKE_SOURCE_DIR}/samples/AAFA0002.features ${CMAKE_BINARY_DIR}/samples/AAFA0002.features COPYONLY)
+
+configure_file(
+     ${CMAKE_SOURCE_DIR}/samples/AAFA0002.features ${CMAKE_BINARY_DIR}/test/samples/AAFA0002.features COPYONLY)
