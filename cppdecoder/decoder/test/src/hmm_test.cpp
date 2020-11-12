@@ -21,7 +21,7 @@
 
 namespace {
 
-// TODO: Create more test cases
+// TODO: Create more test cases and document the test cases
 
 class HMMTests : public ::testing::Test {
  protected:

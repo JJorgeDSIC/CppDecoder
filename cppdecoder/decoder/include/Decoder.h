@@ -609,6 +609,12 @@ class Decoder {
   void setVBeam(float v_abeam) { this->v_abeam = v_abeam; }
 
   /**
+   * @brief Set the flag for the final iter
+   *
+   */
+  void setFinalIter(bool final_iter) { this->final_iter = final_iter; }
+
+  /**
    * @brief Computes the emission log prob or score with a given frame
    * (n-dimensional vector), a symbol or senone and the state index of the HMM
    * model (q)

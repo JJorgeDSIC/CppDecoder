@@ -17,7 +17,7 @@
 
 namespace {
 
-// TODO: Create more test cases
+// TODO: Create more test cases and document the test cases
 
 class DecoderTests : public ::testing::Test {
  protected:
@@ -312,11 +312,37 @@ TEST_F(DecoderTests, DecoderExpandSGNodeExample2) {
 }
 
 TEST_F(DecoderTests, DecoderExpandSGNodeNotFinalIterAndDSTFinalState) {
-  ASSERT_TRUE(false);
+  std::unique_ptr<SGNode> sgnode1(
+      new SGNode(2, -2302.504100, -2302.504100, 0.0, 0));
+
+  decoder->addNodeToSearchGraphNullNodes0(sgnode1);
+
+  decoder->expandSearchGraphNodes(decoder->getSearchGraphNullNodes0());
+
+  ASSERT_EQ(decoder->getSearchGraphNullNodes1().size(), 0);
+  ASSERT_EQ(decoder->getSearchGraphNodes1().size(), 29);
+
+  for (auto& node : decoder->getSearchGraphNodes1()) {
+    ASSERT_TRUE(node->getStateId() != 2);
+  }
 }
 
 TEST_F(DecoderTests, DecoderExpandSGNodeFinalIterAndNullNode) {
-  ASSERT_TRUE(false);
+  std::unique_ptr<SGNode> sgnode1(
+      new SGNode(2, -2302.504100, -2302.504100, 0.0, 0));
+
+  decoder->setFinalIter(true);
+
+  decoder->addNodeToSearchGraphNullNodes0(sgnode1);
+
+  decoder->expandSearchGraphNodes(decoder->getSearchGraphNullNodes0());
+
+  ASSERT_EQ(decoder->getSearchGraphNullNodes1().size(), 1);
+  ASSERT_EQ(decoder->getSearchGraphNodes1().size(), 0);
+
+  for (auto& node : decoder->getSearchGraphNullNodes1()) {
+    ASSERT_TRUE(node->getStateId() == 1);
+  }
 }
 
 TEST_F(DecoderTests, DecoderGetReadyNullNodes) {
