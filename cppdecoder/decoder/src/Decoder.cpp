@@ -299,9 +299,10 @@ void Decoder::viterbiSg2HMM(const Sample& sample) {
 }
 
 void Decoder::getReadyHMMNodes0() {
-  hmm_minheap_nodes0->getNodes().swap(hmm_minheap_nodes1->getNodes());
+  hmm_minheap_nodes0->exchangeNodes(hmm_minheap_nodes1);
+  hmm_minheap_nodes0->exchangeActives(hmm_minheap_nodes1);
+
   hmm_minheap_nodes0->setSize(hmm_minheap_nodes1->getSize());
-  hmm_minheap_nodes0->getActives().swap(hmm_minheap_nodes1->getActives());
   hmm_minheap_nodes1->setSize(0);
   hmm_minheap_nodes1->cleanActives();
 }

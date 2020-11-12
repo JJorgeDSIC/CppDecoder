@@ -145,44 +145,45 @@ TEST_F(HMMTests, DecoderHMMAddAndExtractMinAndGettingPosition) {
     ASSERT_EQ(vec_posis_remove4[i], positionInside);
   }
 }
-TEST_F(HMMTests, DecoderHMMUpdate) {
-  int position = -1;
-  int capacity = 100;
-  std::unique_ptr<HMMMinHeap> minHeap(new HMMMinHeap(5));
 
-  std::vector<float> vec = {190, 140, 68,  156, 134, 2, 194,
-                            4,   34,  184, 104, 112, 2};
+// TEST_F(HMMTests, DecoderHMMUpdate) {
+//   int position = -1;
+//   int capacity = 100;
+//   std::unique_ptr<HMMMinHeap> minHeap(new HMMMinHeap(5));
 
-  std::vector<float> sorted_vec = {2,   2,   4,   34,  68,  104, 112,
-                                   134, 140, 156, 184, 190, 194};
+//   std::vector<float> vec = {190, 140, 68,  156, 134, 2, 194,
+//                             4,   34,  184, 104, 112, 2};
 
-  for (size_t i = 0; i < vec.size(); i++) {
-    uint32_t sg_state = i;
-    uint32_t hmm_q_state = 0;
-    float lprob = vec[i];
-    float hmmp = vec[i];
-    float lmp = vec[i];
-    uint32_t trapos = 0;
-    uint32_t h = 0;
+//   std::vector<float> sorted_vec = {2,   2,   4,   34,  68,  104, 112,
+//                                    134, 140, 156, 184, 190, 194};
 
-    std::unique_ptr<HMMNode> node(
-        new HMMNode(sg_state, hmm_q_state, lprob, hmmp, lmp, trapos, h));
+//   for (size_t i = 0; i < vec.size(); i++) {
+//     uint32_t sg_state = i;
+//     uint32_t hmm_q_state = 0;
+//     float lprob = vec[i];
+//     float hmmp = vec[i];
+//     float lmp = vec[i];
+//     uint32_t trapos = 0;
+//     uint32_t h = 0;
 
-    position = minHeap->insert(std::move(node));
-  }
+//     std::unique_ptr<HMMNode> node(
+//         new HMMNode(sg_state, hmm_q_state, lprob, hmmp, lmp, trapos, h));
 
-  minHeap->update(8, 0, 1);
+//     position = minHeap->insert(std::move(node));
+//   }
 
-  ASSERT_EQ(minHeap->getMinLProb(), 1);
+//   minHeap->update(8, 0, 1);
 
-  minHeap->update(11, 0, 2);
+//   ASSERT_EQ(minHeap->getMinLProb(), 1);
 
-  ASSERT_EQ(minHeap->getMinLProb(), 1);
+//   minHeap->update(11, 0, 2);
 
-  minHeap->update(0, 0, 0);
+//   ASSERT_EQ(minHeap->getMinLProb(), 1);
 
-  ASSERT_EQ(minHeap->getMinLProb(), 0);
-}
+//   minHeap->update(0, 0, 0);
+
+//   ASSERT_EQ(minHeap->getMinLProb(), 0);
+// }
 
 TEST_F(HMMTests, DecoderHMMPopAdd) {
   int position = -1;

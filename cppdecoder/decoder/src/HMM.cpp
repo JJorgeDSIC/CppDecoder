@@ -10,27 +10,32 @@ HMMNodeId::HMMNodeId() {
   this->hmm_q_state = 0;
 }
 
-HMMNode::HMMNode() : lprob(0.0), hmmp(0.0), lmp(0.0), trapos(0), h(0) {
+HMMNode::HMMNode()
+    : lprob(0.0), hmmlp(0.0), lmlp(0.0), trapos(0), hyp_index(0) {
   this->id = HMMNodeId(0, 0);
 }
 
 HMMNode::HMMNode(const uint32_t sg_state, const uint32_t hmm_q_state)
-    : lprob(0.0), hmmp(0.0), lmp(0.0), trapos(0), h(0) {
+    : lprob(0.0), hmmlp(0.0), lmlp(0.0), trapos(0), hyp_index(0) {
   this->id = HMMNodeId(sg_state, hmm_q_state);
 }
 
 HMMNode::HMMNode(const uint32_t sg_state, const uint32_t hmm_q_state,
-                 const float lprob, const float hmmp, const float lmp,
-                 const uint32_t trapos, const uint32_t h)
-    : lprob(lprob), hmmp(hmmp), lmp(lmp), trapos(trapos), h(h) {
+                 const float lprob, const float hmmlp, const float lmlp,
+                 const uint32_t trapos, const uint32_t hyp_index)
+    : lprob(lprob),
+      hmmlp(hmmlp),
+      lmlp(lmlp),
+      trapos(trapos),
+      hyp_index(hyp_index) {
   this->id = HMMNodeId(sg_state, hmm_q_state);
 }
 
 void HMMNode::showHMMState() {
   std::cout << "HMM ID_S: " << id.sg_state << ", ID_Q: " << id.hmm_q_state
-            << ", LProb: " << lprob << ", HMMProb: " << hmmp
-            << ", LMProb: " << lmp << ", Trapos: " << trapos << ", h: " << h
-            << std::endl;
+            << ", LProb: " << lprob << ", HMMProb: " << hmmlp
+            << ", LMProb: " << lmlp << ", Trapos: " << trapos
+            << ", h: " << hyp_index << std::endl;
 }
 
 float HMMMinHeap::getMinLProb() {
@@ -134,36 +139,26 @@ std::unique_ptr<HMMNode> HMMMinHeap::popAndInsert(
   return std::move(minNode);
 }
 
-int HMMMinHeap::update(const uint32_t sg_state, const uint32_t hmm_q_state,
-                       float lprob) {
-  int position = HMMActives[HMMNodeId(sg_state, hmm_q_state)];
-  hmm_nodes[position]->setHMMLogProb(lprob);
-  hmm_nodes[position]->setLMLogProb(lprob);
+int HMMMinHeap::updateNodeAt(int position, float lprob, float hmmlp) {
   hmm_nodes[position]->setLogprob(lprob);
-
-  std::unique_ptr<HMMNode> hmm_node = std::move(hmm_nodes[position]);
-  position = bubbleUp(hmm_node, position);
-  hmm_nodes[position] = std::move(hmm_node);
-  HMMActives[hmm_nodes[position]->getId()] = position;
+  hmm_nodes[position]->setHMMLogProb(hmmlp);
+  // TODO: Prepare a test for this
+  position = sink(position);
 }
 
-int HMMMinHeap::updateNodeAt(int position, float prob, float auxp) {
-  hmm_nodes[position]->setLogprob(prob);
-  hmm_nodes[position]->setHMMLogProb(auxp);
-  hmm_nodes[position]->setLMLogProb(hmm_nodes[position]->getLMLogProb());
-  hmm_nodes[position]->setH(hmm_nodes[position]->getH());
+void HMMMinHeap::exchangeActives(
+    const std::unique_ptr<HMMMinHeap>& hmm_min_heap_other) {
+  HMMActives.swap(hmm_min_heap_other->HMMActives);
+}
 
-  // TODO: TO fix this....
-  position = sink(position);
+void HMMMinHeap::exchangeNodes(
+    const std::unique_ptr<HMMMinHeap>& hmm_min_heap_other) {
+  hmm_nodes.swap(hmm_min_heap_other->hmm_nodes);
 }
 
 void HMMMinHeap::showHeapContent() {
   for (size_t i = 1; i < size + 1; i++) {
     hmm_nodes[i]->showHMMState();
-    // std::cout << "Position: " << i << std::endl;
-
-    // std::cout << "Position according to hash: "
-    //          << HMMActives[hmm_nodes[i]->getId()] << std::endl;
   }
 }
 
