@@ -82,9 +82,9 @@ class MixtureAcousticModel : public AcousticModel {
   float calc_logprob(const std::string &state, int q,
                      const std::vector<float> &frame) override;
 
-  std::string &getStateTransType(const std::string &state);
+  std::string &getStateTransType(const std::string &state) override;
 
-  std::vector<float> &getStateTrans(const std::string &state);
+  std::vector<float> &getStateTrans(const std::string &state) override;
 
  private:
   typedef std::tuple<std::string, float> value_t;

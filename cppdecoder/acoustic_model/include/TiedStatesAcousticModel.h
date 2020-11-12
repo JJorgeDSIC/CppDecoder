@@ -71,7 +71,7 @@ class TiedStatesAcousticModel : public AcousticModel {
    * @param state
    * @return std::string&
    */
-  std::string &getStateTransType(const std::string &state);
+  std::string &getStateTransType(const std::string &state) override;
 
   /**
    * @brief TODO
@@ -79,7 +79,7 @@ class TiedStatesAcousticModel : public AcousticModel {
    * @param state
    * @return std::vector<float>&
    */
-  std::vector<float> &getStateTrans(const std::string &state);
+  std::vector<float> &getStateTrans(const std::string &state) override;
 
  private:
   uint32_t dim;
