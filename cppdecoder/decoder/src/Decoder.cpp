@@ -50,27 +50,18 @@ Decoder::Decoder(std::unique_ptr<SearchGraphLanguageModel> sgraph,
 
 float Decoder::decode(Sample sample) {
   viterbiInit(sample);
-  // TODO: Fix prune before case
   // TODO: Fix adaptative beam
 
-  std::cout << "# of frames: " << sample.getNFrames() << std::endl;
-
   getWordHyps().emplace_back(-1, "");
-  // for (size_t i = 0; i < sample.getNFrames(); i++) {
-  setVLMBeam(HUGE_VAL);  // LM rescoring related...
+  setVLMBeam(HUGE_VAL);
   setVBeam(300);
-  for (size_t i = 0; i < sample.getNFrames() - 1; i++) {
-    // std::cout << sample.getFrame(i).getDim() << std::endl;
-    // std::cout << "############### CURRENT FRAME: " << i << std::endl;
 
+  for (size_t i = 0; i < sample.getNFrames() - 1; i++) {
     viterbiIter(sample, i, false);
   }
-  // std::cout << "############### CURRENT FRAME: " << sample.getNFrames() - 1
-  //          << std::endl;
-
   viterbiIter(sample, sample.getNFrames() - 1, true);
-  std::cout << "Result: " << std::endl;
   getResult();
+  return max_prob;
 }
 
 // TODO: searchgraph_nodes candidate to be const?

@@ -144,6 +144,7 @@ int HMMMinHeap::updateNodeAt(int position, float lprob, float hmmlp) {
   hmm_nodes[position]->setHMMLogProb(hmmlp);
   // TODO: Prepare a test for this
   position = sink(position);
+  return position;
 }
 
 void HMMMinHeap::exchangeActives(
