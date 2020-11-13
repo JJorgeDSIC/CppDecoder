@@ -37,15 +37,11 @@ Decoder::Decoder(std::unique_ptr<SearchGraphLanguageModel> sgraph,
                  std::unique_ptr<AcousticModel> amodel) {
   this->sgraph = std::move(sgraph);
   this->amodel = std::move(amodel);
-  std::vector<int> activesTemp(this->sgraph->getNStates(),
-                               -1);  // Review this...
-  actives = std::move(activesTemp);
 
-  std::unique_ptr<HMMMinHeap> hmm_minheap_temp0(new HMMMinHeap(nmaxstates));
-  std::unique_ptr<HMMMinHeap> hmm_minheap_temp1(new HMMMinHeap(nmaxstates));
+  actives = std::vector<int>(this->sgraph->getNStates(), -1);
 
-  hmm_minheap_nodes0 = std::move(hmm_minheap_temp0);
-  hmm_minheap_nodes1 = std::move(hmm_minheap_temp1);
+  hmm_minheap_nodes0 = std::unique_ptr<HMMMinHeap>(new HMMMinHeap(nmaxstates));
+  hmm_minheap_nodes1 = std::unique_ptr<HMMMinHeap>(new HMMMinHeap(nmaxstates));
 }
 
 float Decoder::decode(Sample sample) {
@@ -470,15 +466,10 @@ void Decoder::resetDecoder() {
   lprob_cache.clear();
   hypothesis.clear();
 
-  std::vector<int> activesTemp(this->sgraph->getNStates(),
-                               -1);  // Review this...
-  actives = std::move(activesTemp);
+  actives = std::vector<int>(this->sgraph->getNStates(), -1);
 
-  std::unique_ptr<HMMMinHeap> hmm_minheap_temp0(new HMMMinHeap(nmaxstates));
-  std::unique_ptr<HMMMinHeap> hmm_minheap_temp1(new HMMMinHeap(nmaxstates));
-
-  hmm_minheap_nodes0 = std::move(hmm_minheap_temp0);
-  hmm_minheap_nodes1 = std::move(hmm_minheap_temp1);
+  hmm_minheap_nodes0 = std::unique_ptr<HMMMinHeap>(new HMMMinHeap(nmaxstates));
+  hmm_minheap_nodes1 = std::unique_ptr<HMMMinHeap>(new HMMMinHeap(nmaxstates));
 }
 
 std::string Decoder::getResult() {
