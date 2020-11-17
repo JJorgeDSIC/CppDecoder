@@ -29,7 +29,7 @@ void GaussianMixtureState::addPMembers(const std::string &line) {
 int GaussianMixtureState::addGaussianState(const uint32_t d,
                                            const std::string &mu_line,
                                            const std::string &var_line) {
-  if (dim != d) return 1;
+  assert(dim == d);
 
   gstates.emplace_back(dim, mu_line, var_line);
   return 0;

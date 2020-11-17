@@ -101,25 +101,25 @@ class HMMNode {
    *
    * @return float Log probability of this node
    */
-  float getLogProb() { return lprob; }
+  float getLogProb() const { return lprob; }
   /**
    * @brief Get the log probability at HMM state level
    *
    * @return float log probability at HMM state level
    */
-  float getHMMLogProb() { return hmmlp; }
+  float getHMMLogProb() const { return hmmlp; }
   /**
    * @brief Get the log probability at Language model level
    *
    * @return float log probability at Language model level
    */
-  float getLMLogProb() { return lmlp; }
+  float getLMLogProb() const { return lmlp; }
   /**
    * @brief Get the position in the HMM min nodes heap
    *
    * @return uint32_t Position in the HMM min nodes heap
    */
-  uint32_t getTrapos() { return trapos; }
+  uint32_t getTrapos() const { return trapos; }
   /**
    * @brief Get the hypothesis index in the hypothesis structure in the decoder
    * class.
@@ -127,7 +127,7 @@ class HMMNode {
    * @return uint32_t Position in the vector hypothesis of the hypothesis
    * associated with this node
    */
-  uint32_t getH() { return hyp_index; }
+  uint32_t getH() const { return hyp_index; }
   /**
    * @brief Set the HMM state for this node, tipically 0,1,2 for common HMM
    * models
@@ -171,7 +171,7 @@ class HMMNode {
    * @brief Prints to the stdout the content of the node
    *
    */
-  void showHMMState();
+  void showHMMState() const;
 };
 
 class HMMMinHeap {
@@ -189,7 +189,7 @@ class HMMMinHeap {
    *
    * @return float Minimum log probability
    */
-  float getMinLProb();
+  float getMinLProb() const;
   /**
    * @brief Get the nodes' vector, it is stored as a heap (tree-like), and the
    * position 0 is not used.
@@ -273,7 +273,7 @@ class HMMMinHeap {
    * @brief Prints to the stdout the content of the heap in Breadth First order.
    *
    */
-  void showHeapContent();
+  void showHeapContent() const;
   /**
    * @brief Get the position of a node with the provided id, the tuple
    * (sg_state, hmm_q_state)
@@ -308,7 +308,7 @@ class HMMMinHeap {
    *
    * @return int The number of active states in the heap structure
    */
-  int getSize() { return size; }
+  int getSize() const { return size; }
   /**
    * @brief Set the number of active states in the structure
    *

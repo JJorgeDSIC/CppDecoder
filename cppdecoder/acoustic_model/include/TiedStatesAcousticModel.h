@@ -25,13 +25,13 @@ class TiedStatesAcousticModel : public AcousticModel {
    *
    * @return uint32_t The dimension.
    */
-  uint32_t getDim() override { return dim; }
+  uint32_t getDim() const override { return dim; }
   /**
    * @brief Get the number of states contained in this model.
    *
    * @return uint32_t The number of states.
    */
-  uint32_t getNStates() override { return n_states; }
+  uint32_t getNStates() const override { return n_states; }
 
   /**
    * @brief Set vectors's dimension.
@@ -66,7 +66,7 @@ class TiedStatesAcousticModel : public AcousticModel {
   float calc_logprob(const std::string &state, const int q,
                      const std::vector<float> &frame) override;
   /**
-   * @brief TODO
+   * @brief Get the State Trans Type from symbol/state
    *
    * @param state
    * @return std::string&
@@ -74,7 +74,7 @@ class TiedStatesAcousticModel : public AcousticModel {
   std::string &getStateTransType(const std::string &state) override;
 
   /**
-   * @brief TODO
+   * @brief Get the state transitions in vector form, containing for each position the loop's log prob
    *
    * @param state
    * @return std::vector<float>&

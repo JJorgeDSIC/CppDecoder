@@ -6,17 +6,17 @@
 #include "DGaussianAcousticModel.h"
 
 GaussianState::GaussianState(const uint32_t d) : dim(d), logc(0) {
-  mu.reserve(dim);
-  var.reserve(dim);
-  ivar.reserve(dim);
+  mu.reserve(d);
+  var.reserve(d);
+  ivar.reserve(d);
 }
 
 GaussianState::GaussianState(const uint32_t d, const std::string &mu_line,
                              const std::string &var_line)
     : dim(d), logc(0) {
-  mu.reserve(dim);
-  var.reserve(dim);
-  ivar.reserve(dim);
+  mu.reserve(d);
+  var.reserve(d);
+  ivar.reserve(d);
   addMu(mu_line);
   addVar(var_line);
 }

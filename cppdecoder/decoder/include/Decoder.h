@@ -37,32 +37,32 @@ class SGNode {
    *
    * @return uint32_t Unique identifier
    */
-  uint32_t getStateId() { return state_id; }
+  uint32_t getStateId() const { return state_id; }
   /**
    * @brief Get the log probability of the Search Graph Node
    *
    * @return float Log probability
    */
-  float getLProb() { return lprob; }
+  float getLProb() const { return lprob; }
   /**
    * @brief Get the log probability at HMM state level
    *
    * @return float Log probability at HMM level
    */
-  float getHMMLProb() { return hmmlprob; }
+  float getHMMLProb() const { return hmmlprob; }
   /**
    * @brief Get the log probability at language model state level
    *
    * @return float Log probability at Language model level
    */
-  float getLMLProb() { return lmlprob; }
+  float getLMLProb() const { return lmlprob; }
   /**
    * @brief Get the hypothesis index for this Search Graph node, this indexes
    * the hypothesis vector in the decoder
    *
    * @return uint32_t Index of the associated hypothesis
    */
-  uint32_t getHyp() { return hyp; }
+  uint32_t getHyp() const { return hyp; }
 
   /**
    * @brief Set Log probability for this Search Graph Node
@@ -97,7 +97,7 @@ class SGNode {
    * @return false otherwise
    */
   bool operator==(const SGNode& p) const { return state_id == p.state_id; }
-  void showState();
+  void showState() const;
 
  private:
   uint32_t state_id;
@@ -129,20 +129,20 @@ class WordHyp {
    *
    * @return std::string& Word on this hypothesis
    */
-  std::string& getWord() { return word; }
+  std::string getWord() const { return word; }
   /**
    * @brief Get the previous index where the previous hypothesis is stored in
    * the internal decoder structure.
    *
    * @return int Position of the previous index
    */
-  int getPrev() { return prev; }
+  int getPrev() const { return prev; }
   /**
    * @brief Show the current hypothesis, the index of the previos hypothesis and
    * the word on this hypothesis.
    *
    */
-  void showWordHyp();
+  void showWordHyp() const;
 
  private:
   int prev;

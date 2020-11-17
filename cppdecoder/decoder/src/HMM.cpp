@@ -31,14 +31,14 @@ HMMNode::HMMNode(const uint32_t sg_state, const uint32_t hmm_q_state,
   this->id = HMMNodeId(sg_state, hmm_q_state);
 }
 
-void HMMNode::showHMMState() {
+void HMMNode::showHMMState() const {
   std::cout << "HMM ID_S: " << id.sg_state << ", ID_Q: " << id.hmm_q_state
             << ", LProb: " << lprob << ", HMMProb: " << hmmlp
             << ", LMProb: " << lmlp << ", Trapos: " << trapos
             << ", h: " << hyp_index << std::endl;
 }
 
-float HMMMinHeap::getMinLProb() {
+float HMMMinHeap::getMinLProb() const {
   assert(size > 0);
   return hmm_nodes[1]->getLogProb();
 }
@@ -62,7 +62,7 @@ int HMMMinHeap::sink(int currentPos) {
   while (son <= size && isNotHeap) {
     if (son < size &&
         hmm_nodes[son + 1]->getLogProb() < hmm_nodes[son]->getLogProb()) {
-      son++;
+      ++son;
     }
 
     if (hmm_nodes[son]->getLogProb() < nodeToSink->getLogProb()) {
@@ -123,7 +123,7 @@ int HMMMinHeap::insert(std::unique_ptr<HMMNode> hmm_node) {
   if (size != 0) {
     position = bubbleUp(hmm_node, position);
   }
-  size++;
+  ++size;
   hmm_nodes[position] = std::move(hmm_node);
   HMMActives[hmm_nodes[position]->getId()] = position;
   return position;
@@ -157,7 +157,7 @@ void HMMMinHeap::exchangeNodes(
   hmm_nodes.swap(hmm_min_heap_other->hmm_nodes);
 }
 
-void HMMMinHeap::showHeapContent() {
+void HMMMinHeap::showHeapContent() const {
   for (size_t i = 1; i < size + 1; i++) {
     hmm_nodes[i]->showHMMState();
   }

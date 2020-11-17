@@ -133,7 +133,7 @@ class DGaussianAcousticModel : public AcousticModel {
    *
    * @return uint32_t The dimension.
    */
-  uint32_t getDim() override { return dim; }
+  uint32_t getDim() const override { return dim; }
 
   /**
    * @brief Set vectors's dimension
@@ -147,7 +147,7 @@ class DGaussianAcousticModel : public AcousticModel {
    *
    * @return uint32_t The number os states.
    */
-  uint32_t getNStates() override { return n_states; }
+  uint32_t getNStates() const override { return n_states; }
 
   /**
    * @brief Read a Diagonal Gaussian Acoustic model from text file.
@@ -179,7 +179,7 @@ class DGaussianAcousticModel : public AcousticModel {
                      const std::vector<float> &frame) override;
 
   /**
-   * @brief TODO
+   * @brief Get the State Trans Type from symbol/state
    *
    * @param state
    * @return std::string&
@@ -187,7 +187,7 @@ class DGaussianAcousticModel : public AcousticModel {
   std::string &getStateTransType(const std::string &state) override;
 
   /**
-   * @brief TODO
+   * @brief Get the state transitions in vector form, containing for each position the loop's log prob
    *
    * @param state
    * @return std::vector<float>&

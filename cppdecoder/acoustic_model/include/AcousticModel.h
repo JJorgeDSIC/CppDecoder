@@ -28,7 +28,7 @@ class AcousticModel {
    *
    * @return uint32_t The dimension.
    */
-  virtual uint32_t getDim() = 0;
+  virtual uint32_t getDim() const = 0;
 
   /**
    * @brief Set vectors's dimension.
@@ -42,7 +42,7 @@ class AcousticModel {
    *
    * @return uint32_t The number of states.
    */
-  virtual uint32_t getNStates() = 0;
+  virtual uint32_t getNStates() const = 0;
 
   /**
    * @brief Read a Diagonal Gaussian Acoustic model from text file.
@@ -82,7 +82,7 @@ class AcousticModel {
   virtual std::string &getStateTransType(const std::string &state) = 0;
 
   /**
-   * @brief TODO
+   * @brief Get the state transitions in vector form, containing for each position the loop's log prob
    *
    * @param state
    * @return std::vector<float>

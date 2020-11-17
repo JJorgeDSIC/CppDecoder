@@ -10,6 +10,7 @@
 #include <tuple>
 #include <unordered_map>
 #include <vector>
+#include <cassert>
 
 #include "DGaussianAcousticModel.h"
 
@@ -69,11 +70,11 @@ class MixtureAcousticModel : public AcousticModel {
  public:
   explicit MixtureAcousticModel(const std::string &filename);
 
-  uint32_t getDim() override { return dim; }
+  uint32_t getDim() const override { return dim; }
 
   void setDim(const uint32_t dim) override { this->dim = dim; }
 
-  uint32_t getNStates() override { return n_states; }
+  uint32_t getNStates() const override { return n_states; }
 
   int read_model(const std::string &filename) override;
 
