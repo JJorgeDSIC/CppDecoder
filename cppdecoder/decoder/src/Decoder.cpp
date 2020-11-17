@@ -52,7 +52,7 @@ float Decoder::decode(Sample sample) {
   setVLMBeam(HUGE_VAL);
   setVBeam(300);
 
-  for (size_t i = 0; i < sample.getNFrames() - 1; i++) {
+  for (uint32_t i = 0; i < sample.getNFrames() - 1; i++) {
     viterbiIter(sample, i, false);
   }
   viterbiIter(sample, sample.getNFrames() - 1, true);
@@ -70,7 +70,7 @@ void Decoder::expandSearchGraphNodes(
 
   assert(searchgraph_nodes.size() != 0);
 
-  for (size_t i = 0; i < searchgraph_nodes.size(); i++) {
+  for (uint32_t i = 0; i < searchgraph_nodes.size(); i++) {
     std::unique_ptr<SGNode>& node = searchgraph_nodes[i];
 
     if (final_iter && node->getStateId() == sgraph->getFinalState()) {
@@ -342,7 +342,7 @@ void Decoder::viterbiIter(const Sample& sample, const int t,
   // Iterate over nodes in hmm_nodes0 (this is a vector representation of a
   // heap, 0 is empty)
   // For each node
-  for (size_t i = this->getNumberActiveHMMNodes0(); i > 0; i--) {
+  for (uint32_t i = this->getNumberActiveHMMNodes0(); i > 0; i--) {
     std::unique_ptr<HMMNode>& node = nodes0[i];
     // Extra pruning according to the old_thr
     if (!final_iter && node->getLogProb() < old_thr) {
