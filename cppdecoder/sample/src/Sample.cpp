@@ -5,9 +5,9 @@
 
 #include "Sample.h"
 
-Sample::Sample(size_t dim, size_t num_frames) {
-  this->dim = dim;
-  this->num_frames = num_frames;
+Sample::Sample() : dim(0), num_frames(0) {}
+
+Sample::Sample(uint32_t d, uint32_t n) : dim(d), num_frames(n) {
   frames.reserve(num_frames);
 }
 
@@ -46,7 +46,7 @@ int Sample::write_sample(const std::string &filename) {
 
     for (auto &frame : frames) {
       std::vector<float> fram = frame.getFeatures();
-      for (size_t i = 0; i < fram.size() - 1; i++) {
+      for (uint32_t i = 0; i < fram.size() - 1; i++) {
         fileO << fram[i] << " ";
       }
 
@@ -67,13 +67,13 @@ int Sample::read_sample(const std::string &filename) {
   std::string line;
 
   if (fileI.is_open()) {
-    size_t dim, n_frames;
+    uint32_t dim, n_frames;
     getline(fileI, line);
 
     getline(fileI, line);
     std::stringstream ss(line);
 
-    size_t temp_n_frames;
+    uint32_t temp_n_frames;
 
     ss >> dim;
     ss >> temp_n_frames;
@@ -81,7 +81,7 @@ int Sample::read_sample(const std::string &filename) {
 
     frames.reserve(temp_n_frames);
 
-    for (size_t i = 0; i < temp_n_frames; i++) {
+    for (uint32_t i = 0; i < temp_n_frames; i++) {
       getline(fileI, line);
       values = read_vector<float>(line);
       addFrame(values);

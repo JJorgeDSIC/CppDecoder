@@ -1,71 +1,98 @@
-
-#include <DGaussianAcousticModel.h>
+#include <AcousticModel.h>
+#include <Decoder.h>
 #include <MixtureAcousticModel.h>
 #include <Sample.h>
 #include <SearchGraphLanguageModel.h>
-#include <TiedStatesAcousticModel.h>
 #include <Utils.h>
 
+#include <memory>
+
 int main() {
-  std::cout << "Testing SearchGraphLanguageModel..." << std::endl;
+  std::unique_ptr<SearchGraphLanguageModel> sgraph(
+      new SearchGraphLanguageModel());
+  sgraph->read_model("/home/jjorge/PyDecoder/models/2.gram.graph");
 
-  std::vector<float> pprobs = {0.2, 0.3, 0.1};
-  float max = 0.3;
-  float components = 3;
+  std::unique_ptr<AcousticModel> mixturemodel(new MixtureAcousticModel(
+      "/home/jjorge/PyDecoder/models/monophone_model_I32"));
 
-  std::cout << robust_add(pprobs, max, components) << std::endl;
+  std::cout << mixturemodel->getDim() << std::endl;
 
-  std::vector<float> frame = {
-      -0.392699, -2.06331,  0.0109949,  0.0630278, 0.713447,    -0.557419,
-      1.46355,   0.809983,  0.990555,   0.682074,  -1.62765,    0.60225,
-      0.493882,  1.55829,   -0.59736,   -1.34481,  -0.0268113,  -0.0561324,
-      0.536304,  1.16865,   0.753556,   -0.813899, -0.370601,   -0.346987,
-      -1.12761,  0.0755082, -1.127,     -1.23163,  0.717646,    -0.20932,
-      0.515273,  0.0881923, 0.00711961, 0.294303,  -0.00440401, -0.600391,
-      -0.627719, 0.292688,  0.360419,   -0.443323, -0.189734,   0.420539,
-      0.881978,  0.19503,   -0.93659,   -0.414377, 0.544633,    0.00430982};
+  Decoder decoder(std::move(sgraph), std::move(mixturemodel));
 
-  Frame feas(frame);
+  Sample sample;
 
-  feas.show_content();
+  WordHyp wordhyp(-1, "hello");
 
-  std::cout << "Testing SearchGraphLanguageModel..." << std::endl;
+  wordhyp.showWordHyp();
 
-  SearchGraphLanguageModel sgraph;
-  sgraph.read_model("bin/models/2.gram.graph");
-  sgraph.write_model("bin/models/2.gram.graph.again");
+  sample.read_sample("/home/jjorge/PyDecoder/samples/AAFA0016.features");
 
-  // All this will be moved to testing soon...
-  std::vector<float> mu = {2.0, 3.0, 5.0, 6.0};
-  std::vector<float> var = {0.5, 0.4, 0.6, 0.8};
+  std::cout << sample.getNFrames() << std::endl;
 
-  std::string lineMu = {"2.0, 3.0, 5.0, 6.0"};
-  std::string lineVar = {"0.5, 0.4, 0.6, 0.8"};
+  std::cout << decoder.decode(sample) << std::endl;
 
-  GaussianState gstate(4, lineMu, lineVar);
+  SearchGraphLanguageModel sgraph2;
+  sgraph2.read_model("/home/jjorge/PyDecoder/models/2.gram.graph");
 
-  DGaussianAcousticModel dgaussianmodel(
-      "bin/models/dgaussian_monopohoneme_I01.example.model");
-  dgaussianmodel.write_model(
-      "bin/models/dgaussian_monopohoneme_I01.example.again.model");
+  std::cout << sgraph2.getStartState() << std::endl;
 
-  float prob = dgaussianmodel.calc_logprob("aa", 0, frame);
+  //   std::unique_ptr<SGNode> sgnode(
+  //       new SGNode(sgraph2.getStartState(), 0.0, 0.0, 0.0, 0));
+  //   std::unique_ptr<SGNode> sgnode(
+  //       new SGNode(sgraph2.getStartState(), 0.0, 0.0, 0.0, 0));
 
-  std::cout << "Prob: " << prob << std::endl;
+  //   decoder.insert_search_graph_node(std::move(sgnode));
 
-    MixtureAcousticModel mixturemodel(
-        "bin/models/mixture_monophoneme_I32.example.model");
-    mixturemodel.write_model(
-        "bin/models/mixture_monophoneme_I32.example.again.model");
+  //   std::unique_ptr<SGNode> sgnode2(
+  //       new SGNode(sgraph2.getStartState(), 0.1, 0.0, 0.0, 0));
 
-    std::cout << "Log prob : " << mixturemodel.calc_logprob("a", 0, frame)
-              << std::endl;
+  //   decoder.insert_search_graph_node(std::move(sgnode2));
 
-    TiedStatesAcousticModel
-    tiedmodel("bin/models/tiedphoneme_I04.example.model");
-    tiedmodel.write_model("bin/models/tiedphoneme_I04.example.again.model");
+  // std::unique_ptr<SGNode> sgnodeIni(new SGNode(6408, 0.1, 0.0, 0.0, 0));
 
-    std::cout << "Log prob : " << tiedmodel.calc_logprob("aa_B+l_E", 0,
-    frame)
-              << std::endl;
+//   std::unique_ptr<SGNode> sgnodeIni(
+//       new SGNode(sgraph2.getStartState(), 0.0, 0.0, 0.0, 0));
+
+//   decoder.addNodeToSearchGraphNullNodes0(std::move(sgnodeIni));
+
+//   std::vector<std::unique_ptr<SGNode>>& search_graph_null_nodes0 =
+//       decoder.getSearchGraphNullNodes0();
+
+//   decoder.expand_search_graph_nodes(std::move(search_graph_null_nodes0));
+
+//   std::vector<std::unique_ptr<SGNode>>& search_graph_null_nodes1 =
+//       decoder.getSearchGraphNullNodes1();
+
+//   const std::vector<std::unique_ptr<SGNode>>& search_graph_nodes1 =
+//       decoder.getSearchGraphNodes1();
+
+//   std::cout << "Nodes in null_nodes_1 " << std::endl;
+//   decoder.printSGNodes(decoder.getSearchGraphNullNodes1());
+
+//   std::cout << "Nodes in nodes_1 " << std::endl;
+//   decoder.printSGNodes(decoder.getSearchGraphNodes1());
+//   std::cout << "========" << std::endl;
+
+//   decoder.expand_search_graph_nodes(
+//       std::move(decoder.getSearchGraphNullNodes1()));
+
+//   std::cout << "========" << std::endl;
+
+//   std::cout << "Nodes in null_nodes_1 " << std::endl;
+//   decoder.printSGNodes(decoder.getSearchGraphNullNodes1());
+
+//   std::cout << "Nodes in nodes_1 " << std::endl;
+//   decoder.printSGNodes(decoder.getSearchGraphNodes1());
+//   std::cout << "========" << std::endl;
+
+//   decoder.expand_search_graph_nodes(
+//       std::move(decoder.getSearchGraphNullNodes1()));
+ 
+//   std::cout << "Nodes in null_nodes_1 " << std::endl;
+//   decoder.printSGNodes(decoder.getSearchGraphNullNodes1());
+
+//   std::cout << "Nodes in nodes_1 " << std::endl;
+//   decoder.printSGNodes(decoder.getSearchGraphNodes1());
+
+//   std::cout << "========" << std::endl;
 }

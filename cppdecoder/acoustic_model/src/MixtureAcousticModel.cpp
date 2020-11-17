@@ -5,14 +5,31 @@
 
 #include "MixtureAcousticModel.h"
 
+TransValue::TransValue(const std::string &st, const float val)
+    : state(st), value(val) {}
+
+GaussianMixtureState::GaussianMixtureState() : components(0) {}
+
+GaussianMixtureState::GaussianMixtureState(uint32_t components, uint32_t dim) {
+  this->dim = dim;
+  this->components = components;
+  gstates.reserve(components);
+}
+
+void GaussianMixtureState::reserveComponents(const uint32_t comps) {
+  this->components = comps;
+  gstates.reserve(components);
+  pmembers.reserve(components);
+}
+
 void GaussianMixtureState::addPMembers(const std::string &line) {
   pmembers = read_vector<float>(line);
 }
 
-int GaussianMixtureState::addGaussianState(size_t dim,
+int GaussianMixtureState::addGaussianState(const uint32_t d,
                                            const std::string &mu_line,
                                            const std::string &var_line) {
-  if (this->dim != dim) return 1;
+  assert(dim == d);
 
   gstates.emplace_back(dim, mu_line, var_line);
   return 0;
@@ -27,8 +44,8 @@ float GaussianMixtureState::calc_logprob(const std::vector<float> &frame) {
   float max = -HUGE_VAL;
   float prob = 0.0, aux = 0.0;
   for (auto i = 0; i < components; i++) {
-    prob = this->getGaussianStateByComponent(i).calc_logprob(frame);
-
+    // prob = this->getGaussianStateByComponent(i).calc_logprob(frame);
+    prob = gstates[i].calc_logprob(frame);
     aux = pmembers[i] + prob;
 
     if (aux == -INFINITY) return -HUGE_VAL;
@@ -189,7 +206,7 @@ int MixtureAcousticModel::write_model(const std::string &filename) {
     fileO << "D " << dim << std::endl;
     fileO << "SMOOTH ";
 
-    for (size_t i = 0; i < smooth.size() - 1; i++) {
+    for (uint32_t i = 0; i < smooth.size() - 1; i++) {
       fileO << smooth[i] << " ";
     }
 
@@ -214,7 +231,7 @@ int MixtureAcousticModel::write_model(const std::string &filename) {
 
         std::vector<float> trans = state_to_trans[name];
 
-        for (size_t i = 0; i < trans.size() - 1; i++) {
+        for (uint32_t i = 0; i < trans.size() - 1; i++) {
           fileO << trans[i] << " ";
         }
 
@@ -253,7 +270,7 @@ int MixtureAcousticModel::write_model(const std::string &filename) {
         fileO << "PMembers ";
         std::vector<float> pmembers = dg_states.getPMembers();
 
-        for (size_t i = 0; i < pmembers.size() - 1; i++) {
+        for (uint32_t i = 0; i < pmembers.size() - 1; i++) {
           fileO << pmembers[i] << " ";
         }
 
@@ -261,13 +278,12 @@ int MixtureAcousticModel::write_model(const std::string &filename) {
 
         fileO << "Members" << std::endl;
         for (auto j = 0; j < dg_states.getComponents(); j++) {
-          GaussianState gs = dg_states.getGaussianStateByComponent(j);
-          std::vector<float> mu = gs.getMu();
-          std::vector<float> var = gs.getVar();
+          std::vector<float> mu = dg_states.getMuByComponent(j);
+          std::vector<float> var = dg_states.getVarByComponent(j);
 
           fileO << "MU ";
 
-          for (size_t i = 0; i < mu.size() - 1; i++) {
+          for (uint32_t i = 0; i < mu.size() - 1; i++) {
             fileO << mu[i] << " ";
           }
 
@@ -275,7 +291,7 @@ int MixtureAcousticModel::write_model(const std::string &filename) {
 
           fileO << "VAR ";
 
-          for (size_t i = 0; i < var.size() - 1; i++) {
+          for (uint32_t i = 0; i < var.size() - 1; i++) {
             fileO << var[i] << " ";
           }
 
@@ -294,11 +310,16 @@ int MixtureAcousticModel::write_model(const std::string &filename) {
   return 0;
 }
 
+std::string &MixtureAcousticModel::getStateTransType(const std::string &state) {
+  return state_to_type[state];
+}
+
 MixtureAcousticModel::MixtureAcousticModel(const std::string &filename)
     : AcousticModel() {
   MixtureAcousticModel::read_model(filename);
 }
 
+// TODO: Review the tipying...
 float MixtureAcousticModel::calc_logprob(const std::string &state, int q,
                                          const std::vector<float> &frame) {
   int n_q = state_to_num_q[state];
@@ -314,4 +335,10 @@ float MixtureAcousticModel::calc_logprob(const std::string &state, int q,
   if (frame.size() != dgstate.getDim()) return INFINITY;
 
   return dgstate.calc_logprob(frame);
+}
+
+std::vector<float> &MixtureAcousticModel::getStateTrans(
+    const std::string &state) {
+  // TODO: Check if transL or trans
+  return state_to_trans[state];
 }

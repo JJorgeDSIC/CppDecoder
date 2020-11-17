@@ -10,14 +10,34 @@
 #include <vector>
 
 class Frame {
-  std::vector<float> features;
-  size_t dim;
-
  public:
+ /**
+  * @brief Construct a new Frame object
+  * 
+  * @param[in] values Vector of float values for this frame
+  */
   explicit Frame(const std::vector<float>& values);
-  std::vector<float>& getFeatures() { return features; }
-  size_t getDim() { return dim; }
+  /**
+   * @brief Get the Features object
+   * 
+   * @return std::vector<float>& the vector representing the float values for this frame
+   */
+  std::vector<float> getFeatures() const { return features; }
+  /**
+   * @brief Get the dimension of this frame
+   * 
+   * @return uint32_t 
+   */
+  uint32_t getDim() const { return dim; }
+  /**
+   * @brief Shows the content of this frame using stdout
+   * 
+   */
   void show_content();
+
+ private:
+  std::vector<float> features;
+  uint32_t dim;
 };
 
 #endif  // FRAME_H_

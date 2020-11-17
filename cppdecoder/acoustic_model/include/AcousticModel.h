@@ -24,47 +24,70 @@ class AcousticModel {
   virtual ~AcousticModel() {}
 
   /**
-   * @brief Get vectors's dimension
+   * @brief Get vectors's dimension.
    *
-   * @return size_t
+   * @return uint32_t The dimension.
    */
-  virtual size_t getDim() = 0;
+  virtual uint32_t getDim() const = 0;
 
   /**
-   * @brief Get the number of states contained in this model
+   * @brief Set vectors's dimension.
    *
-   * @return size_t
+   * @param[in] d The new dimension.
    */
-  virtual size_t getNStates() = 0;
+  virtual void setDim(const uint32_t d) = 0;
 
   /**
-   * @brief Read a Diagonal Gaussian Acoustic model from text file
+   * @brief Get the number of states contained in this model.
    *
-   * @param filename File location
-   * @return int 0 if everything is OK, 1 if there was a problem
+   * @return uint32_t The number of states.
+   */
+  virtual uint32_t getNStates() const = 0;
+
+  /**
+   * @brief Read a Diagonal Gaussian Acoustic model from text file.
+   *
+   * @param[in] filename File location.
+   * @return int 0 if everything is OK, 1 if there was a problem.
    */
   virtual int read_model(const std::string &filename) = 0;
 
   /**
-   * @brief Write a Diagonal Gaussian Acoustic model to text file
+   * @brief Write a Diagonal Gaussian Acoustic model to text file.
    *
-   * @param filename File location
-   * @return int 0 if everything is OK, 1 if there was a problem
+   * @param[in] filename File location.
+   * @return int 0 if everything is OK, 1 if there was a problem.
    */
   virtual int write_model(const std::string &filename) = 0;
 
   /**
    * @brief Provides the log probability for a frame F, being in a state S and
-   * the state Q of the HMM
+   * the state Q of the HMM.
    *
-   * @param state Acoustic Model state
-   * @param q Hidden Markov Model state
-   * @param frame Frame to use to compute the log probability
+   * @param[in] state Acoustic Model state.
+   * @param[in] q Hidden Markov Model state.
+   * @param[in] frame Frame to use to compute the log probability.
    * @return float Log probability for a frame being in the state S and the HMM
-   * state Q
+   *               state Q.
    */
-  virtual float calc_logprob(const std::string &state, int q,
+  virtual float calc_logprob(const std::string &state, const int q,
                              const std::vector<float> &frame) = 0;
+
+  /**
+   * @brief Get the State Trans Type from symbol/state
+   *
+   * @param state
+   * @return std::string&
+   */
+  virtual std::string &getStateTransType(const std::string &state) = 0;
+
+  /**
+   * @brief Get the state transitions in vector form, containing for each position the loop's log prob
+   *
+   * @param state
+   * @return std::vector<float>
+   */
+  virtual std::vector<float> &getStateTrans(const std::string &state) = 0;
 };
 
 #endif  // ACOUSTICMODEL_H_
