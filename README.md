@@ -33,8 +33,12 @@ Version: 0.0.1 - Released: 26th August 2020
 <a name="how-to-build"></a>
 ## How to Build
 
-Coming soon...
-
+```bash
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE:STRING=Debug -G Ninja ..
+cmake --build . --config Debug --target all -- -j8
+```
 <a name="requirements"></a>
 ## Requirements
 
