@@ -5,15 +5,11 @@
 
 #include "Frame.h"
 
-Frame::Frame(const std::vector<float> &values) {
-  for (auto &value : values) {
-    features.push_back(value);
-  }
-  dim = features.size();
-}
+Frame::Frame(const std::vector<float> &values)
+    : features(values.begin(), values.end()), dim(values.size()) {}
 
 void Frame::show_content() {
-  for (auto &feature : features) {
+  for (const auto &feature : features) {
     std::cout << feature << " ";
   }
   std::cout << std::endl;

@@ -22,7 +22,7 @@ TEST(Utils, RobustAddTest) {
 
   float max = 1.00703;
 
-  size_t comps = 48;
+  uint32_t comps = 48;
 
   float resutlTrue = 3.8889095518008068;
 

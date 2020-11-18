@@ -36,9 +36,9 @@ std::vector<T> read_vector(const std::string &line) {
 }
 
 float robust_add(const std::vector<float> &pprobs, const float &max,
-                 const size_t &components);
+                 const uint32_t &components);
 
-size_t read_header_line(std::ifstream &fileI, std::string line, const char del);
+uint32_t read_header_line(std::ifstream &fileI, std::string line, const char del);
 
 std::vector<float> parse_line(const std::string &line);
 
