@@ -5,7 +5,7 @@ clone_depth: 1
 branches:
   only:
     - master
-    - dev
+    - develop
 
 cache:
   - c:\usr
